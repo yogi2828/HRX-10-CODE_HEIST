@@ -8,27 +8,63 @@ import 'package:gamifier/widgets/questions/scenario_question_widget.dart';
 
 class QuestionRenderer extends StatelessWidget {
   final Question question;
-  final Function(bool isCorrect, int xpAwarded, String? feedback) onSubmit;
+  final ValueChanged<String> onSubmit;
+  final bool isSubmitted;
+  final String? lastUserAnswer;
+  final bool? isLastAttemptCorrect;
+  final int? xpAwarded;
 
   const QuestionRenderer({
     super.key,
     required this.question,
     required this.onSubmit,
+    this.isSubmitted = false,
+    this.lastUserAnswer,
+    this.isLastAttemptCorrect,
+    this.xpAwarded,
   });
 
   @override
   Widget build(BuildContext context) {
     switch (question.type) {
-      case QuestionType.mcq:
-        return MCQQuestionWidget(question: question, onSubmit: onSubmit);
-      case QuestionType.fillInBlank:
-        return FillInBlankQuestionWidget(question: question, onSubmit: onSubmit);
-      case QuestionType.shortAnswer:
-        return ShortAnswerQuestionWidget(question: question, onSubmit: onSubmit);
-      case QuestionType.scenario:
-        return ScenarioQuestionWidget(question: question, onSubmit: onSubmit);
+      case 'MCQ':
+        return McqQuestionWidget(
+          question: question,
+          onSubmit: onSubmit,
+          isSubmitted: isSubmitted,
+          lastUserAnswer: lastUserAnswer,
+          isLastAttemptCorrect: isLastAttemptCorrect,
+          xpAwarded: xpAwarded,
+        );
+      case 'FillInBlank':
+        return FillInBlankQuestionWidget(
+          question: question,
+          onSubmit: onSubmit,
+          isSubmitted: isSubmitted,
+          lastUserAnswer: lastUserAnswer,
+          isLastAttemptCorrect: isLastAttemptCorrect,
+          xpAwarded: xpAwarded,
+        );
+      case 'ShortAnswer':
+        return ShortAnswerQuestionWidget(
+          question: question,
+          onSubmit: onSubmit,
+          isSubmitted: isSubmitted,
+          lastUserAnswer: lastUserAnswer,
+          isLastAttemptCorrect: isLastAttemptCorrect,
+          xpAwarded: xpAwarded,
+        );
+      case 'Scenario':
+        return ScenarioQuestionWidget(
+          question: question,
+          onSubmit: onSubmit,
+          isSubmitted: isSubmitted,
+          lastUserAnswer: lastUserAnswer,
+          isLastAttemptCorrect: isLastAttemptCorrect,
+          xpAwarded: xpAwarded,
+        );
       default:
-        return Text('Unsupported question type: ${question.type}');
+        return Center(child: Text('Unknown question type: ${question.type}'));
     }
   }
 }

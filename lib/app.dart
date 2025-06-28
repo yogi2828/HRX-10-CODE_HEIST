@@ -3,75 +3,79 @@ import 'package:flutter/material.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/utils/app_router.dart';
-import 'package:gamifier/services/firebase_service.dart';
 import 'package:provider/provider.dart';
+import 'package:gamifier/services/audio_service.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+  State<App> createState() => _AppState();
+}
 
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AudioService>(context, listen: false).loadAudioAssets();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp(
-      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
+      title: AppConstants.appName,
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: AppColors.primaryColor,
         hintColor: AppColors.accentColor,
         scaffoldBackgroundColor: Colors.transparent,
+        cardColor: AppColors.cardColor,
         fontFamily: AppConstants.defaultFontFamily,
         textTheme: const TextTheme(
-          displayLarge: TextStyle(fontSize: 57, color: AppColors.textColor),
-          displayMedium: TextStyle(fontSize: 45, color: AppColors.textColor),
-          displaySmall: TextStyle(fontSize: 36, color: AppColors.textColor),
-          headlineLarge: TextStyle(fontSize: 32, color: AppColors.textColor),
-          headlineMedium: TextStyle(fontSize: 28, color: AppColors.textColor),
-          headlineSmall: TextStyle(fontSize: 24, color: AppColors.textColor),
-          titleLarge: TextStyle(fontSize: 22, color: AppColors.textColor),
-          titleMedium: TextStyle(fontSize: 16, color: AppColors.textColor),
-          titleSmall: TextStyle(fontSize: 14, color: AppColors.textColor),
-          bodyLarge: TextStyle(fontSize: 16, color: AppColors.textColor),
-          bodyMedium: TextStyle(fontSize: 14, color: AppColors.textColor),
-          bodySmall: TextStyle(fontSize: 12, color: AppColors.textColor),
-          labelLarge: TextStyle(fontSize: 14, color: AppColors.textColor),
-          labelMedium: TextStyle(fontSize: 12, color: AppColors.textColor),
-          labelSmall: TextStyle(fontSize: 11, color: AppColors.textColor),
-        ),
-        cardTheme: CardTheme(
-          color: AppColors.cardColor.withOpacity(0.9),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          ),
-          elevation: 8,
-          margin: EdgeInsets.zero,
+          displayLarge: TextStyle(color: AppColors.textColor),
+          displayMedium: TextStyle(color: AppColors.textColor),
+          displaySmall: TextStyle(color: AppColors.textColor),
+          headlineLarge: TextStyle(color: AppColors.textColor),
+          headlineMedium: TextStyle(color: AppColors.textColor),
+          headlineSmall: TextStyle(color: AppColors.textColor),
+          titleLarge: TextStyle(color: AppColors.textColor),
+          titleMedium: TextStyle(color: AppColors.textColor),
+          titleSmall: TextStyle(color: AppColors.textColor),
+          bodyLarge: TextStyle(color: AppColors.textColor),
+          bodyMedium: TextStyle(color: AppColors.textColor),
+          bodySmall: TextStyle(color: AppColors.textColor),
+          labelLarge: TextStyle(color: AppColors.textColor),
+          labelMedium: TextStyle(color: AppColors.textColor),
+          labelSmall: TextStyle(color: AppColors.textColor),
         ),
         inputDecorationTheme: InputDecorationTheme(
-          labelStyle: const TextStyle(color: AppColors.textColorSecondary),
-          hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7)),
-          fillColor: AppColors.cardColor.withOpacity(0.8),
           filled: true,
+          fillColor: AppColors.cardColor.withOpacity(0.7),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            borderSide: const BorderSide(color: AppColors.accentColor, width: 2),
+            borderSide: const BorderSide(color: AppColors.accentColor, width: 2.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            borderSide: const BorderSide(color: AppColors.borderColor, width: 1),
+            borderSide: const BorderSide(color: AppColors.borderColor, width: 1.0),
           ),
-          errorBorder: OutlineInputBorder(
+          labelStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.8)),
+          hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.5)),
+          prefixIconColor: AppColors.textColorSecondary,
+        ),
+        buttonTheme: ButtonThemeData(
+          buttonColor: AppColors.primaryColor,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            borderSide: const BorderSide(color: AppColors.errorColor, width: 1),
           ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            borderSide: const BorderSide(color: AppColors.errorColor, width: 2),
-          ),
+          textTheme: ButtonTextTheme.primary,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -80,25 +84,29 @@ class App extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing * 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: AppColors.accentColor,
-            textStyle: const TextStyle(fontSize: 16),
+            textStyle: const TextStyle(fontSize: 14),
           ),
         ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.accentColor,
-            side: const BorderSide(color: AppColors.accentColor),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing * 1.5),
-            textStyle: const TextStyle(fontSize: 16),
+        cardTheme: CardTheme(
+          color: AppColors.cardColor,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          ),
+        ),
+        tabBarTheme: TabBarTheme(
+          labelColor: AppColors.accentColor,
+          unselectedLabelColor: AppColors.textColorSecondary,
+          indicator: UnderlineTabIndicator(
+            borderSide: const BorderSide(color: AppColors.accentColor, width: 3.0),
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
           ),
         ),
         dialogTheme: DialogTheme(
@@ -108,14 +116,6 @@ class App extends StatelessWidget {
           ),
           titleTextStyle: const TextStyle(color: AppColors.textColor, fontSize: 20, fontWeight: FontWeight.bold),
           contentTextStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: 16),
-        ),
-        snackBarTheme: SnackBarThemeData(
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-          ),
-          backgroundColor: AppColors.primaryColor,
-          contentTextStyle: const TextStyle(color: AppColors.textColor),
         ),
       ),
       onGenerateRoute: AppRouter.generateRoute,

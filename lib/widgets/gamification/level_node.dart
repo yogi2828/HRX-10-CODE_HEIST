@@ -6,100 +6,101 @@ import 'package:gamifier/models/level.dart';
 
 class LevelNode extends StatelessWidget {
   final Level level;
-  final bool isLocked;
   final bool isCompleted;
+  final bool isLocked;
   final VoidCallback onTap;
 
   const LevelNode({
     super.key,
     required this.level,
-    required this.isLocked,
     required this.isCompleted,
+    required this.isLocked,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    Color nodeColor = AppColors.primaryColor;
-    Color iconColor = AppColors.textColor;
-    Color textColor = AppColors.textColor;
-    IconData icon = Icons.lock; // Default for locked
+    Color nodeColor = AppColors.cardColor;
+    Color iconColor = AppColors.textColorSecondary;
+    Color borderColor = AppColors.borderColor;
+    IconData icon = Icons.lock;
 
-    if (!isLocked) {
-      if (isCompleted) {
-        nodeColor = AppColors.successColor;
-        iconColor = AppColors.cardColor;
-        textColor = AppColors.cardColor;
-        icon = Icons.check_circle;
-      } else {
-        nodeColor = AppColors.accentColor;
-        iconColor = AppColors.cardColor;
-        textColor = AppColors.cardColor;
-        icon = Icons.play_arrow;
-      }
+    if (isCompleted) {
+      nodeColor = AppColors.successColor.withOpacity(0.3);
+      iconColor = AppColors.successColor;
+      borderColor = AppColors.successColor;
+      icon = Icons.check_circle_outline;
+    } else if (!isLocked) {
+      nodeColor = AppColors.accentColor.withOpacity(0.3);
+      iconColor = AppColors.accentColor;
+      borderColor = AppColors.accentColor;
+      icon = Icons.play_circle_outline;
     }
 
     return GestureDetector(
       onTap: isLocked ? null : onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: nodeColor,
-              border: Border.all(
-                color: isLocked ? AppColors.borderColor : AppColors.accentColor,
-                width: 3.0,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: nodeColor.withOpacity(0.6),
-                  blurRadius: isLocked ? 5 : 15,
-                  spreadRadius: isLocked ? 0 : 5,
-                ),
-              ],
+      child: AnimatedContainer(
+        duration: AppConstants.defaultAnimationDuration,
+        curve: Curves.easeInOut,
+        width: 120, // Fixed width for circular node
+        height: 120, // Fixed height for circular node
+        decoration: BoxDecoration(
+          color: nodeColor,
+          shape: BoxShape.circle, // Make it circular
+          border: Border.all(color: borderColor, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: borderColor.withOpacity(0.3),
+              blurRadius: 10,
+              spreadRadius: isCompleted ? 3 : 1,
             ),
-            child: level.imageAssetPath != null && level.imageAssetPath!.isNotEmpty
-                ? ClipOval(
-                    child: Image.asset(
-                      level.imageAssetPath!,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(icon, color: iconColor, size: 40);
-                      },
-                    ),
-                  )
-                : Icon(
-                    icon,
-                    color: iconColor,
-                    size: 40,
-                  ),
-          ),
-          const SizedBox(height: AppConstants.spacing),
-          Text(
-            'Level ${level.order}',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: iconColor,
+              size: 40, // Adjusted icon size for circular node
+            ),
+            const SizedBox(height: AppConstants.spacing / 2),
+            Text(
+              'Level ${level.order}',
+              style: TextStyle(
+                color: iconColor,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacing),
+              child: Text(
+                level.title,
+                textAlign: TextAlign.center,
+                maxLines: 2, // Limiting to 2 lines
+                overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                style: const TextStyle(
                   color: AppColors.textColorSecondary,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10, // Adjusted font size
                 ),
-          ),
-          Text(
-            level.title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (isLocked)
+              const Padding(
+                padding: EdgeInsets.only(top: AppConstants.spacing / 2),
+                child: Text(
+                  'Locked',
+                  style: TextStyle(
+                    color: AppColors.errorColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+              ),
+          ],
+        ),
       ),
     );
   }
 }
-

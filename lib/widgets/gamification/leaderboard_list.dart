@@ -5,148 +5,94 @@ import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/user_profile.dart';
 import 'package:gamifier/services/firebase_service.dart';
-import 'package:gamifier/widgets/common/loading_indicator.dart';
 
-class LeaderboardList extends StatefulWidget {
+class LeaderboardList extends StatelessWidget {
   const LeaderboardList({super.key});
 
   @override
-  State<LeaderboardList> createState() => _LeaderboardListState();
-}
-
-class _LeaderboardListState extends State<LeaderboardList> {
-  List<UserProfile> _leaderboardUsers = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchLeaderboard();
-  }
-
-  Future<void> _fetchLeaderboard() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-      _leaderboardUsers = await firebaseService.getLeaderboard();
-    } catch (e) {
-      print('Error fetching leaderboard: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load leaderboard: $e', style: const TextStyle(color: AppColors.errorColor))),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const LoadingIndicator();
-    }
-    if (_leaderboardUsers.isEmpty) {
-      return Center(
-        child: Text(
-          'No leaderboard data yet. Start earning XP!',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-        ),
-      );
-    }
+    return StreamBuilder<List<UserProfile>>(
+      stream: Provider.of<FirebaseService>(context).streamLeaderboard(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.accentColor));
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error loading leaderboard: ${snapshot.error}', style: const TextStyle(color: AppColors.errorColor)));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+            child: Text(
+              'No users on the leaderboard yet. Be the first!',
+              style: TextStyle(color: AppColors.textColorSecondary),
+            ),
+          );
+        }
 
-    return Card(
-      color: AppColors.secondaryColor.withOpacity(0.5),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        side: const BorderSide(color: AppColors.borderColor),
-      ),
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.padding),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Text('Rank', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.textColorSecondary))),
-                Expanded(
-                    flex: 4,
-                    child: Text('Player', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.textColorSecondary))),
-                Expanded(
-                    flex: 2,
-                    child: Text('Level', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.textColorSecondary), textAlign: TextAlign.right)),
-                Expanded(
-                    flex: 2,
-                    child: Text('XP', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.textColorSecondary), textAlign: TextAlign.right)),
-              ],
-            ),
-            const Divider(color: AppColors.borderColor),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _leaderboardUsers.length,
-              itemBuilder: (context, index) {
-                final user = _leaderboardUsers[index];
-                final rank = index + 1;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          '$rank',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textColor,
-                            fontWeight: FontWeight.bold,
+        final users = snapshot.data!;
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: users.length,
+          itemBuilder: (context, index) {
+            final user = users[index];
+            return Card(
+              color: AppColors.cardColor.withOpacity(0.8),
+              margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppConstants.padding),
+                child: Row(
+                  children: [
+                    Text(
+                      '${index + 1}.',
+                      style: AppColors.neonTextStyle(fontSize: 20, color: AppColors.xpColor),
+                    ),
+                    const SizedBox(width: AppConstants.spacing),
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: AssetImage(user.avatarAssetPath),
+                      backgroundColor: AppColors.borderColor,
+                    ),
+                    const SizedBox(width: AppConstants.spacing),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.username,
+                            style: const TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold, fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
+                          Text(
+                            'Level: ${user.level}',
+                            style: const TextStyle(color: AppColors.textColorSecondary, fontSize: 13),
+                          ),
+                        ],
                       ),
-                      Expanded(
-                        flex: 4,
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: AssetImage(user.avatarAssetPath),
-                              radius: 16,
-                            ),
-                            const SizedBox(width: AppConstants.spacing),
-                            Text(
-                              user.username,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColor),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${user.xp} XP',
+                          style: const TextStyle(color: AppColors.xpColor, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          '${user.level}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.levelColor),
-                          textAlign: TextAlign.right,
+                        Text(
+                          '${user.currentStreak} 🔥',
+                          style: const TextStyle(color: AppColors.streakColor, fontSize: 13),
                         ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          '${user.xp}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.xpColor),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

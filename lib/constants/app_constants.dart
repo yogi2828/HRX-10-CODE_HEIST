@@ -1,51 +1,50 @@
 // lib/constants/app_constants.dart
+import 'package:flutter/material.dart';
 import 'package:gamifier/models/avatar_asset.dart';
 
 class AppConstants {
-  static const String geminiApiKey = '';
+  static const String appName = 'Gamifier';
 
+  // API Keys
+  static const String geminiApiKey = 'AIzaSyDZ6yDuQgQWxzc5Qq24Dpf_BkvcOjx_SP8'; // Replace with your actual Gemini API Key
+  static const String appTagline = 'Learn. Play. Conquer.';
+  // Firestore Collection Names
   static const String usersCollection = 'users';
   static const String coursesCollection = 'courses';
-  static const String lessonsCollection = 'lessons';
-  static const String userProgressCollection = 'user_progress';
-  static const String badgesCollection = 'badges';
-  static const String leaderboardsCollection = 'leaderboard';
   static const String levelsCollection = 'levels';
-  static const String communityPostsCollection = 'community_posts';
+  static const String lessonsCollection = 'lessons'; // Subcollection under levels
+  static const String questionsCollection = 'questions'; // Subcollection under lessons
+  static const String userProgressCollection = 'userProgress';
+  static const String badgesCollection = 'badges';
+  static const String communityPostsCollection = 'communityPosts';
+  static const String chatMessagesCollection = 'chatMessages';
 
-  static const int maxUsernameLength = 20;
-  static const int minPasswordLength = 6;
-  static const int initialXp = 0;
-  static const int xpPerLevel = 100;
-  static const int xpPerCorrectAnswer = 10;
-  static const int leaderboardLimit = 10;
-
-  static const int initialStreak = 0;
-  static const int streakBonusXp = 5;
-  static const int levelXpDeductionOnReattempt = 20;
-
-  static const Duration defaultAnimationDuration = Duration(milliseconds: 300);
-  static const Duration longAnimationDuration = Duration(milliseconds: 600);
-  static const Duration shimmerAnimationDuration = Duration(milliseconds: 1500);
-
-  static const double borderRadius = 16.0;
+  // App theming and UI
   static const double padding = 16.0;
   static const double spacing = 8.0;
+  static const double borderRadius = 12.0;
   static const double iconSize = 24.0;
-  static const double avatarSize = 64.0;
-  static const double badgeSize = 48.0;
+  static const double avatarSize = 60.0;
+  static const double badgeSize = 80.0;
+  static const Duration defaultAnimationDuration = Duration(milliseconds: 300);
 
-  static const double largeTextSize = 22.0;
-  static const double mediumTextSize = 16.0;
-  static const double smallTextSize = 14.0;
-  static const double extraSmallTextSize = 12.0;
+  // Gamification Constants
+  static const int initialXp = 0;
+  static const int xpPerLevel = 100;
+  static const int leaderboardLimit = 10;
+  static const int minStreakDaysForBonus = 3;
+  static const int streakBonusXp = 20;
 
-  static const String appName = 'Gamifier';
-  static const String appTagline = 'Learn. Play. Conquer.';
-  static const String defaultFontFamily = 'Inter';
+  // Course Generation Constants
+  static const int initialLevelsCount = 5; // Generate first 5 levels
+  static const int subsequentLevelsBatchSize = 5; // Generate 5 more levels at a time
+  static const int maxLevelsPerCourse = 15; // Max total levels
+
+  // Default Content for Placeholders/Initial Data
+  static String defaultFontFamily = 'Inter';
 
   static const double geminiTemperature = 0.7;
-  static const int geminiMaxOutputTokens = 2000;
+  static const int geminiMaxOutputTokens = 4096;
 
   static const List<AvatarAsset> defaultAvatarAssets = [
     AvatarAsset(id: 'avatar1', name: 'Adventurer', assetPath: 'assets/avatars/avatar1.png'),
@@ -54,9 +53,8 @@ class AppConstants {
     AvatarAsset(id: 'avatar4', name: 'Knight', assetPath: 'assets/avatars/avatar4.png'),
   ];
 
-  static const String correctSoundPath = 'assets/audios/correct.mp3';
-  static const String levelUpSoundPath = 'assets/audios/level_up.mp3';
-  static const String incorrectSoundPath = 'assets/audios/incorrect.mp3';
+  static const String correctSoundPath = 'audios/correct.mp3';
+  static const String levelUpSoundPath = 'audios/level_up.mp3';
 
   static const List<String> gameThemes = [
     'Fantasy',
@@ -84,15 +82,26 @@ class AppConstants {
     'Associate Degree',
     'Bachelor\'s Degree',
     'Master\'s Degree',
-    'PhD',
-    'Other',
+    'Doctorate',
+    'Self-Taught',
   ];
 
   static const List<String> defaultCourseTopics = [
-    'Introduction to Python',
-    'Fundamentals of Web Development',
-    'Basic Algebra',
-    'History of Ancient Civilizations',
-    'Understanding Climate Change',
+    'Artificial Intelligence',
+    'Machine Learning',
+    'Web Development (Frontend)',
+    'Web Development (Backend)',
+    'Mobile App Development (Flutter)',
+    'Data Science',
+    'Cybersecurity',
+    'Cloud Computing',
+    'Game Development',
+    'Database Management',
+    'Network Engineering',
+    'DevOps',
+    'UI/UX Design',
+    'Digital Marketing',
+    'Business Analytics',
+    'Project Management',
   ];
 }

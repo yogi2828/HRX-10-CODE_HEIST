@@ -1,116 +1,162 @@
 // lib/screens/level_completion_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
-import 'package:gamifier/widgets/common/custom_app_bar.dart';
-import 'package:lottie/lottie.dart';
-import 'package:gamifier/utils/app_router.dart'; // New import
+import 'package:gamifier/services/firebase_service.dart';
+import 'package:gamifier/services/audio_service.dart';
+import 'package:gamifier/utils/app_router.dart';
+import 'package:gamifier/widgets/common/custom_button.dart';
+import 'package:gamifier/widgets/common/xp_level_display.dart';
 
-class LevelCompletionScreen extends StatelessWidget {
-  final String levelTitle;
+class LevelCompletionScreen extends StatefulWidget {
+  final String courseId;
+  final String levelId;
   final int xpEarned;
-  final int newLevel;
+  final bool isCourseCompleted;
 
   const LevelCompletionScreen({
     super.key,
-    required this.levelTitle,
+    required this.courseId,
+    required this.levelId,
     required this.xpEarned,
-    required this.newLevel,
+    this.isCourseCompleted = false,
   });
 
   @override
+  State<LevelCompletionScreen> createState() => _LevelCompletionScreenState();
+}
+
+class _LevelCompletionScreenState extends State<LevelCompletionScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+  late AudioService _audioService;
+  int _currentXp = 0;
+  int _currentLevel = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioService = Provider.of<AudioService>(context, listen: false);
+    _audioService.playLevelUpSound();
+    _loadUserProfile();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    _controller.forward();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+    final user = firebaseService.currentUser;
+    if (user != null) {
+      firebaseService.streamUserProfile(user.uid).listen((profile) {
+        if (mounted && profile != null) {
+          setState(() {
+            _currentXp = profile.xp;
+            _currentLevel = profile.level;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-      child: Scaffold(
-        backgroundColor: AppColors.transparent,
-        appBar: const CustomAppBar(title: 'Level Up!'),
-        body: Center(
-          child: SingleChildScrollView(
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
+        ),
+        child: Center(
+          child: Padding(
             padding: const EdgeInsets.all(AppConstants.padding * 2),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Lottie.asset(
-                  'assets/animations/levelup.json', // Placeholder for a level-up animation
-                  width: 200,
-                  height: 200,
-                  repeat: false,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.star,
-                    size: 150,
-                    color: AppColors.levelColor,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Card(
+                  color: AppColors.cardColor.withOpacity(0.9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2),
+                    side: const BorderSide(color: AppColors.accentColor, width: 2),
                   ),
-                ),
-                const SizedBox(height: AppConstants.padding * 2),
-                Text(
-                  'Level Complete!',
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: AppColors.levelColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppConstants.spacing),
-                Text(
-                  'You\'ve mastered "$levelTitle" and reached:',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.textColorSecondary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppConstants.spacing),
-                Text(
-                  'Level $newLevel!',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppColors.textColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppConstants.padding * 2),
-                Card(
-                  color: AppColors.cardColor,
-                  margin: EdgeInsets.zero,
+                  elevation: 10,
                   child: Padding(
-                    padding: const EdgeInsets.all(AppConstants.padding * 1.5),
+                    padding: const EdgeInsets.all(AppConstants.padding * 2),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.star, color: AppColors.xpColor, size: AppConstants.iconSize * 1.5),
-                            const SizedBox(width: AppConstants.spacing),
-                            Text(
-                              'XP Earned: $xpEarned',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: AppColors.xpColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        const Icon(
+                          Icons.check_circle_outline,
+                          color: AppColors.successColor,
+                          size: 80,
+                        ),
+                        const SizedBox(height: AppConstants.spacing * 2),
+                        Text(
+                          widget.isCourseCompleted ? 'Course Completed!' : 'Level Completed!',
+                          style: AppColors.neonTextStyle(fontSize: 28, color: AppColors.accentColor),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: AppConstants.spacing),
+                        Text(
+                          'You earned ${widget.xpEarned} XP!',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.xpColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: AppConstants.spacing * 2),
+                        XpLevelDisplay(xp: _currentXp, level: _currentLevel),
+                        const SizedBox(height: AppConstants.spacing * 4),
+                        CustomButton(
+                          onPressed: () {
+                            Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.levelSelectionRoute);
+                            Navigator.of(context).pushReplacementNamed(
+                              AppRouter.levelSelectionRoute,
+                              arguments: {
+                                'courseId': widget.courseId,
+                                'courseTitle': '', // Title is not strictly needed for this navigation, but required by route args.
+                              },
+                            );
+                          },
+                          text: widget.isCourseCompleted ? 'Back to Courses' : 'Continue Learning',
+                          icon: widget.isCourseCompleted ? Icons.home : Icons.play_arrow,
+                        ),
+                        const SizedBox(height: AppConstants.spacing),
+                        CustomButton(
+                          onPressed: () {
+                            Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.homeRoute);
+                            Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
+                          },
+                          text: 'Go to Home',
+                          icon: Icons.home,
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: AppConstants.padding * 2),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Pop this screen and potentially others until back to level selection or home
-                    Navigator.of(context).pushNamedAndRemoveUntil(AppRouter.homeRoute, (route) => false);
-                  },
-                  icon: const Icon(Icons.arrow_back),
-                  label: const Text('Continue Learning'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-                    textStyle: const TextStyle(fontSize: AppConstants.largeTextSize),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

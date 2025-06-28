@@ -1,164 +1,114 @@
 // lib/widgets/gamification/badge_display.dart
-import 'package:flutter/material.dart' hide Badge; // Hide Flutter's Badge
+import 'package:flutter/material.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
-import 'package:gamifier/models/badge.dart'; // Our custom Badge model
-import 'package:gamifier/services/firebase_service.dart';
-import 'package:provider/provider.dart';
+import 'package:gamifier/models/badge.dart' as GamifierBadge; // Alias your custom Badge model
 
-class BadgeDisplay extends StatefulWidget {
-  final List<String> earnedBadgeIds;
+class BadgeDisplay extends StatelessWidget {
+  final List<String> badgeIds; // Only display based on IDs for now
 
-  const BadgeDisplay({super.key, required this.earnedBadgeIds});
+  // Placeholder for actual badge data - in a real app, this would come from a service
+  static final Map<String, GamifierBadge.Badge> _allBadges = { // Changed to final and use aliased name
+    'first_course': const GamifierBadge.Badge( // Use const and aliased name
+      id: 'first_course',
+      name: 'First Course Conqueror',
+      description: 'Completed your first course!',
+      icon: Icons.star,
+    ),
+    'streak_master': const GamifierBadge.Badge( // Use const and aliased name
+      id: 'streak_master',
+      name: 'Streak Master',
+      description: 'Maintained a 7-day learning streak!',
+      icon: Icons.local_fire_department,
+    ),
+    'level_10': const GamifierBadge.Badge( // Use const and aliased name
+      id: 'level_10',
+      name: 'Level 10 Achiever',
+      description: 'Reached level 10!',
+      icon: Icons.trending_up,
+    ),
+    'community_contributor': const GamifierBadge.Badge( // Use const and aliased name
+      id: 'community_contributor',
+      name: 'Community Contributor',
+      description: 'Made 5 community posts!',
+      icon: Icons.people,
+    ),
+    'first_question_correct': const GamifierBadge.Badge( // Use const and aliased name
+      id: 'first_question_correct',
+      name: 'First Blood',
+      description: 'Answered your first question correctly!',
+      icon: Icons.check_circle,
+    ),
+  };
 
-  @override
-  State<BadgeDisplay> createState() => _BadgeDisplayState();
-}
-
-class _BadgeDisplayState extends State<BadgeDisplay> {
-  List<Badge> _allBadges = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchAllBadges();
-  }
-
-  Future<void> _fetchAllBadges() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-      _allBadges = await firebaseService.getAllBadges();
-    } catch (e) {
-      print('Error fetching badges: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load badges: $e', style: const TextStyle(color: AppColors.errorColor))),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+  const BadgeDisplay({
+    super.key,
+    required this.badgeIds,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.accentColor));
-    }
-    if (_allBadges.isEmpty) {
-      return Center(
-        child: Text(
-          'No badges defined yet.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-        ),
-      );
+    if (badgeIds.isEmpty) {
+      return const SizedBox.shrink();
     }
 
-    final earnedBadges = _allBadges.where((badge) => widget.earnedBadgeIds.contains(badge.id)).toList();
-    final unearnedBadges = _allBadges.where((badge) => !widget.earnedBadgeIds.contains(badge.id)).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (earnedBadges.isNotEmpty) ...[
-          Text(
-            'Your Collection:',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppColors.textColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: AppConstants.spacing),
-          Wrap(
-            spacing: AppConstants.spacing,
-            runSpacing: AppConstants.spacing,
-            children: earnedBadges.map((badge) => _buildBadgeItem(badge, true)).toList(),
-          ),
-          const SizedBox(height: AppConstants.padding),
-        ],
-        if (unearnedBadges.isNotEmpty) ...[
-          Text(
-            'Unlock More Badges:',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppColors.textColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: AppConstants.spacing),
-          Wrap(
-            spacing: AppConstants.spacing,
-            runSpacing: AppConstants.spacing,
-            children: unearnedBadges.map((badge) => _buildBadgeItem(badge, false)).toList(),
-          ),
-        ],
-        if (earnedBadges.isEmpty && unearnedBadges.isEmpty)
-          Center(
-            child: Text(
-              'No badges available yet. Keep learning!',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildBadgeItem(Badge badge, bool isEarned) {
-    return Tooltip(
-      message: '${badge.name}: ${badge.description}',
-      child: Opacity(
-        opacity: isEarned ? 1.0 : 0.5,
-        child: Container(
-          width: AppConstants.badgeSize * 1.5,
-          height: AppConstants.badgeSize * 1.5,
-          decoration: BoxDecoration(
-            color: AppColors.secondaryColor.withOpacity(isEarned ? 0.8 : 0.3),
-            borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
-            border: Border.all(
-              color: isEarned ? AppColors.levelColor : AppColors.borderColor,
-              width: 2,
-            ),
-            boxShadow: isEarned
-                ? [
-                    BoxShadow(
-                      color: AppColors.levelColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.network(
-                badge.imageUrl,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
+      child: Row(
+        children: badgeIds.map((id) {
+          final badge = _allBadges[id];
+          if (badge == null) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacing / 2),
+            child: Tooltip(
+              message: '${badge.name}: ${badge.description}',
+              child: Container(
                 width: AppConstants.badgeSize,
                 height: AppConstants.badgeSize,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.military_tech,
-                  size: AppConstants.badgeSize,
-                  color: AppColors.textColorSecondary.withOpacity(0.5),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primaryColorDark, AppColors.secondaryColor],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.secondaryColor.withOpacity(0.3),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      badge.icon,
+                      color: AppColors.xpColor,
+                      size: AppConstants.iconSize * 1.5,
+                    ),
+                    const SizedBox(height: AppConstants.spacing / 2),
+                    Text(
+                      badge.name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.textColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: AppConstants.spacing / 2),
-              Text(
-                badge.name,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: isEarned ? AppColors.textColor : AppColors.textColorSecondary,
-                  fontWeight: isEarned ? FontWeight.bold : FontWeight.normal,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

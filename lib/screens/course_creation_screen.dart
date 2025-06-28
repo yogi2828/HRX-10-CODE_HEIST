@@ -1,22 +1,20 @@
 // lib/screens/course_creation_screen.dart
 import 'package:flutter/material.dart';
+import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/course.dart';
-import 'package:gamifier/models/level.dart'; // New: For adding levels
-import 'package:gamifier/models/lesson.dart'; // New: For adding lessons
+import 'package:gamifier/models/level.dart';
+import 'package:gamifier/models/lesson.dart';
+import 'package:gamifier/models/question.dart';
 import 'package:gamifier/services/firebase_service.dart';
 import 'package:gamifier/services/gemini_api_service.dart';
+import 'package:gamifier/utils/app_router.dart';
 import 'package:gamifier/widgets/common/custom_app_bar.dart';
-import 'package:gamifier/widgets/common/loading_indicator.dart';
-import 'package:uuid/uuid.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as html_parser;
-import 'package:html/dom.dart' as dom;
-import 'package:path/path.dart' as p;
+import 'package:gamifier/widgets/common/custom_button.dart';
+import 'package:gamifier/widgets/course/course_form.dart';
+import 'package:gamifier/utils/file_picker_util.dart';
 
 class CourseCreationScreen extends StatefulWidget {
   const CourseCreationScreen({super.key});
@@ -26,470 +24,219 @@ class CourseCreationScreen extends StatefulWidget {
 }
 
 class _CourseCreationScreenState extends State<CourseCreationScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _urlController = TextEditingController();
-  String? _selectedDifficulty;
-  String? _selectedGameGenre;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String _topicName = '';
+  String _domain = '';
+  String _difficulty = AppConstants.difficultyLevels[0];
+  String _educationLevel = AppConstants.educationLevels[0];
+  String _gameGenre = AppConstants.gameThemes[0];
+  String _sourceContent = '';
+  String _youtubeUrl = '';
   bool _isLoading = false;
-  String _aiGeneratedContent = '';
-  List<Map<String, dynamic>> _parsedCourseContent = []; // Changed to list of maps
+  String? _errorMessage;
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedDifficulty = AppConstants.difficultyLevels.first;
-    _selectedGameGenre = AppConstants.gameThemes.first;
+  Future<void> _pickFile() async {
+    final content = await FilePickerUtil.pickTextFile();
+    if (content != null) {
+      setState(() {
+        _sourceContent = content;
+      });
+    }
   }
 
   Future<void> _createCourse() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    _formKey.currentState!.save();
+
+    if (_sourceContent.isEmpty && _youtubeUrl.isEmpty && _topicName.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please provide a Topic Name or Source Content/YouTube URL.';
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
 
     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+    final geminiService = Provider.of<GeminiApiService>(context, listen: false);
     final currentUser = firebaseService.currentUser;
 
     if (currentUser == null) {
-      _showErrorSnackbar('User not authenticated.');
       setState(() {
+        _errorMessage = 'You must be logged in to create a course.';
         _isLoading = false;
       });
       return;
     }
 
     try {
-      final courseId = const Uuid().v4();
-      final newCourse = Course(
-        id: courseId,
+      final String newCourseId = firebaseService.generateNewDocId();
+
+      final Map<String, dynamic> generatedData = await geminiService.generateCourseContent(
+        topicName: _topicName.isNotEmpty ? _topicName : 'Dynamic Course',
+        ageGroup: 'college student',
+        domain: _domain.isNotEmpty ? _domain : 'General Education',
+        difficulty: _difficulty,
+        educationLevel: _educationLevel,
+        specialty: _domain,
+        sourceContent: _sourceContent.isNotEmpty ? _sourceContent : null,
+        youtubeUrl: _youtubeUrl.isNotEmpty ? _youtubeUrl : null,
+        numberOfLevels: AppConstants.initialLevelsCount,
+      );
+
+      Course newCourse = Course(
+        id: newCourseId,
+        title: generatedData['courseTitle'] as String,
+        description: 'A dynamically generated course on ${generatedData['courseTitle']}.',
+        gameGenre: generatedData['gameGenre'] as String,
+        difficulty: generatedData['difficulty'] as String,
         creatorId: currentUser.uid,
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        difficulty: _selectedDifficulty!,
-        gameGenre: _selectedGameGenre!,
         createdAt: DateTime.now(),
       );
 
-      await firebaseService.addCourse(newCourse);
+      List<Level> levelsToSave = [];
+      Map<String, List<Lesson>> lessonsPerLevel = {};
+      Map<String, Map<String, List<Question>>> questionsPerLessonPerLevel = {};
 
-      // Add levels and lessons based on AI-generated content
-      if (_parsedCourseContent.isNotEmpty) {
-        int levelOrder = 1;
-        for (final lessonData in _parsedCourseContent) {
-          final levelId = const Uuid().v4();
-          final lessonId = const Uuid().v4();
+      if (generatedData['levels'] is List) { // Robust check for levels list
+        for (var levelData in generatedData['levels']) {
+          if (levelData is Map<String, dynamic>) { // Ensure each level item is a map
+            final level = Level.fromMap(levelData);
+            level.courseId = newCourseId;
+            levelsToSave.add(level);
 
-          final newLevel = Level(
-            id: levelId,
-            courseId: courseId,
-            title: 'Level $levelOrder: ${lessonData['title']}',
-            description: 'Concepts from ${lessonData['title']}',
-            difficulty: _selectedDifficulty!,
-            order: levelOrder,
-            lessonIds: [lessonId],
-            imageAssetPath: 'assets/level_icons/level_${levelOrder % 4 + 1}.png', // Example path
-          );
+            List<Lesson> lessonsForThisLevel = [];
+            Map<String, List<Question>> questionsForThisLevelLessons = {};
 
-          final newLesson = Lesson(
-            id: lessonId,
-            title: lessonData['title'] as String,
-            content: lessonData['content'] as String,
-            questionIds: [], // Questions can be added later or generated by AI
-          );
+            if (levelData['lessons'] is List) { // Robust check for lessons list
+              for (var lessonData in (levelData['lessons'] as List)) {
+                if (lessonData is Map<String, dynamic>) { // Ensure each lesson item is a map
+                  final lesson = Lesson.fromMap(lessonData);
+                  lesson.levelId = level.id;
+                  lessonsForThisLevel.add(lesson);
 
-          await firebaseService.addLevel(newLevel);
-          await firebaseService.addLesson(newLesson);
-
-          // Update course with levelId
-          await firebaseService.updateCourse(newCourse.copyWith(
-            levelIds: [...newCourse.levelIds, levelId],
-          ));
-
-          levelOrder++;
-        }
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Course created successfully!')),
-      );
-      Navigator.of(context).pop();
-    } catch (e) {
-      _showErrorSnackbar('Failed to create course: ${e.toString()}');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _generateCourseContentFromText() async {
-    if (_descriptionController.text.isEmpty) {
-      _showErrorSnackbar('Please provide some description to generate content.');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _aiGeneratedContent = '';
-      _parsedCourseContent = [];
-    });
-
-    try {
-      final geminiService = Provider.of<GeminiApiService>(context, listen: false);
-      final prompt =
-          "Generate a detailed course outline and content based on the following topic and description. Structure the response as a JSON array of objects, where each object represents a lesson with a 'title' and 'content'.\n\nTopic: ${_titleController.text.trim()}\nDescription: ${_descriptionController.text.trim()}\n\nExample JSON format: [{\"title\": \"Lesson 1: Introduction\", \"content\": \"...\"}, {\"title\": \"Lesson 2: Core Concepts\", \"content\": \"...\"}]";
-
-      final schema = {
-        "type": "ARRAY",
-        "items": {
-          "type": "OBJECT",
-          "properties": {
-            "title": {"type": "STRING"},
-            "content": {"type": "STRING"}
-          },
-          "propertyOrdering": ["title", "content"]
-        }
-      };
-
-      final jsonString = await geminiService.generateStructuredText(prompt, schema);
-
-      final decodedContent = json.decode(jsonString) as List<dynamic>;
-      _parsedCourseContent = decodedContent.cast<Map<String, dynamic>>();
-      _aiGeneratedContent = _parsedCourseContent.map((item) => "${item['title']}\n\n${item['content']}").join('\n\n---\n\n');
-
-      _showSuccessSnackbar('Course content generated by AI!');
-    } catch (e) {
-      _showErrorSnackbar('Failed to generate content: ${e.toString()}');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _pickFileAndGenerateContent() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'txt'],
-    );
-
-    if (result != null) {
-      PlatformFile file = result.files.first;
-      String fileContent;
-      if (file.extension == 'txt') {
-        fileContent = utf8.decode(file.bytes!);
-      } else if (file.extension == 'pdf') {
-        _showErrorSnackbar('PDF parsing is a backend feature and not supported directly in this client-side example.');
-        return;
-      } else {
-        _showErrorSnackbar('Unsupported file type.');
-        return;
-      }
-
-      setState(() {
-        _isLoading = true;
-        _aiGeneratedContent = '';
-        _parsedCourseContent = [];
-      });
-
-      try {
-        final geminiService = Provider.of<GeminiApiService>(context, listen: false);
-        final prompt =
-            "Analyze the following document content and generate a course outline and content based on it. Structure the response as a JSON array of objects, where each object represents a lesson with a 'title' and 'content'.\n\nDocument Content:\n$fileContent\n\nExample JSON format: [{\"title\": \"Lesson 1: Introduction\", \"content\": \"...\"}, {\"title\": \"Lesson 2: Core Concepts\", \"content\": \"...\"}]";
-
-        final schema = {
-          "type": "ARRAY",
-          "items": {
-            "type": "OBJECT",
-            "properties": {
-              "title": {"type": "STRING"},
-              "content": {"type": "STRING"}
-            },
-            "propertyOrdering": ["title", "content"]
+                  List<Question> questionsForThisLesson = [];
+                  if (lessonData['questions'] is List) { // Robust check for questions list
+                    for (var questionData in (lessonData['questions'] as List)) {
+                      if (questionData is Map<String, dynamic>) { // Ensure each question item is a map
+                        questionsForThisLesson.add(Question.fromMap(questionData));
+                      } else {
+                        debugPrint('Warning: Skipping malformed question data: $questionData');
+                      }
+                    }
+                  }
+                  questionsForThisLevelLessons[lesson.id] = questionsForThisLesson;
+                } else {
+                  debugPrint('Warning: Skipping malformed lesson data: $lessonData');
+                }
+              }
+            }
+            lessonsPerLevel[level.id] = lessonsForThisLevel;
+            questionsPerLessonPerLevel[level.id] = questionsForThisLevelLessons;
+          } else {
+            debugPrint('Warning: Skipping malformed level data: $levelData');
           }
-        };
-
-        final jsonString = await geminiService.generateStructuredText(prompt, schema);
-        final decodedContent = json.decode(jsonString) as List<dynamic>;
-        _parsedCourseContent = decodedContent.cast<Map<String, dynamic>>();
-        _aiGeneratedContent = _parsedCourseContent.map((item) => "${item['title']}\n\n${item['content']}").join('\n\n---\n\n');
-
-        _showSuccessSnackbar('Course content generated from file!');
-      } catch (e) {
-        _showErrorSnackbar('Failed to generate content from file: ${e.toString()}');
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _analyzeUrlAndGenerateContent() async {
-    final url = _urlController.text.trim();
-    final parsedUri = Uri.tryParse(url);
-
-    if (parsedUri == null || !parsedUri.isAbsolute) {
-      _showErrorSnackbar('Please enter a valid URL.');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _aiGeneratedContent = '';
-      _parsedCourseContent = [];
-    });
-
-    try {
-      final response = await http.get(parsedUri);
-      if (response.statusCode != 200) {
-        _showErrorSnackbar('Failed to fetch URL content: ${response.statusCode}');
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      final document = html_parser.parse(response.body);
-      final textContent = document.body?.text ?? '';
-
-      final geminiService = Provider.of<GeminiApiService>(context, listen: false);
-      final prompt =
-          "Analyze the following web page content and generate a course outline and content based on it. Structure the response as a JSON array of objects, where each object represents a lesson with a 'title' and 'content'.\n\nWeb Page Content:\n$textContent\n\nExample JSON format: [{\"title\": \"Lesson 1: Introduction\", \"content\": \"...\"}, {\"title\": \"Lesson 2: Core Concepts\", \"content\": \"...\"}]";
-
-      final schema = {
-        "type": "ARRAY",
-        "items": {
-          "type": "OBJECT",
-          "properties": {
-            "title": {"type": "STRING"},
-            "content": {"type": "STRING"}
-          },
-          "propertyOrdering": ["title", "content"]
         }
-      };
+      }
 
-      final jsonString = await geminiService.generateStructuredText(prompt, schema);
-      final decodedContent = json.decode(jsonString) as List<dynamic>;
-      _parsedCourseContent = decodedContent.cast<Map<String, dynamic>>();
-      _aiGeneratedContent = _parsedCourseContent.map((item) => "${item['title']}\n\n${item['content']}").join('\n\n---\n\n');
 
-      _showSuccessSnackbar('Course content generated from URL!');
+      newCourse = newCourse.copyWith(levelIds: levelsToSave.map((l) => l.id).toList());
+
+      await firebaseService.saveCourse(newCourse);
+      await firebaseService.saveLevels(levelsToSave, lessonsPerLevel, questionsPerLessonPerLevel);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Course created successfully!')),
+        );
+        Navigator.of(context).pushReplacementNamed(AppRouter.levelSelectionRoute, arguments: {
+          'courseId': newCourse.id,
+          'courseTitle': newCourse.title,
+        });
+      }
     } catch (e) {
-      _showErrorSnackbar('Failed to generate content from URL: ${e.toString()}');
+      debugPrint('Error creating course: $e');
+      setState(() {
+        _errorMessage = 'Failed to create course: ${e.toString()}';
+      });
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.errorColor,
-      ),
-    );
-  }
-
-  void _showSuccessSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.successColor,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-      child: Scaffold(
-        backgroundColor: AppColors.transparent,
-        appBar: CustomAppBar(
-          title: 'Create New Course',
-          actions: [
-            if (_isLoading)
-              const Padding(
-                padding: EdgeInsets.only(right: AppConstants.padding),
-                child: LoadingIndicator(),
-              ),
-            IconButton(
-              icon: const Icon(Icons.save, color: AppColors.textColor),
-              onPressed: _isLoading ? null : _createCourse,
-              tooltip: 'Save Course',
-            ),
-          ],
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: const CustomAppBar(title: 'Create New Course'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppConstants.padding),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Card(
-                  color: AppColors.cardColor,
-                  margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppConstants.padding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          controller: _titleController,
-                          decoration: const InputDecoration(
-                            labelText: 'Course Title',
-                            hintText: 'e.g., Introduction to Quantum Physics',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a course title.';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: AppConstants.padding),
-                        TextFormField(
-                          controller: _descriptionController,
-                          decoration: const InputDecoration(
-                            labelText: 'Course Description',
-                            hintText: 'Provide a brief overview of the course content.',
-                          ),
-                          maxLines: 3,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a course description.';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: AppConstants.padding),
-                        DropdownButtonFormField<String>(
-                          value: _selectedDifficulty,
-                          decoration: const InputDecoration(
-                            labelText: 'Difficulty Level',
-                          ),
-                          items: AppConstants.difficultyLevels.map((String level) {
-                            return DropdownMenuItem<String>(
-                              value: level,
-                              child: Text(level, style: const TextStyle(color: AppColors.textColor)),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedDifficulty = newValue;
-                            });
-                          },
-                          dropdownColor: AppColors.cardColor,
-                          style: const TextStyle(color: AppColors.textColor),
-                        ),
-                        const SizedBox(height: AppConstants.padding),
-                        DropdownButtonFormField<String>(
-                          value: _selectedGameGenre,
-                          decoration: const InputDecoration(
-                            labelText: 'Game Genre/Theme',
-                          ),
-                          items: AppConstants.gameThemes.map((String genre) {
-                            return DropdownMenuItem<String>(
-                              value: genre,
-                              child: Text(genre, style: const TextStyle(color: AppColors.textColor)),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedGameGenre = newValue;
-                            });
-                          },
-                          dropdownColor: AppColors.cardColor,
-                          style: const TextStyle(color: AppColors.textColor),
-                        ),
-                      ],
-                    ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppConstants.padding),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  CourseForm(
+                    onTopicChanged: (value) => _topicName = value,
+                    onDomainChanged: (value) => _domain = value,
+                    onDifficultyChanged: (value) => setState(() => _difficulty = value!),
+                    onEducationLevelChanged: (value) => setState(() => _educationLevel = value!),
+                    onGameGenreChanged: (value) => setState(() => _gameGenre = value!),
+                    onYoutubeUrlChanged: (value) => _youtubeUrl = value,
+                    onSourceContentChanged: (value) => _sourceContent = value,
+                    currentDifficulty: _difficulty,
+                    currentEducationLevel: _educationLevel,
+                    currentGameGenre: _gameGenre,
                   ),
-                ),
-                Card(
-                  color: AppColors.cardColor,
-                  margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppConstants.padding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AI Content Generation',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-                        ),
-                        const SizedBox(height: AppConstants.padding),
-                        ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _generateCourseContentFromText,
-                          icon: const Icon(Icons.auto_awesome),
-                          label: const Text('Generate Content from Description'),
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.secondaryColor),
-                        ),
-                        const SizedBox(height: AppConstants.padding),
-                        TextField(
-                          controller: _urlController,
-                          decoration: const InputDecoration(
-                            labelText: 'Enter URL for Content',
-                            hintText: 'e.g., https://en.wikipedia.org/wiki/Quantum_mechanics',
-                          ),
-                        ),
-                        const SizedBox(height: AppConstants.spacing),
-                        ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _analyzeUrlAndGenerateContent,
-                          icon: const Icon(Icons.link),
-                          label: const Text('Analyze URL & Generate'),
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.secondaryColor),
-                        ),
-                        const SizedBox(height: AppConstants.padding),
-                        ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _pickFileAndGenerateContent,
-                          icon: const Icon(Icons.upload_file),
-                          label: const Text('Upload File (.txt, .pdf) & Generate'),
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.secondaryColor),
-                        ),
-                        const SizedBox(height: AppConstants.padding),
-                        if (_aiGeneratedContent.isNotEmpty)
-                          Container(
-                            padding: const EdgeInsets.all(AppConstants.padding),
-                            decoration: BoxDecoration(
-                              color: AppColors.secondaryColor.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                              border: Border.all(color: AppColors.borderColor),
-                            ),
-                            child: SelectableText(
-                              _aiGeneratedContent,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColor),
-                            ),
-                          ),
-                      ],
-                    ),
+                  const SizedBox(height: AppConstants.spacing * 2),
+                  CustomButton(
+                    onPressed: _pickFile,
+                    text: 'Upload Course Material (Text/PDF)',
+                    icon: Icons.upload_file,
                   ),
-                ),
-              ],
+                  if (_sourceContent.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
+                      child: Text(
+                        'File selected. Content length: ${_sourceContent.length} characters.',
+                        style: const TextStyle(color: AppColors.textColorSecondary),
+                      ),
+                    ),
+                  const SizedBox(height: AppConstants.spacing * 2),
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppConstants.spacing),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: AppColors.errorColor),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  _isLoading
+                      ? const CircularProgressIndicator(color: AppColors.accentColor)
+                      : CustomButton(
+                          onPressed: _createCourse,
+                          text: 'Generate Course',
+                          icon: Icons.auto_awesome,
+                        ),
+                ],
+              ),
             ),
           ),
         ),
       ),
+      bottomNavigationBar: const BottomNavBar(currentIndex: 4),
     );
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _urlController.dispose();
-    super.dispose();
   }
 }

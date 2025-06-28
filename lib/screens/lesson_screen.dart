@@ -4,26 +4,34 @@ import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/lesson.dart';
+import 'package:gamifier/models/level.dart';
 import 'package:gamifier/models/question.dart';
-import 'package:gamifier/models/user_profile.dart';
 import 'package:gamifier/models/user_progress.dart';
-import 'package:gamifier/services/audio_service.dart';
 import 'package:gamifier/services/firebase_service.dart';
-import 'package:gamifier/services/gemini_api_service.dart'; // New for adaptive learning and multimedia
-import 'package:gamifier/widgets/common/custom_app_bar.dart';
-import 'package:gamifier/widgets/common/loading_indicator.dart';
-import 'package:gamifier/widgets/common/progress_bar.dart';
-import 'package:gamifier/widgets/questions/question_renderer.dart';
-import 'package:gamifier/widgets/feedback/personalized_feedback_modal.dart';
+import 'package:gamifier/services/audio_service.dart';
 import 'package:gamifier/utils/app_router.dart';
-import 'package:uuid/uuid.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart'; // For rendering SVG/HTML
+import 'package:gamifier/utils/validation_utils.dart';
+import 'package:gamifier/widgets/common/custom_app_bar.dart';
+import 'package:gamifier/widgets/common/custom_button.dart';
+import 'package:gamifier/widgets/common/progress_bar.dart';
+import 'package:gamifier/widgets/feedback/personalized_feedback_modal.dart';
+import 'package:gamifier/widgets/lesson/lesson_content_display.dart';
+import 'package:gamifier/widgets/questions/question_renderer.dart';
+import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart'; // Import BottomNavBar
 
 class LessonScreen extends StatefulWidget {
   final String courseId;
   final String levelId;
+  final String lessonId;
+  final int levelOrder;
 
-  const LessonScreen({super.key, required this.courseId, required this.levelId});
+  const LessonScreen({
+    super.key,
+    required this.courseId,
+    required this.levelId,
+    required this.lessonId,
+    required this.levelOrder,
+  });
 
   @override
   State<LessonScreen> createState() => _LessonScreenState();
@@ -31,415 +39,382 @@ class LessonScreen extends StatefulWidget {
 
 class _LessonScreenState extends State<LessonScreen> {
   Lesson? _currentLesson;
+  Level? _currentLevel;
   List<Question> _questions = [];
+  UserProgress? _userProgress;
   int _currentQuestionIndex = 0;
   bool _isLoading = true;
-  UserProfile? _userProfile;
-  UserProgress? _userProgress;
-  int _xpEarnedInLesson = 0;
-  int _currentXp = 0;
-  int _currentLevel = 0;
-  String _svgContent = ''; // New: For AI-generated SVG
+  String? _errorMessage;
+  Map<String, String> _userAnswers = {};
+  Map<String, bool> _questionAttemptStatus = {};
+  Map<String, int> _xpAwardedPerQuestion = {};
+
+  late FirebaseService _firebaseService;
+  late AudioService _audioService;
 
   @override
   void initState() {
     super.initState();
-    _fetchLessonAndQuestions();
+    _firebaseService = Provider.of<FirebaseService>(context, listen: false);
+    _audioService = Provider.of<AudioService>(context, listen: false);
+    _loadLessonAndProgress();
   }
 
-  Future<void> _fetchLessonAndQuestions() async {
+  Future<void> _loadLessonAndProgress() async {
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-    final geminiApiService = Provider.of<GeminiApiService>(context, listen: false);
-    final currentUser = firebaseService.currentUser;
-
-    if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not authenticated.', style: TextStyle(color: AppColors.errorColor))),
-      );
-      Navigator.of(context).pop();
-      return;
-    }
 
     try {
-      _userProfile = await firebaseService.streamUserProfile(currentUser.uid).first;
-      _currentXp = _userProfile?.xp ?? 0;
-      _currentLevel = _userProfile?.level ?? 1;
+      final user = _firebaseService.currentUser;
+      if (user == null) {
+        setState(() {
+          _errorMessage = 'User not logged in.';
+          _isLoading = false;
+        });
+        return;
+      }
 
-      // Fetch or create UserProgress for this course
-      _userProgress = await firebaseService.streamUserProgress(currentUser.uid, widget.courseId).first;
-      if (_userProgress == null) {
-        _userProgress = UserProgress(
-          id: const Uuid().v4(),
-          userId: currentUser.uid,
+      final lesson = await _firebaseService.getLesson(widget.levelId, widget.lessonId);
+      final level = await _firebaseService.getLevel(widget.levelId);
+      final questions = await _firebaseService.getLessonQuestions(widget.levelId, widget.lessonId);
+      final userProgress = await _firebaseService.getUserCourseProgress(user.uid, widget.courseId);
+
+      if (lesson == null || level == null) {
+        setState(() {
+          _errorMessage = 'Lesson or Level not found.';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      setState(() {
+        _currentLesson = lesson;
+        _currentLevel = level;
+        _questions = questions;
+        _userProgress = userProgress ?? UserProgress(
+          id: '${user.uid}_${widget.courseId}',
+          userId: user.uid,
           courseId: widget.courseId,
           currentLevelId: widget.levelId,
-          currentLessonId: '', // Will be set after first lesson is loaded
-          lessonsProgress: {},
+          currentLessonId: widget.lessonId,
         );
-        await firebaseService.saveUserProgress(_userProgress!);
-      } else {
-        // Ensure currentLevelId is set if user progress exists but isn't on this level
-        if (_userProgress!.currentLevelId != widget.levelId) {
-          _userProgress = _userProgress!.copyWith(currentLevelId: widget.levelId);
-          await firebaseService.updateUserProgress(_userProgress!);
+
+        // Restore user answers and question attempt status if available in progress
+        final lessonProgress = _userProgress!.lessonsProgress[_currentLesson!.id];
+        if (lessonProgress != null) {
+          _currentQuestionIndex = lessonProgress.questionAttempts.length;
+          lessonProgress.questionAttempts.forEach((questionId, attempt) {
+            _questionAttemptStatus[questionId] = attempt.isCorrect;
+            _userAnswers[questionId] = attempt.userAnswer;
+            _xpAwardedPerQuestion[questionId] = attempt.xpAwarded;
+          });
         }
-      }
-
-      // Determine current lesson
-      final allLevels = await firebaseService.getLevelsForCourse(widget.courseId);
-      final currentLevelObj = allLevels.firstWhere((level) => level.id == widget.levelId);
-      final lessonsForLevel = await firebaseService.getLessonsForLevel(currentLevelObj.id);
-      lessonsForLevel.sort((a, b) => a.id.compareTo(b.id)); // Simple sorting, consider adding an 'order' field to Lesson model if complex ordering is needed.
-
-      String? lessonToLoadId;
-      if (_userProgress!.currentLessonId != null && _userProgress!.currentLessonId!.isNotEmpty) {
-        lessonToLoadId = _userProgress!.currentLessonId;
-      } else {
-        // Find the first uncompleted lesson
-        for (final lesson in lessonsForLevel) {
-          if (!(_userProgress!.lessonsProgress[lesson.id]?.isCompleted ?? false)) {
-            lessonToLoadId = lesson.id;
-            break;
-          }
-        }
-        // If all lessons are completed in this level, this might be an issue or imply level completion logic elsewhere
-        if (lessonToLoadId == null && lessonsForLevel.isNotEmpty) {
-          lessonToLoadId = lessonsForLevel.last.id; // Or navigate to level completion
-        }
-      }
-
-      if (lessonToLoadId != null) {
-        _currentLesson = await firebaseService.getLesson(lessonToLoadId);
-        if (_currentLesson != null) {
-          _questions = await firebaseService.getQuestionsForLesson(_currentLesson!.id);
-          _questions.shuffle(); // Randomize question order
-
-          // Update currentLessonId in user progress
-          _userProgress = _userProgress!.copyWith(currentLessonId: _currentLesson!.id);
-          await firebaseService.updateUserProgress(_userProgress!);
-
-          // Generate SVG content if lesson title indicates a diagram might be useful
-          if (_currentLesson!.title.toLowerCase().contains('flow') || _currentLesson!.title.toLowerCase().contains('diagram')) {
-             _svgContent = await geminiApiService.generateSvgContent(_currentLesson!.title);
-          }
-        }
-      }
-
-      if (_currentLesson == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No lessons found for this level.', style: TextStyle(color: AppColors.warningColor))),
-        );
-        Navigator.of(context).pop();
-      }
+        _isLoading = false;
+      });
     } catch (e) {
-      print('Error loading lesson and questions: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load lesson: ${e.toString()}', style: const TextStyle(color: AppColors.errorColor))),
-      );
-      Navigator.of(context).pop();
-    } finally {
+      debugPrint('Error loading lesson or progress: $e');
       setState(() {
+        _errorMessage = 'Failed to load lesson content: ${e.toString()}';
         _isLoading = false;
       });
     }
   }
 
-  void _onAnswerSubmitted(bool isCorrect, int xpAwarded, String? feedback) async {
-    final audioService = Provider.of<AudioService>(context, listen: false);
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-    final geminiApiService = Provider.of<GeminiApiService>(context, listen: false); // For adaptive learning
-    final currentUser = firebaseService.currentUser;
+  Future<void> _submitAnswer(String questionId, String userAnswer, String questionType, dynamic correctAnswerData) async {
+    if (_isLoading) return;
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (currentUser == null || _userProgress == null || _currentLesson == null) return;
+    final firebaseUser = _firebaseService.currentUser;
+    if (firebaseUser == null || _currentLesson == null || _userProgress == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'User not logged in or lesson/progress data missing.';
+      });
+      return;
+    }
 
+    // Ensure correctAnswerData is a String, defaulting to empty if null
+    String validationCorrectAnswer = '';
+    if (correctAnswerData != null) {
+      validationCorrectAnswer = correctAnswerData.toString();
+    }
+
+    final bool isCorrect = ValidationUtils.validateAnswer(userAnswer, questionType, validationCorrectAnswer);
+    final int xpAwarded = isCorrect ? _questions[_currentQuestionIndex].xpReward : 0;
+
+    // Only play correct sound if the answer is correct
     if (isCorrect) {
-      audioService.playLocalAsset(AppConstants.correctSoundPath);
-      setState(() {
-        _xpEarnedInLesson += xpAwarded;
-        _currentXp += xpAwarded;
-      });
-      await firebaseService.addXp(currentUser.uid, xpAwarded);
-      // Mark question as completed in user progress
-      _userProgress!.lessonsProgress.putIfAbsent(_currentLesson!.id, () => LessonProgress(lessonId: _currentLesson!.id));
-      _userProgress!.lessonsProgress[_currentLesson!.id]!.completedQuestions.add(_questions[_currentQuestionIndex].id);
-    } else {
-      audioService.playLocalAsset(AppConstants.incorrectSoundPath);
-      // Deduct XP for incorrect answers on reattempt if configured
-      if (_userProgress!.lessonsProgress[_currentLesson!.id]?.attempts[_questions[_currentQuestionIndex].id] != null) {
-        setState(() {
-          _currentXp -= AppConstants.levelXpDeductionOnReattempt;
-        });
-        await firebaseService.addXp(currentUser.uid, -AppConstants.levelXpDeductionOnReattempt);
-      }
+      _audioService.playCorrectSound();
     }
 
-    // Increment attempt count for the question
-    _userProgress!.lessonsProgress[_currentLesson!.id]?.attempts[_questions[_currentQuestionIndex].id] =
-        (_userProgress!.lessonsProgress[_currentLesson!.id]?.attempts[_questions[_currentQuestionIndex].id] ?? 0) + 1;
+    setState(() {
+      _userAnswers[questionId] = userAnswer;
+      _questionAttemptStatus[questionId] = isCorrect;
+      _xpAwardedPerQuestion[questionId] = xpAwarded;
+    });
 
-    // Update performance score for the lesson (simple average of correct answers for now)
-    final lessonProgress = _userProgress!.lessonsProgress[_currentLesson!.id]!;
-    final totalQuestionsInLesson = _questions.length;
-    final correctQuestions = lessonProgress.completedQuestions.length;
-    lessonProgress.performanceScore = totalQuestionsInLesson > 0 ? correctQuestions / totalQuestionsInLesson : 0.0;
+    // Update user progress
+    LessonProgress currentLessonProgress = _userProgress!.lessonsProgress[_currentLesson!.id] ??
+        const LessonProgress(isCompleted: false, xpEarned: 0, questionAttempts: {});
 
+    final updatedQuestionAttempts = Map<String, QuestionAttempt>.from(currentLessonProgress.questionAttempts);
+    updatedQuestionAttempts[questionId] = QuestionAttempt(
+      userAnswer: userAnswer,
+      isCorrect: isCorrect,
+      attemptedAt: DateTime.now(),
+      xpAwarded: xpAwarded,
+    );
 
-    // Show personalized feedback
-    if (feedback != null && feedback.isNotEmpty) {
-      await showDialog(
-        context: context,
-        builder: (context) => PersonalizedFeedbackModal(feedback: feedback, isCorrect: isCorrect),
-      );
-    }
+    currentLessonProgress = currentLessonProgress.copyWith(
+      xpEarned: (currentLessonProgress.xpEarned ?? 0) + xpAwarded, // Ensure xpEarned is not null
+      questionAttempts: updatedQuestionAttempts,
+    );
 
-    await firebaseService.updateUserProgress(_userProgress!);
+    Map<String, LessonProgress> updatedLessonsProgress = Map.from(_userProgress!.lessonsProgress);
+    updatedLessonsProgress[_currentLesson!.id] = currentLessonProgress;
 
-    // Check for level up after XP update
-    final newLevel = (_currentXp ~/ AppConstants.xpPerLevel) + 1;
-    if (newLevel > _currentLevel) {
-      setState(() {
-        _currentLevel = newLevel;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('LEVEL UP! You are now Level $newLevel!', style: const TextStyle(color: AppColors.levelColor))),
-      );
-      audioService.playLocalAsset(AppConstants.levelUpSoundPath);
-    }
+    await _firebaseService.addXp(firebaseUser.uid, xpAwarded);
 
-    _nextQuestionOrCompleteLesson();
+    _userProgress = _userProgress!.copyWith(
+      lessonsProgress: updatedLessonsProgress,
+    );
+    await _firebaseService.saveUserProgress(_userProgress!);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => PersonalizedFeedbackModal(
+        isCorrect: isCorrect,
+        userAnswer: userAnswer,
+        questionText: _questions[_currentQuestionIndex].questionText,
+        correctAnswer: validationCorrectAnswer, // Pass the non-null string
+        lessonContent: _currentLesson!.content,
+        userProgress: _userProgress!,
+      ),
+    );
+
+    _goToNextQuestion();
   }
 
-  void _nextQuestionOrCompleteLesson() async {
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-    final geminiApiService = Provider.of<GeminiApiService>(context, listen: false);
-    final currentUser = firebaseService.currentUser;
-
-    if (currentUser == null || _userProgress == null || _currentLesson == null) return;
-
-    if (_currentQuestionIndex < _questions.length - 1) {
-      setState(() {
+  void _goToNextQuestion() {
+    setState(() {
+      if (_currentQuestionIndex < _questions.length - 1) {
         _currentQuestionIndex++;
-      });
-    } else {
-      // All questions completed for this lesson
-      _userProgress!.lessonsProgress[_currentLesson!.id]?.isCompleted = true;
-      await firebaseService.updateUserProgress(_userProgress!);
-
-      // Adaptive Learning Path Suggestion
-      final lessonPerformance = _userProgress!.lessonsProgress[_currentLesson!.id]?.performanceScore ?? 0.0;
-      final suggestion = await geminiApiService.suggestNextLesson(
-        currentUser.uid,
-        widget.courseId,
-        widget.levelId,
-        lessonPerformance,
-      );
-
-      final nextAction = suggestion['nextAction'];
-      final suggestionText = suggestion['suggestionText'];
-      String? suggestedLessonId = suggestion['suggestedLessonId']; // AI provides a placeholder, we'll need to map this
-
-      // Display AI suggestion
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: AppColors.cardColor,
-          title: const Text('AI Learning Suggestion'),
-          content: Text(suggestionText, style: const TextStyle(color: AppColors.textColorSecondary)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK', style: TextStyle(color: AppColors.accentColor)),
-            ),
-          ],
-        ),
-      );
-
-
-      // Check if all lessons in the level are completed
-      final allLevels = await firebaseService.getLevelsForCourse(widget.courseId);
-      final currentLevelObj = allLevels.firstWhere((level) => level.id == widget.levelId);
-      final lessonsForLevel = await firebaseService.getLessonsForLevel(currentLevelObj.id);
-      lessonsForLevel.sort((a, b) => a.id.compareTo(b.id)); // Sort to get consistent next lesson logic
-
-      bool allLessonsCompletedInLevel = true;
-      for (final lesson in lessonsForLevel) {
-        if (!(_userProgress!.lessonsProgress[lesson.id]?.isCompleted ?? false)) {
-          allLessonsCompletedInLevel = false;
-          break;
-        }
-      }
-
-      if (allLessonsCompletedInLevel) {
-        // Mark level as completed in user progress
-        _userProgress = _userProgress!.copyWith(levelsCompleted: [..._userProgress!.levelsCompleted, widget.levelId]);
-        await firebaseService.updateUserProgress(_userProgress!);
-
-        // Determine if course is completed
-        final course = await firebaseService.getCourse(widget.courseId);
-        bool allLevelsCompletedInCourse = true;
-        if (course != null) {
-          final courseLevels = await firebaseService.getLevelsForCourse(widget.courseId);
-          for (final level in courseLevels) {
-            if (!_userProgress!.levelsCompleted.contains(level.id)) {
-              allLevelsCompletedInCourse = false;
-              break;
-            }
-          }
-        }
-
-        if (allLevelsCompletedInCourse) {
-          // Navigate to Course Completion Screen
-          Navigator.of(context).pushReplacementNamed(
-            AppRouter.courseCompletionRoute,
-            arguments: {
-              'courseTitle': course?.title ?? 'Course', // Replace with actual course title
-              'totalXpEarned': _xpEarnedInLesson,
-              'newBadgesEarned': 0, // Placeholder
-            },
-          );
-        } else {
-          // Navigate to Level Completion Screen
-          Navigator.of(context).pushReplacementNamed(
-            AppRouter.levelCompletionRoute,
-            arguments: {
-              'levelTitle': currentLevelObj.title, // Pass actual level title
-              'xpEarned': _xpEarnedInLesson,
-              'newLevel': _currentLevel,
-            },
-          );
-        }
       } else {
-        // Navigate to the next lesson in the level (or adaptive path)
-        Lesson? nextLesson;
-        if (nextAction == 'nextLesson' || nextAction == 'advancedTopic' || nextAction == 'remedialLesson') {
-          // Attempt to find the suggested lesson by ID first
-          if (suggestedLessonId != null) {
-            nextLesson = lessonsForLevel.firstWhereOrNull((l) => l.id == suggestedLessonId);
-          }
+        _markLessonCompleted();
+      }
+    });
+  }
 
-          // Fallback if AI suggested ID is not valid or if action is just 'nextLesson' without specific ID
-          if (nextLesson == null) {
-            final currentLessonIndex = lessonsForLevel.indexWhere((lesson) => lesson.id == _currentLesson!.id);
-            if (currentLessonIndex != -1 && currentLessonIndex < lessonsForLevel.length - 1) {
-              nextLesson = lessonsForLevel[currentLessonIndex + 1];
-            }
-          }
-        } else if (nextAction == 'reviewLevel') {
-          // Stay on current level, perhaps navigate to the first uncompleted lesson of this level
-          nextLesson = lessonsForLevel.firstWhereOrNull((l) => !(_userProgress!.lessonsProgress[l.id]?.isCompleted ?? false));
-          nextLesson ??= lessonsForLevel.first; // Fallback to first lesson if all completed
-        }
+  Future<void> _markLessonCompleted() async {
+    final firebaseUser = _firebaseService.currentUser;
+    if (firebaseUser == null || _currentLesson == null || _userProgress == null) {
+      return;
+    }
 
-        if (nextLesson != null) {
-          _userProgress = _userProgress!.copyWith(currentLessonId: nextLesson.id);
-          await firebaseService.updateUserProgress(_userProgress!);
-          Navigator.of(context).pushReplacementNamed(
-            AppRouter.lessonRoute,
-            arguments: {'courseId': widget.courseId, 'levelId': widget.levelId},
-          );
-        } else {
-          // If no specific next lesson found, go back to level selection
-          Navigator.of(context).pop();
-        }
+    LessonProgress currentLessonProgress = _userProgress!.lessonsProgress[_currentLesson!.id] ??
+        const LessonProgress(isCompleted: false, xpEarned: 0, questionAttempts: {});
+
+    if (!currentLessonProgress.isCompleted) {
+      currentLessonProgress = currentLessonProgress.copyWith(
+        isCompleted: true,
+        completedAt: DateTime.now(),
+      );
+
+      Map<String, LessonProgress> updatedLessonsProgress = Map.from(_userProgress!.lessonsProgress);
+      updatedLessonsProgress[_currentLesson!.id] = currentLessonProgress;
+
+      _userProgress = _userProgress!.copyWith(
+        lessonsProgress: updatedLessonsProgress,
+      );
+      await _firebaseService.saveUserProgress(_userProgress!);
+    }
+
+    // Check if current level is completed
+    List<Lesson> allLessonsInLevel = [];
+    final levelRef = _firebaseService.getFirestore().collection(AppConstants.levelsCollection).doc(widget.levelId);
+    final lessonsSnapshot = await levelRef.collection('lessons').orderBy('order').get();
+    allLessonsInLevel = lessonsSnapshot.docs.map((doc) => Lesson.fromMap(doc.data())).toList();
+
+    bool allLessonsCompletedInLevel = allLessonsInLevel.every((lesson) {
+      return _userProgress!.lessonsProgress[lesson.id]?.isCompleted == true;
+    });
+
+    if (allLessonsCompletedInLevel) {
+      int totalXpEarnedInLevel = allLessonsInLevel.fold(0, (sum, lesson) => sum + (_userProgress!.lessonsProgress[lesson.id]?.xpEarned ?? 0));
+
+      LevelProgress currentLevelProgress = _userProgress!.levelsProgress[widget.levelId] ??
+          const LevelProgress(isCompleted: false, xpEarned: 0, score: 0);
+
+      currentLevelProgress = currentLevelProgress.copyWith(
+        isCompleted: true,
+        xpEarned: (currentLevelProgress.xpEarned ?? 0) + totalXpEarnedInLevel, // Ensure xpEarned is not null
+        score: (totalXpEarnedInLevel / (allLessonsInLevel.length * 15 * _questions.length)).round(), // Rough score calculation
+        completedAt: DateTime.now(),
+      );
+
+      Map<String, LevelProgress> updatedLevelsProgress = Map.from(_userProgress!.levelsProgress);
+      updatedLevelsProgress[widget.levelId] = currentLevelProgress;
+
+      _userProgress = _userProgress!.copyWith(
+        currentLevelId: null, // Reset current level as it's completed
+        currentLessonId: null, // Reset current lesson as it's completed
+        levelsProgress: updatedLevelsProgress,
+      );
+      await _firebaseService.saveUserProgress(_userProgress!);
+
+      // Check if course is completed
+      List<Level> allLevelsInCourse = [];
+      final courseLevelsSnapshot = await _firebaseService.getFirestore()
+          .collection(AppConstants.levelsCollection)
+          .where('courseId', isEqualTo: widget.courseId)
+          .orderBy('order')
+          .get();
+      allLevelsInCourse = courseLevelsSnapshot.docs.map((doc) => Level.fromMap(doc.data())).toList();
+
+      bool allLevelsCompletedInCourse = allLevelsInCourse.every((level) {
+        return _userProgress!.levelsProgress[level.id]?.isCompleted == true;
+      });
+
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(
+          AppRouter.levelCompletionRoute,
+          arguments: {
+            'courseId': widget.courseId,
+            'levelId': widget.levelId,
+            'xpEarned': totalXpEarnedInLevel,
+            'isCourseCompleted': allLevelsCompletedInCourse,
+          },
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lesson completed! Continue to the next lesson or level.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.of(context).pop(); // Go back to level selection
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-      child: Scaffold(
-        backgroundColor: AppColors.transparent,
-        appBar: CustomAppBar(
-          title: _currentLesson?.title ?? 'Lesson',
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: CustomAppBar(
+        title: _currentLevel?.title ?? 'Lesson',
+        subtitle: _currentLesson?.title,
+        automaticallyImplyLeading: true, // Allow back to level selection
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () => Navigator.of(context).pop(), // Pops to LevelSelectionScreen
+        // ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
         ),
-        body: _isLoading
-            ? const LoadingIndicator()
-            : _currentLesson == null || _questions.isEmpty
-                ? Center(
-                    child: Text(
-                      'No content or questions found for this lesson.',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.textColorSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(AppConstants.padding),
-                        child: ProgressBar(
-                          current: _currentQuestionIndex + 1,
-                          total: _questions.length,
-                        ),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(AppConstants.padding),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Card(
-                                color: AppColors.cardColor,
-                                margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(AppConstants.padding),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _currentLesson!.content,
-                                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColor),
-                                      ),
-                                      if (_svgContent.isNotEmpty) ...[
-                                        const SizedBox(height: AppConstants.padding),
-                                        Text(
-                                          'AI-Generated Diagram:',
-                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor),
-                                        ),
-                                        const SizedBox(height: AppConstants.spacing),
-                                        // Render SVG content
-                                        HtmlWidget(
-                                          _svgContent,
-                                          // Other configurations for flutter_widget_from_html_core if needed
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: AppConstants.padding),
-                              Text(
-                                'Question ${_currentQuestionIndex + 1}/${_questions.length}',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-                              ),
-                              const SizedBox(height: AppConstants.spacing),
-                              QuestionRenderer(
-                                question: _questions[_currentQuestionIndex],
-                                onSubmit: _onAnswerSubmitted,
-                              ),
-                            ],
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))
+              : _errorMessage != null
+                  ? Center(child: Text(_errorMessage!, style: const TextStyle(color: AppColors.errorColor)))
+                  : Padding(
+                      padding: const EdgeInsets.all(AppConstants.padding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ProgressBar(
+                            current: _currentQuestionIndex,
+                            total: _questions.length,
                           ),
-                        ),
+                          const SizedBox(height: AppConstants.spacing * 2),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Card(
+                                    color: AppColors.cardColor.withOpacity(0.9),
+                                    elevation: 5,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(AppConstants.padding),
+                                      child: LessonContentDisplay(content: _currentLesson!.content),
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppConstants.spacing * 2),
+                                  if (_questions.isNotEmpty && _currentQuestionIndex < _questions.length)
+                                    QuestionRenderer(
+                                      question: _questions[_currentQuestionIndex],
+                                      onSubmit: (userAnswer) {
+                                        // Ensure the correctAnswerData passed is never null
+                                        dynamic dataToSend;
+                                        switch (_questions[_currentQuestionIndex].type) {
+                                          case 'MCQ':
+                                          case 'FillInBlank':
+                                            dataToSend = _questions[_currentQuestionIndex].correctAnswer;
+                                            break;
+                                          case 'ShortAnswer':
+                                            dataToSend = _questions[_currentQuestionIndex].expectedAnswerKeywords;
+                                            break;
+                                          case 'Scenario':
+                                            dataToSend = _questions[_currentQuestionIndex].expectedOutcome;
+                                            break;
+                                          default:
+                                            dataToSend = ''; // Default for unknown types
+                                        }
+
+                                        _submitAnswer(
+                                          _questions[_currentQuestionIndex].id,
+                                          userAnswer,
+                                          _questions[_currentQuestionIndex].type,
+                                          dataToSend ?? '', // Ensure it's never null
+                                        );
+                                      },
+                                      isSubmitted: _questionAttemptStatus.containsKey(_questions[_currentQuestionIndex].id),
+                                      lastUserAnswer: _userAnswers[_questions[_currentQuestionIndex].id],
+                                      isLastAttemptCorrect: _questionAttemptStatus[_questions[_currentQuestionIndex].id],
+                                      xpAwarded: _xpAwardedPerQuestion[_questions[_currentQuestionIndex].id],
+                                    )
+                                  else if (_questions.isEmpty)
+                                    const Center(
+                                      child: Text(
+                                        'No questions for this lesson yet. Please try again later.',
+                                        style: TextStyle(color: AppColors.textColorSecondary),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (_currentQuestionIndex == _questions.length)
+                            Padding(
+                              padding: const EdgeInsets.only(top: AppConstants.padding),
+                              child: CustomButton(
+                                onPressed: _markLessonCompleted,
+                                text: 'Finish Lesson',
+                                icon: Icons.flag,
+                              ),
+                            ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
       ),
+      bottomNavigationBar: const BottomNavBar(currentIndex: 0), // Default to home in bottom nav
     );
-  }
-}
-
-// Extension to help with firstWhereOrNull (similar to collection methods in other languages)
-extension ListExtension<T> on List<T> {
-  T? firstWhereOrNull(bool Function(T element) test) {
-    for (var element in this) {
-      if (test(element)) {
-        return element;
-      }
-    }
-    return null;
   }
 }

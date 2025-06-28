@@ -6,7 +6,7 @@
 // import 'app.dart';
 // import 'services/firebase_service.dart';
 // import 'services/gemini_api_service.dart';
-// import 'services/audio_service.dart'; // Import the new audio service
+// import 'services/audio_service.dart';
 // import 'firebase_options.dart';
 
 // Future<void> main() async {
@@ -29,7 +29,7 @@
 //         Provider<GeminiApiService>(
 //           create: (_) => GeminiApiService(),
 //         ),
-//         Provider<AudioService>( // Provide AudioService
+//         Provider<AudioService>(
 //           create: (_) => AudioService(),
 //           dispose: (_, audioService) => audioService.dispose(),
 //         ),
@@ -43,76 +43,78 @@
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/utils/app_router.dart';
-// import 'package:gamifier/services/firebase_service.dart'; // Import FirebaseService
-// import 'package:provider/provider.dart'; // Import Provider
+// import 'package:provider/provider.dart';
+// import 'package:gamifier/services/audio_service.dart';
 
-// class App extends StatelessWidget {
+// class App extends StatefulWidget {
 //   const App({super.key});
 
 //   @override
-//   Widget build(BuildContext context) {
-//     // Initialize FirebaseService here, or ensure it's available via MultiProvider
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//   State<App> createState() => _AppState();
+// }
 
+// class _AppState extends State<App> {
+//   @override
+//   void initState() {
+//     super.initState();
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       Provider.of<AudioService>(context, listen: false).loadAudioAssets();
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
 //     return MaterialApp(
 //       title: AppConstants.appName,
-//       debugShowCheckedModeBanner: false,
 //       theme: ThemeData(
 //         brightness: Brightness.dark,
 //         primaryColor: AppColors.primaryColor,
 //         hintColor: AppColors.accentColor,
-//         scaffoldBackgroundColor: Colors.transparent, // Background handled by gradient
+//         scaffoldBackgroundColor: Colors.transparent,
+//         cardColor: AppColors.cardColor,
 //         fontFamily: AppConstants.defaultFontFamily,
 //         textTheme: const TextTheme(
-//           displayLarge: TextStyle(fontSize: 57, color: AppColors.textColor),
-//           displayMedium: TextStyle(fontSize: 45, color: AppColors.textColor),
-//           displaySmall: TextStyle(fontSize: 36, color: AppColors.textColor),
-//           headlineLarge: TextStyle(fontSize: 32, color: AppColors.textColor),
-//           headlineMedium: TextStyle(fontSize: 28, color: AppColors.textColor),
-//           headlineSmall: TextStyle(fontSize: 24, color: AppColors.textColor),
-//           titleLarge: TextStyle(fontSize: 22, color: AppColors.textColor),
-//           titleMedium: TextStyle(fontSize: 16, color: AppColors.textColor),
-//           titleSmall: TextStyle(fontSize: 14, color: AppColors.textColor),
-//           bodyLarge: TextStyle(fontSize: 16, color: AppColors.textColor),
-//           bodyMedium: TextStyle(fontSize: 14, color: AppColors.textColor),
-//           bodySmall: TextStyle(fontSize: 12, color: AppColors.textColor),
-//           labelLarge: TextStyle(fontSize: 14, color: AppColors.textColor),
-//           labelMedium: TextStyle(fontSize: 12, color: AppColors.textColor),
-//           labelSmall: TextStyle(fontSize: 11, color: AppColors.textColor),
-//         ),
-//         cardTheme: CardTheme(
-//           color: AppColors.cardColor.withOpacity(0.9),
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//           ),
-//           elevation: 8,
-//           margin: EdgeInsets.zero,
+//           displayLarge: TextStyle(color: AppColors.textColor),
+//           displayMedium: TextStyle(color: AppColors.textColor),
+//           displaySmall: TextStyle(color: AppColors.textColor),
+//           headlineLarge: TextStyle(color: AppColors.textColor),
+//           headlineMedium: TextStyle(color: AppColors.textColor),
+//           headlineSmall: TextStyle(color: AppColors.textColor),
+//           titleLarge: TextStyle(color: AppColors.textColor),
+//           titleMedium: TextStyle(color: AppColors.textColor),
+//           titleSmall: TextStyle(color: AppColors.textColor),
+//           bodyLarge: TextStyle(color: AppColors.textColor),
+//           bodyMedium: TextStyle(color: AppColors.textColor),
+//           bodySmall: TextStyle(color: AppColors.textColor),
+//           labelLarge: TextStyle(color: AppColors.textColor),
+//           labelMedium: TextStyle(color: AppColors.textColor),
+//           labelSmall: TextStyle(color: AppColors.textColor),
 //         ),
 //         inputDecorationTheme: InputDecorationTheme(
-//           labelStyle: const TextStyle(color: AppColors.textColorSecondary),
-//           hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7)),
-//           fillColor: AppColors.cardColor.withOpacity(0.8),
 //           filled: true,
+//           fillColor: AppColors.cardColor.withOpacity(0.7),
 //           border: OutlineInputBorder(
 //             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
 //             borderSide: BorderSide.none,
 //           ),
 //           focusedBorder: OutlineInputBorder(
 //             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//             borderSide: const BorderSide(color: AppColors.accentColor, width: 2),
+//             borderSide: const BorderSide(color: AppColors.accentColor, width: 2.0),
 //           ),
 //           enabledBorder: OutlineInputBorder(
 //             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//             borderSide: const BorderSide(color: AppColors.borderColor, width: 1),
+//             borderSide: const BorderSide(color: AppColors.borderColor, width: 1.0),
 //           ),
-//           errorBorder: OutlineInputBorder(
+//           labelStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.8)),
+//           hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.5)),
+//           prefixIconColor: AppColors.textColorSecondary,
+//         ),
+//         buttonTheme: ButtonThemeData(
+//           buttonColor: AppColors.primaryColor,
+//           shape: RoundedRectangleBorder(
 //             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//             borderSide: const BorderSide(color: AppColors.errorColor, width: 1),
 //           ),
-//           focusedErrorBorder: OutlineInputBorder(
-//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//             borderSide: const BorderSide(color: AppColors.errorColor, width: 2),
-//           ),
+//           textTheme: ButtonTextTheme.primary,
 //         ),
 //         elevatedButtonTheme: ElevatedButtonThemeData(
 //           style: ElevatedButton.styleFrom(
@@ -121,25 +123,29 @@
 //             shape: RoundedRectangleBorder(
 //               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
 //             ),
-//             padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing * 1.5),
+//             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
 //             textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
 //           ),
 //         ),
 //         textButtonTheme: TextButtonThemeData(
 //           style: TextButton.styleFrom(
 //             foregroundColor: AppColors.accentColor,
-//             textStyle: const TextStyle(fontSize: 16),
+//             textStyle: const TextStyle(fontSize: 14),
 //           ),
 //         ),
-//         outlinedButtonTheme: OutlinedButtonThemeData(
-//           style: OutlinedButton.styleFrom(
-//             foregroundColor: AppColors.accentColor,
-//             side: const BorderSide(color: AppColors.accentColor),
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//             ),
-//             padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing * 1.5),
-//             textStyle: const TextStyle(fontSize: 16),
+//         cardTheme: CardTheme(
+//           color: AppColors.cardColor,
+//           elevation: 4,
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//           ),
+//         ),
+//         tabBarTheme: TabBarTheme(
+//           labelColor: AppColors.accentColor,
+//           unselectedLabelColor: AppColors.textColorSecondary,
+//           indicator: UnderlineTabIndicator(
+//             borderSide: const BorderSide(color: AppColors.accentColor, width: 3.0),
+//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
 //           ),
 //         ),
 //         dialogTheme: DialogTheme(
@@ -149,14 +155,6 @@
 //           ),
 //           titleTextStyle: const TextStyle(color: AppColors.textColor, fontSize: 20, fontWeight: FontWeight.bold),
 //           contentTextStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: 16),
-//         ),
-//         snackBarTheme: SnackBarThemeData(
-//           behavior: SnackBarBehavior.floating,
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//           ),
-//           backgroundColor: AppColors.primaryColor,
-//           contentTextStyle: const TextStyle(color: AppColors.textColor),
 //         ),
 //       ),
 //       onGenerateRoute: AppRouter.generateRoute,
@@ -169,16 +167,25 @@
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/models/question.dart';
-// import 'package:gamifier/utils/validation_utils.dart';
+// import 'package:gamifier/widgets/common/custom_text_field.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
 
 // class ShortAnswerQuestionWidget extends StatefulWidget {
 //   final Question question;
-//   final ValueChanged<String> onAnswerSubmitted;
+//   final Function(String userResponse, String questionId) onEvaluate;
+//   final bool isEnabled;
+//   final bool showFeedback;
+//   final bool isCorrect;
+//   final String? userAnswer;
 
 //   const ShortAnswerQuestionWidget({
 //     super.key,
 //     required this.question,
-//     required this.onAnswerSubmitted,
+//     required this.onEvaluate,
+//     this.isEnabled = true,
+//     this.showFeedback = false,
+//     this.isCorrect = false,
+//     this.userAnswer,
 //   });
 
 //   @override
@@ -186,71 +193,81 @@
 // }
 
 // class _ShortAnswerQuestionWidgetState extends State<ShortAnswerQuestionWidget> {
-//   final TextEditingController _controller = TextEditingController();
-//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+//   final TextEditingController _answerController = TextEditingController();
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     if (widget.userAnswer != null) {
+//       _answerController.text = widget.userAnswer!;
+//     }
+//   }
 
 //   @override
 //   void dispose() {
-//     _controller.dispose();
+//     _answerController.dispose();
 //     super.dispose();
-//   }
-
-//   void _submitAnswer() {
-//     if (_formKey.currentState!.validate()) {
-//       widget.onAnswerSubmitted(_controller.text);
-//     }
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Card(
 //       color: AppColors.cardColor.withOpacity(0.9),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//       elevation: 4,
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//         side: BorderSide(color: widget.showFeedback ? (widget.isCorrect ? AppColors.successColor : AppColors.errorColor) : AppColors.borderColor, width: 2),
+//       ),
+//       elevation: 6,
 //       child: Padding(
 //         padding: const EdgeInsets.all(AppConstants.padding),
-//         child: Form(
-//           key: _formKey,
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 widget.question.questionText,
-//                 style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-//               ),
-//               const SizedBox(height: AppConstants.padding),
-//               TextFormField(
-//                 controller: _controller,
-//                 style: const TextStyle(color: AppColors.textColor),
-//                 decoration: InputDecoration(
-//                   hintText: 'Type your answer here...',
-//                   hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7)),
-//                   filled: true,
-//                   fillColor: AppColors.primaryColor.withOpacity(0.1),
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                     borderSide: BorderSide.none,
-//                   ),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text(
+//               widget.question.questionText,
+//               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor),
+//             ),
+//             const SizedBox(height: AppConstants.padding),
+//             CustomTextField(
+//               controller: _answerController,
+//               labelText: 'Your Answer',
+//               hintText: 'Type your answer here...',
+//               maxLines: 4,
+//               isEnabled: widget.isEnabled && !widget.showFeedback, // Pass isEnabled
+//             ),
+//             const SizedBox(height: AppConstants.padding),
+//             if (widget.showFeedback) ...[
+//               if (widget.isCorrect)
+//                 Text(
+//                   'Correct! You earned ${widget.question.xpReward} XP.',
+//                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.successColor),
+//                 )
+//               else
+//                 Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       'Incorrect. Expected keywords were:',
+//                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.errorColor),
+//                     ),
+//                     Text(
+//                       widget.question.expectedAnswerKeywords ?? 'N/A',
+//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                             color: AppColors.accentColor,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                     ),
+//                   ],
 //                 ),
-//                 maxLines: 3,
-//                 validator: (value) => ValidationUtils.validateNotEmpty(value, 'Answer cannot be empty'),
-//                 onFieldSubmitted: (value) => _submitAnswer(),
-//               ),
-//               const SizedBox(height: AppConstants.padding),
-//               Center(
-//                 child: ElevatedButton(
-//                   onPressed: _submitAnswer,
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: AppColors.accentColor,
-//                     foregroundColor: AppColors.cardColor,
-//                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                     padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                   ),
-//                   child: const Text('Submit Answer'),
-//                 ),
-//               ),
+//               const SizedBox(height: AppConstants.spacing),
 //             ],
-//           ),
+//             if (widget.isEnabled && !widget.showFeedback)
+//               CustomButton(
+//                 text: 'Submit Answer',
+//                 onPressed: () => widget.onEvaluate(_answerController.text, widget.question.id),
+//                 backgroundColor: AppColors.primaryColor,
+//               ),
+//           ],
 //         ),
 //       ),
 //     );
@@ -261,16 +278,25 @@
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/models/question.dart';
-// import 'package:gamifier/utils/validation_utils.dart';
+// import 'package:gamifier/widgets/common/custom_text_field.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
 
 // class ScenarioQuestionWidget extends StatefulWidget {
 //   final Question question;
-//   final ValueChanged<String> onAnswerSubmitted;
+//   final Function(String userResponse, String questionId) onEvaluate;
+//   final bool isEnabled;
+//   final bool showFeedback;
+//   final bool isCorrect;
+//   final String? userAnswer;
 
 //   const ScenarioQuestionWidget({
 //     super.key,
 //     required this.question,
-//     required this.onAnswerSubmitted,
+//     required this.onEvaluate,
+//     this.isEnabled = true,
+//     this.showFeedback = false,
+//     this.isCorrect = false,
+//     this.userAnswer,
 //   });
 
 //   @override
@@ -278,79 +304,91 @@
 // }
 
 // class _ScenarioQuestionWidgetState extends State<ScenarioQuestionWidget> {
-//   final TextEditingController _controller = TextEditingController();
-//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+//   final TextEditingController _outcomeController = TextEditingController();
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     if (widget.userAnswer != null) {
+//       _outcomeController.text = widget.userAnswer!;
+//     }
+//   }
 
 //   @override
 //   void dispose() {
-//     _controller.dispose();
+//     _outcomeController.dispose();
 //     super.dispose();
-//   }
-
-//   void _submitAnswer() {
-//     if (_formKey.currentState!.validate()) {
-//       widget.onAnswerSubmitted(_controller.text);
-//     }
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Card(
 //       color: AppColors.cardColor.withOpacity(0.9),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//       elevation: 4,
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//         side: BorderSide(color: widget.showFeedback ? (widget.isCorrect ? AppColors.successColor : AppColors.errorColor) : AppColors.borderColor, width: 2),
+//       ),
+//       elevation: 6,
 //       child: Padding(
 //         padding: const EdgeInsets.all(AppConstants.padding),
-//         child: Form(
-//           key: _formKey,
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 'Scenario: ${widget.question.scenarioText ?? ''}',
-//                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                       color: AppColors.textColor,
-//                       fontWeight: FontWeight.bold,
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text(
+//               'Scenario:',
+//               style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.accentColor),
+//             ),
+//             const SizedBox(height: AppConstants.spacing),
+//             Text(
+//               widget.question.scenarioText ?? 'No scenario provided.',
+//               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColor),
+//             ),
+//             const SizedBox(height: AppConstants.padding),
+//             Text(
+//               widget.question.questionText,
+//               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor),
+//             ),
+//             const SizedBox(height: AppConstants.padding),
+//             CustomTextField(
+//               controller: _outcomeController,
+//               labelText: 'Your Expected Outcome',
+//               hintText: 'What do you think will happen?',
+//               maxLines: 5,
+//               isEnabled: widget.isEnabled && !widget.showFeedback, // Pass isEnabled
+//             ),
+//             const SizedBox(height: AppConstants.padding),
+//             if (widget.showFeedback) ...[
+//               if (widget.isCorrect)
+//                 Text(
+//                   'Correct! You earned ${widget.question.xpReward} XP. Your reasoning matches the expected outcome.',
+//                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.successColor),
+//                 )
+//               else
+//                 Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       'Incorrect. The expected outcome was:',
+//                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.errorColor),
 //                     ),
-//               ),
+//                     Text(
+//                       widget.question.expectedOutcome ?? 'N/A',
+//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                             color: AppColors.accentColor,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                     ),
+//                   ],
+//                 ),
 //               const SizedBox(height: AppConstants.spacing),
-//               Text(
-//                 widget.question.questionText,
-//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor),
-//               ),
-//               const SizedBox(height: AppConstants.padding),
-//               TextFormField(
-//                 controller: _controller,
-//                 style: const TextStyle(color: AppColors.textColor),
-//                 decoration: InputDecoration(
-//                   hintText: 'Describe your outcome or action...',
-//                   hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7)),
-//                   filled: true,
-//                   fillColor: AppColors.primaryColor.withOpacity(0.1),
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                     borderSide: BorderSide.none,
-//                   ),
-//                 ),
-//                 maxLines: 4,
-//                 validator: (value) => ValidationUtils.validateNotEmpty(value, 'Outcome cannot be empty'),
-//                 onFieldSubmitted: (value) => _submitAnswer(),
-//               ),
-//               const SizedBox(height: AppConstants.padding),
-//               Center(
-//                 child: ElevatedButton(
-//                   onPressed: _submitAnswer,
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: AppColors.accentColor,
-//                     foregroundColor: AppColors.cardColor,
-//                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                     padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                   ),
-//                   child: const Text('Submit Outcome'),
-//                 ),
-//               ),
 //             ],
-//           ),
+//             if (widget.isEnabled && !widget.showFeedback)
+//               CustomButton(
+//                 text: 'Submit Outcome',
+//                 onPressed: () => widget.onEvaluate(_outcomeController.text, widget.question.id),
+//                 backgroundColor: AppColors.primaryColor,
+//               ),
+//           ],
 //         ),
 //       ),
 //     );
@@ -364,45 +402,89 @@
 // import 'package:gamifier/widgets/questions/short_answer_question_widget.dart';
 // import 'package:gamifier/widgets/questions/scenario_question_widget.dart';
 // import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
 
 // class QuestionRenderer extends StatelessWidget {
 //   final Question question;
-//   final ValueChanged<String> onAnswerSubmitted;
+//   final ValueChanged<String> onAnswerSubmitted; // Generic submit, can be refined
+//   final bool showFeedback;
+//   final bool isCorrect;
+//   final String? userAnswer;
+//   final Function(String userResponse, String questionId)? onEvaluate;
+//   final bool isEnabled;
 
 //   const QuestionRenderer({
 //     super.key,
 //     required this.question,
 //     required this.onAnswerSubmitted,
+//     this.showFeedback = false,
+//     this.isCorrect = false,
+//     this.userAnswer,
+//     this.onEvaluate,
+//     this.isEnabled = true,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
+//     if (onEvaluate == null) {
+//       return Card(
+//         color: AppColors.errorColor.withOpacity(0.2),
+//         margin: const EdgeInsets.all(AppConstants.padding),
+//         child: Padding(
+//           padding: const EdgeInsets.all(AppConstants.padding),
+//           child: Text('Error: onEvaluate callback is required for QuestionRenderer. Question ID: ${question.id}',
+//               style: const TextStyle(color: AppColors.errorColor)),
+//         ),
+//       );
+//     }
+
 //     switch (question.type) {
-//       case QuestionType.mcq:
-//         return McqQuestionWidget(
+//       case 'MCQ':
+//         return MCQQuestionWidget(
 //           question: question,
-//           onAnswerSubmitted: onAnswerSubmitted,
+//           onEvaluate: onEvaluate!,
+//           isEnabled: isEnabled,
+//           showFeedback: showFeedback,
+//           isCorrect: isCorrect,
+//           userAnswer: userAnswer,
 //         );
-//       case QuestionType.fillInBlank:
+//       case 'FillInBlank':
 //         return FillInBlankQuestionWidget(
 //           question: question,
-//           onAnswerSubmitted: onAnswerSubmitted,
+//           onEvaluate: onEvaluate!,
+//           isEnabled: isEnabled,
+//           showFeedback: showFeedback,
+//           isCorrect: isCorrect,
+//           userAnswer: userAnswer,
 //         );
-//       case QuestionType.shortAnswer:
+//       case 'ShortAnswer':
 //         return ShortAnswerQuestionWidget(
 //           question: question,
-//           onAnswerSubmitted: onAnswerSubmitted,
+//           onEvaluate: onEvaluate!,
+//           isEnabled: isEnabled,
+//           showFeedback: showFeedback,
+//           isCorrect: isCorrect,
+//           userAnswer: userAnswer,
 //         );
-//       case QuestionType.scenario:
+//       case 'Scenario':
 //         return ScenarioQuestionWidget(
 //           question: question,
-//           onAnswerSubmitted: onAnswerSubmitted,
+//           onEvaluate: onEvaluate!,
+//           isEnabled: isEnabled,
+//           showFeedback: showFeedback,
+//           isCorrect: isCorrect,
+//           userAnswer: userAnswer,
 //         );
 //       default:
-//         return Center(
-//           child: Text(
-//             'Unknown question type: ${question.type}',
-//             style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.errorColor),
+//         return Card(
+//           color: AppColors.errorColor.withOpacity(0.2),
+//           margin: const EdgeInsets.all(AppConstants.padding),
+//           child: Padding(
+//             padding: const EdgeInsets.all(AppConstants.padding),
+//             child: Text(
+//               'Unsupported question type: ${question.type}. Question ID: ${question.id}',
+//               style: const TextStyle(color: AppColors.errorColor),
+//             ),
 //           ),
 //         );
 //     }
@@ -413,43 +495,62 @@
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/models/question.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
 
-// class McqQuestionWidget extends StatefulWidget {
+// class MCQQuestionWidget extends StatefulWidget {
 //   final Question question;
-//   final ValueChanged<String> onAnswerSubmitted;
+//   final Function(String userResponse, String questionId) onEvaluate;
+//   final bool isEnabled;
+//   final bool showFeedback;
+//   final bool isCorrect;
+//   final String? userAnswer;
 
-//   const McqQuestionWidget({
+//   const MCQQuestionWidget({
 //     super.key,
 //     required this.question,
-//     required this.onAnswerSubmitted,
+//     required this.onEvaluate,
+//     this.isEnabled = true,
+//     this.showFeedback = false,
+//     this.isCorrect = false,
+//     this.userAnswer,
 //   });
 
 //   @override
-//   State<McqQuestionWidget> createState() => _McqQuestionWidgetState();
+//   State<MCQQuestionWidget> createState() => _MCQQuestionWidgetState();
 // }
 
-// class _McqQuestionWidgetState extends State<McqQuestionWidget> {
+// class _MCQQuestionWidgetState extends State<MCQQuestionWidget> {
 //   String? _selectedOption;
 
-//   void _submitAnswer() {
-//     if (_selectedOption != null) {
-//       widget.onAnswerSubmitted(_selectedOption!);
-//     } else {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(
-//           content: Text('Please select an option.'),
-//           backgroundColor: AppColors.errorColor,
-//         ),
-//       );
+//   @override
+//   void initState() {
+//     super.initState();
+//     if (widget.userAnswer != null) {
+//       _selectedOption = widget.userAnswer;
 //     }
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
+//     if (widget.question.options == null || widget.question.options!.isEmpty) {
+//       return Card(
+//         color: AppColors.errorColor.withOpacity(0.2),
+//         margin: const EdgeInsets.all(AppConstants.padding),
+//         child: Padding(
+//           padding: const EdgeInsets.all(AppConstants.padding),
+//           child: Text('Error: MCQ question has no options. Question ID: ${widget.question.id}',
+//               style: const TextStyle(color: AppColors.errorColor)),
+//         ),
+//       );
+//     }
+
 //     return Card(
 //       color: AppColors.cardColor.withOpacity(0.9),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//       elevation: 4,
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//         side: BorderSide(color: widget.showFeedback ? (widget.isCorrect ? AppColors.successColor : AppColors.errorColor) : AppColors.borderColor, width: 2),
+//       ),
+//       elevation: 6,
 //       child: Padding(
 //         padding: const EdgeInsets.all(AppConstants.padding),
 //         child: Column(
@@ -457,43 +558,116 @@
 //           children: [
 //             Text(
 //               widget.question.questionText,
-//               style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
+//               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor),
 //             ),
 //             const SizedBox(height: AppConstants.padding),
-//             ...widget.question.options.map((option) {
+//             ...widget.question.options!.map((option) {
+//               bool isOptionSelected = _selectedOption == option;
+//               Color tileColor = Colors.transparent;
+//               Color textColor = AppColors.textColor;
+//               Color borderColor = AppColors.borderColor;
+
+//               if (widget.showFeedback) {
+//                 if (option == widget.question.correctAnswer) {
+//                   tileColor = AppColors.successColor.withOpacity(0.2);
+//                   borderColor = AppColors.successColor;
+//                 } else if (isOptionSelected && !widget.isCorrect) {
+//                   tileColor = AppColors.errorColor.withOpacity(0.2);
+//                   borderColor = AppColors.errorColor;
+//                 }
+//               } else if (isOptionSelected) {
+//                 tileColor = AppColors.primaryColor.withOpacity(0.5);
+//                 borderColor = AppColors.accentColor;
+//               }
+
 //               return Padding(
 //                 padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
-//                 child: RadioListTile<String>(
-//                   title: Text(
-//                     option,
-//                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
+//                 child: GestureDetector(
+//                   onTap: widget.isEnabled && !widget.showFeedback
+//                       ? () {
+//                           setState(() {
+//                             _selectedOption = option;
+//                           });
+//                         }
+//                       : null,
+//                   child: AnimatedContainer(
+//                     duration: AppConstants.defaultAnimationDuration,
+//                     padding: const EdgeInsets.all(AppConstants.spacing),
+//                     decoration: BoxDecoration(
+//                       color: tileColor,
+//                       borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
+//                       border: Border.all(color: borderColor, width: 1.5),
+//                     ),
+//                     child: Row(
+//                       children: [
+//                         Radio<String>(
+//                           value: option,
+//                           groupValue: _selectedOption,
+//                           onChanged: widget.isEnabled && !widget.showFeedback
+//                               ? (value) {
+//                                   setState(() {
+//                                     _selectedOption = value;
+//                                   });
+//                                 }
+//                               : null,
+//                           activeColor: AppColors.accentColor,
+//                           fillColor: MaterialStateProperty.resolveWith<Color>(
+//                             (Set<MaterialState> states) {
+//                               if (states.contains(MaterialState.disabled)) {
+//                                 return AppColors.textColorSecondary.withOpacity(0.5);
+//                               }
+//                               return AppColors.accentColor;
+//                             },
+//                           ),
+//                         ),
+//                         Expanded(
+//                           child: Text(
+//                             option,
+//                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+//                                   color: textColor,
+//                                 ),
+//                           ),
+//                         ),
+//                       ],
+//                     ),
 //                   ),
-//                   value: option,
-//                   groupValue: _selectedOption,
-//                   onChanged: (String? value) {
-//                     setState(() {
-//                       _selectedOption = value;
-//                     });
-//                   },
-//                   activeColor: AppColors.accentColor,
-//                   tileColor: AppColors.primaryColor.withOpacity(0.1),
-//                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
 //                 ),
 //               );
 //             }).toList(),
 //             const SizedBox(height: AppConstants.padding),
-//             Center(
-//               child: ElevatedButton(
-//                 onPressed: _submitAnswer,
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: AppColors.accentColor,
-//                   foregroundColor: AppColors.cardColor,
-//                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                   padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
+//             if (widget.showFeedback) ...[
+//               if (widget.isCorrect)
+//                 Text(
+//                   'Correct! You earned ${widget.question.xpReward} XP.',
+//                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.successColor),
+//                 )
+//               else
+//                 Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       'Incorrect. The correct answer was:',
+//                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.errorColor),
+//                     ),
+//                     Text(
+//                       widget.question.correctAnswer ?? 'N/A',
+//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                             color: AppColors.accentColor,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                     ),
+//                   ],
 //                 ),
-//                 child: const Text('Submit Answer'),
+//               const SizedBox(height: AppConstants.spacing),
+//             ],
+//             if (widget.isEnabled && !widget.showFeedback)
+//               CustomButton(
+//                 text: 'Submit Answer',
+//                 onPressed: _selectedOption == null
+//                     ? null
+//                     : () => widget.onEvaluate(_selectedOption!, widget.question.id),
+//                 backgroundColor: AppColors.primaryColor,
 //               ),
-//             ),
 //           ],
 //         ),
 //       ),
@@ -505,16 +679,25 @@
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/models/question.dart';
-// import 'package:gamifier/utils/validation_utils.dart'; // Import for validation
+// import 'package:gamifier/widgets/common/custom_text_field.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
 
 // class FillInBlankQuestionWidget extends StatefulWidget {
 //   final Question question;
-//   final ValueChanged<String> onAnswerSubmitted;
+//   final Function(String userResponse, String questionId) onEvaluate;
+//   final bool isEnabled;
+//   final bool showFeedback;
+//   final bool isCorrect;
+//   final String? userAnswer;
 
 //   const FillInBlankQuestionWidget({
 //     super.key,
 //     required this.question,
-//     required this.onAnswerSubmitted,
+//     required this.onEvaluate,
+//     this.isEnabled = true,
+//     this.showFeedback = false,
+//     this.isCorrect = false,
+//     this.userAnswer,
 //   });
 
 //   @override
@@ -522,70 +705,80 @@
 // }
 
 // class _FillInBlankQuestionWidgetState extends State<FillInBlankQuestionWidget> {
-//   final TextEditingController _controller = TextEditingController();
-//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+//   final TextEditingController _answerController = TextEditingController();
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     if (widget.userAnswer != null) {
+//       _answerController.text = widget.userAnswer!;
+//     }
+//   }
 
 //   @override
 //   void dispose() {
-//     _controller.dispose();
+//     _answerController.dispose();
 //     super.dispose();
-//   }
-
-//   void _submitAnswer() {
-//     if (_formKey.currentState!.validate()) {
-//       widget.onAnswerSubmitted(_controller.text);
-//     }
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Card(
 //       color: AppColors.cardColor.withOpacity(0.9),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//       elevation: 4,
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//         side: BorderSide(color: widget.showFeedback ? (widget.isCorrect ? AppColors.successColor : AppColors.errorColor) : AppColors.borderColor, width: 2),
+//       ),
+//       elevation: 6,
 //       child: Padding(
 //         padding: const EdgeInsets.all(AppConstants.padding),
-//         child: Form(
-//           key: _formKey,
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 widget.question.questionText,
-//                 style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-//               ),
-//               const SizedBox(height: AppConstants.padding),
-//               TextFormField(
-//                 controller: _controller,
-//                 style: const TextStyle(color: AppColors.textColor),
-//                 decoration: InputDecoration(
-//                   hintText: 'Type your answer here...',
-//                   hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7)),
-//                   filled: true,
-//                   fillColor: AppColors.primaryColor.withOpacity(0.1),
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                     borderSide: BorderSide.none,
-//                   ),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text(
+//               widget.question.questionText,
+//               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor),
+//             ),
+//             const SizedBox(height: AppConstants.padding),
+//             CustomTextField(
+//               controller: _answerController,
+//               labelText: 'Your Answer',
+//               hintText: 'Type your answer here',
+//               isEnabled: widget.isEnabled && !widget.showFeedback, // Pass isEnabled
+//             ),
+//             const SizedBox(height: AppConstants.padding),
+//             if (widget.showFeedback) ...[
+//               if (widget.isCorrect)
+//                 Text(
+//                   'Correct! You earned ${widget.question.xpReward} XP.',
+//                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.successColor),
+//                 )
+//               else
+//                 Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       'Incorrect. The correct answer was:',
+//                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.errorColor),
+//                     ),
+//                     Text(
+//                       widget.question.correctAnswer ?? 'N/A',
+//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                             color: AppColors.accentColor,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                     ),
+//                   ],
 //                 ),
-//                 validator: (value) => ValidationUtils.validateNotEmpty(value, 'Answer cannot be empty'),
-//                 onFieldSubmitted: (value) => _submitAnswer(),
-//               ),
-//               const SizedBox(height: AppConstants.padding),
-//               Center(
-//                 child: ElevatedButton(
-//                   onPressed: _submitAnswer,
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: AppColors.accentColor,
-//                     foregroundColor: AppColors.cardColor,
-//                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                     padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                   ),
-//                   child: const Text('Submit Answer'),
-//                 ),
-//               ),
+//               const SizedBox(height: AppConstants.spacing),
 //             ],
-//           ),
+//             if (widget.isEnabled && !widget.showFeedback)
+//               CustomButton(
+//                 text: 'Submit Answer',
+//                 onPressed: () => widget.onEvaluate(_answerController.text, widget.question.id),
+//                 backgroundColor: AppColors.primaryColor,
+//               ),
+//           ],
 //         ),
 //       ),
 //     );
@@ -650,426 +843,173 @@
 //             label: 'Profile',
 //           ),
 //           BottomNavigationBarItem(
-//             icon: Icon(Icons.people), // New icon for Community
+//             icon: Icon(Icons.people),
 //             label: 'Community',
 //           ),
-//           BottomNavigationBarItem( // New AI Chatbot entry
-//             icon: Icon(Icons.auto_awesome),
-//             label: 'AI Tutor',
+//           BottomNavigationBarItem( // New Chat item
+//             icon: Icon(Icons.chat),
+//             label: 'Chat',
 //           ),
 //         ],
 //       ),
 //     );
 //   }
 // }
-// // lib/widgets/gamification/level_path_painter.dart
+// // lib/widgets/lesson/lesson_content_display.dart
 // import 'package:flutter/material.dart';
-// import 'package:gamifier/constants/app_colors.dart';
-
-// class LevelPathPainter extends CustomPainter {
-//   final List<Offset> nodePositions;
-
-//   LevelPathPainter({required this.nodePositions});
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()
-//       ..color = AppColors.borderColor.withOpacity(0.5)
-//       ..strokeWidth = 4.0
-//       ..style = PaintingStyle.stroke
-//       ..strokeCap = StrokeCap.round;
-
-//     final completedPaint = Paint()
-//       ..color = AppColors.successColor.withOpacity(0.7)
-//       ..strokeWidth = 6.0
-//       ..style = PaintingStyle.stroke
-//       ..strokeCap = StrokeCap.round;
-
-//     if (nodePositions.length < 2) {
-//       return;
-//     }
-
-//     Path path = Path();
-//     path.moveTo(nodePositions[0].dx, nodePositions[0].dy);
-
-//     for (int i = 1; i < nodePositions.length; i++) {
-//       // Draw a quadratic bezier curve for a smoother path
-//       final controlPointX = (nodePositions[i - 1].dx + nodePositions[i].dx) / 2;
-//       final controlPointY = nodePositions[i - 1].dy; // Keep Y closer to previous node for a gentle curve
-
-//       path.quadraticBezierTo(
-//         controlPointX,
-//         controlPointY,
-//         nodePositions[i].dx,
-//         nodePositions[i].dy,
-//       );
-//     }
-//     canvas.drawPath(path, paint);
-
-//     // Optional: Draw a "completed" path segment in a different color
-//     // This requires knowing which levels are completed, which is typically handled
-//     // by passing more granular state down or calculating it here.
-//     // For now, let's assume we can mark initial segments as completed.
-//     // This is a placeholder for future enhancement to reflect actual progress.
-//     if (nodePositions.length > 1) {
-//       final completedPath = Path();
-//       completedPath.moveTo(nodePositions[0].dx, nodePositions[0].dy);
-//       // Example: Mark the first segment as completed if desired
-//       // You would adapt this based on `isCompleted` status of levels
-//       if (nodePositions.length > 1) {
-//          final controlPointX = (nodePositions[0].dx + nodePositions[1].dx) / 2;
-//          final controlPointY = nodePositions[0].dy;
-//          completedPath.quadraticBezierTo(
-//            controlPointX,
-//            controlPointY,
-//            nodePositions[1].dx,
-//            nodePositions[1].dy,
-//          );
-//          canvas.drawPath(completedPath, completedPaint);
-//       }
-//     }
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-//     return (oldDelegate as LevelPathPainter).nodePositions != nodePositions;
-//   }
-// }
-
-// // lib/widgets/gamification/level_node.dart
-// import 'package:flutter/material.dart';
+// import 'package:flutter_markdown/flutter_markdown.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/models/level.dart';
 
-// class LevelNode extends StatelessWidget {
-//   final Level level;
-//   final bool isLocked;
-//   final bool isCompleted;
-//   final VoidCallback onTap;
+// class LessonContentDisplay extends StatelessWidget {
+//   final String content;
 
-//   const LevelNode({
+//   const LessonContentDisplay({
 //     super.key,
-//     required this.level,
-//     required this.isLocked,
-//     required this.isCompleted,
-//     required this.onTap,
+//     required this.content,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
-//     Color nodeColor = AppColors.primaryColor;
-//     Color iconColor = AppColors.textColor;
-//     Color textColor = AppColors.textColor;
-//     IconData icon = Icons.lock; // Default for locked
-
-//     if (!isLocked) {
-//       if (isCompleted) {
-//         nodeColor = AppColors.successColor;
-//         iconColor = AppColors.cardColor;
-//         textColor = AppColors.cardColor;
-//         icon = Icons.check_circle;
-//       } else {
-//         nodeColor = AppColors.accentColor;
-//         iconColor = AppColors.cardColor;
-//         textColor = AppColors.cardColor;
-//         icon = Icons.play_arrow;
-//       }
-//     }
-
-//     return GestureDetector(
-//       onTap: isLocked ? null : onTap,
-//       child: Column(
-//         children: [
-//           Container(
-//             width: 80,
-//             height: 80,
-//             decoration: BoxDecoration(
-//               shape: BoxShape.circle,
-//               color: nodeColor,
-//               border: Border.all(
-//                 color: isLocked ? AppColors.borderColor : AppColors.accentColor,
-//                 width: 3.0,
-//               ),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: nodeColor.withOpacity(0.6),
-//                   blurRadius: isLocked ? 5 : 15,
-//                   spreadRadius: isLocked ? 0 : 5,
-//                 ),
-//               ],
-//             ),
-//             child: level.imageAssetPath != null && level.imageAssetPath!.isNotEmpty
-//                 ? ClipOval(
-//                     child: Image.asset(
-//                       level.imageAssetPath!,
-//                       width: 80,
-//                       height: 80,
-//                       fit: BoxFit.cover,
-//                       errorBuilder: (context, error, stackTrace) {
-//                         return Icon(icon, color: iconColor, size: 40);
-//                       },
-//                     ),
-//                   )
-//                 : Icon(
-//                     icon,
-//                     color: iconColor,
-//                     size: 40,
-//                   ),
-//           ),
-//           const SizedBox(height: AppConstants.spacing),
-//           Text(
-//             'Level ${level.order}',
-//             style: Theme.of(context).textTheme.titleSmall?.copyWith(
+//     return Card(
+//       color: AppColors.cardColor.withOpacity(0.9),
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//       ),
+//       elevation: 6,
+//       margin: const EdgeInsets.all(AppConstants.padding),
+//       child: Padding(
+//         padding: const EdgeInsets.all(AppConstants.padding),
+//         child: MarkdownBody(
+//           data: content,
+//           selectable: true,
+//           styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+//             p: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColor),
+//             h1: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColors.accentColor),
+//             h2: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.secondaryColor),
+//             h3: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.infoColor),
+//             strong: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textColor),
+//             em: const TextStyle(fontStyle: FontStyle.italic, color: AppColors.textColorSecondary),
+//             blockquote: Theme.of(context).textTheme.bodyMedium?.copyWith(
 //                   color: AppColors.textColorSecondary,
-//                   fontWeight: FontWeight.bold,
+//                   fontStyle: FontStyle.italic,
+//                   decorationColor: AppColors.borderColor,
 //                 ),
-//           ),
-//           Text(
-//             level.title,
-//             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                   color: textColor,
-//                   fontWeight: FontWeight.bold,
+//             code: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                   fontFamily: 'monospace',
+//                   backgroundColor: AppColors.progressTrackColor,
+//                   color: AppColors.accentColor,
 //                 ),
-//             textAlign: TextAlign.center,
-//             maxLines: 1,
-//             overflow: TextOverflow.ellipsis,
+//             codeblockDecoration: BoxDecoration(
+//               color: AppColors.progressTrackColor,
+//               borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
+//             ),
+//             listBullet: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.accentColor),
+//             tableBody: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColor),
+//             tableHead: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.accentColor, fontWeight: FontWeight.bold),
 //           ),
-//         ],
+//           onTapLink: (text, href, title) {
+//             // Implement link handling if needed
+//           },
+//         ),
 //       ),
 //     );
 //   }
 // }
-// // lib/widgets/gamification/leaderboard_list.dart
+// // lib/widgets/questions/question_renderer.dart
 // import 'package:flutter/material.dart';
+// import 'package:gamifier/models/question.dart';
+// import 'package:gamifier/widgets/questions/mcq_question_widget.dart';
+// import 'package:gamifier/widgets/questions/fill_in_blank_question_widget.dart';
+// import 'package:gamifier/widgets/questions/short_answer_question_widget.dart';
+// import 'package:gamifier/widgets/questions/scenario_question_widget.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/models/user_profile.dart';
 
-// class LeaderboardList extends StatelessWidget {
-//   final List<UserProfile> users;
+// class QuestionRenderer extends StatelessWidget {
+//   final Question question;
+//   final ValueChanged<String> onAnswerSubmitted; // Generic submit, can be refined
+//   final bool showFeedback;
+//   final bool isCorrect;
+//   final String? userAnswer;
+//   final Function(String userResponse, String questionId)? onEvaluate;
+//   final bool isEnabled;
 
-//   const LeaderboardList({super.key, required this.users});
+//   const QuestionRenderer({
+//     super.key,
+//     required this.question,
+//     required this.onAnswerSubmitted,
+//     this.showFeedback = false,
+//     this.isCorrect = false,
+//     this.userAnswer,
+//     this.onEvaluate,
+//     this.isEnabled = true,
+//   });
 
 //   @override
 //   Widget build(BuildContext context) {
-//     if (users.isEmpty) {
-//       return Center(
-//         child: Text(
-//           'No users on the leaderboard yet.',
-//           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
+//     if (onEvaluate == null) {
+//       return Card(
+//         color: AppColors.errorColor.withOpacity(0.2),
+//         margin: const EdgeInsets.all(AppConstants.padding),
+//         child: Padding(
+//           padding: const EdgeInsets.all(AppConstants.padding),
+//           child: Text('Error: onEvaluate callback is required for QuestionRenderer. Question ID: ${question.id}',
+//               style: const TextStyle(color: AppColors.errorColor)),
 //         ),
 //       );
 //     }
 
-//     return ListView.builder(
-//       shrinkWrap: true,
-//       physics: const NeverScrollableScrollPhysics(),
-//       itemCount: users.length,
-//       itemBuilder: (context, index) {
-//         final user = users[index];
-//         final rank = index + 1;
-//         Color rankColor = AppColors.textColorSecondary;
-//         if (rank == 1) {
-//           rankColor = AppColors.xpColor; // Gold for 1st
-//         } else if (rank == 2) {
-//           rankColor = AppColors.accentColor; // Silver for 2nd
-//         } else if (rank == 3) {
-//           rankColor = AppColors.levelColor; // Bronze for 3rd
-//         }
-
+//     switch (question.type) {
+//       case 'MCQ':
+//         return MCQQuestionWidget(
+//           question: question,
+//           onEvaluate: onEvaluate!,
+//           isEnabled: isEnabled,
+//           showFeedback: showFeedback,
+//           isCorrect: isCorrect,
+//           userAnswer: userAnswer,
+//         );
+//       case 'FillInBlank':
+//         return FillInBlankQuestionWidget(
+//           question: question,
+//           onEvaluate: onEvaluate!,
+//           isEnabled: isEnabled,
+//           showFeedback: showFeedback,
+//           isCorrect: isCorrect,
+//           userAnswer: userAnswer,
+//         );
+//       case 'ShortAnswer':
+//         return ShortAnswerQuestionWidget(
+//           question: question,
+//           onEvaluate: onEvaluate!,
+//           isEnabled: isEnabled,
+//           showFeedback: showFeedback,
+//           isCorrect: isCorrect,
+//           userAnswer: userAnswer,
+//         );
+//       case 'Scenario':
+//         return ScenarioQuestionWidget(
+//           question: question,
+//           onEvaluate: onEvaluate!,
+//           isEnabled: isEnabled,
+//           showFeedback: showFeedback,
+//           isCorrect: isCorrect,
+//           userAnswer: userAnswer,
+//         );
+//       default:
 //         return Card(
-//           margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
-//           color: AppColors.cardColor.withOpacity(0.9),
-//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//           elevation: 2,
+//           color: AppColors.errorColor.withOpacity(0.2),
+//           margin: const EdgeInsets.all(AppConstants.padding),
 //           child: Padding(
 //             padding: const EdgeInsets.all(AppConstants.padding),
-//             child: Row(
-//               children: [
-//                 Container(
-//                   width: 40,
-//                   alignment: Alignment.center,
-//                   child: Text(
-//                     '$rank.',
-//                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                           color: rankColor,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                   ),
-//                 ),
-//                 const SizedBox(width: AppConstants.padding),
-//                 CircleAvatar(
-//                   radius: 24,
-//                   backgroundImage: AssetImage(user.avatarAssetPath),
-//                   onBackgroundImageError: (exception, stackTrace) {
-//                     debugPrint('Error loading leaderboard avatar: $exception');
-//                   },
-//                 ),
-//                 const SizedBox(width: AppConstants.padding),
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         user.username,
-//                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                               color: AppColors.textColor,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                         overflow: TextOverflow.ellipsis,
-//                       ),
-//                       Text(
-//                         'Level: ${user.level} • XP: ${user.xp}',
-//                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-//                               color: AppColors.textColorSecondary,
-//                             ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 Icon(Icons.local_fire_department, color: AppColors.xpColor, size: AppConstants.iconSize), // 🔥 icon
-//                 const SizedBox(width: AppConstants.spacing / 2),
-//                 Text(
-//                   '${user.currentStreak}',
-//                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-//                         color: AppColors.xpColor,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                 ),
-//               ],
+//             child: Text(
+//               'Unsupported question type: ${question.type}. Question ID: ${question.id}',
+//               style: const TextStyle(color: AppColors.errorColor),
 //             ),
 //           ),
 //         );
-//       },
-//     );
-//   }
-// }
-// // lib/widgets/gamification/badge_display.dart
-// import 'package:flutter/material.dart' hide Badge; // Hide Badge from material.dart
-// import 'package:gamifier/constants/app_colors.dart';
-// import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/models/badge.dart'; // Explicitly import your Badge model
-
-// class BadgeDisplay extends StatelessWidget {
-//   final List<Badge> badges;
-
-//   const BadgeDisplay({super.key, required this.badges});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (badges.isEmpty) {
-//       return Center(
-//         child: Text(
-//           'No badges to display yet.',
-//           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
-//         ),
-//       );
 //     }
-
-//     return GridView.builder(
-//       shrinkWrap: true,
-//       physics: const NeverScrollableScrollPhysics(),
-//       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//         crossAxisCount: 3, // Adjust as needed
-//         crossAxisSpacing: AppConstants.spacing,
-//         mainAxisSpacing: AppConstants.spacing,
-//         childAspectRatio: 0.8, // Adjust for badge image and text
-//       ),
-//       itemCount: badges.length,
-//       itemBuilder: (context, index) {
-//         final badge = badges[index];
-//         return Card(
-//           color: AppColors.cardColor.withOpacity(0.9),
-//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//           elevation: 4,
-//           child: InkWell(
-//             onTap: () {
-//               // Optionally show a detailed modal for the badge
-//               _showBadgeDetail(context, badge);
-//             },
-//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//             child: Padding(
-//               padding: const EdgeInsets.all(AppConstants.spacing),
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Image.asset(
-//                     badge.imageUrl,
-//                     width: AppConstants.badgeSize * 1.5,
-//                     height: AppConstants.badgeSize * 1.5,
-//                     fit: BoxFit.contain,
-//                     errorBuilder: (context, error, stackTrace) {
-//                       return Icon(Icons.star, size: AppConstants.badgeSize * 1.5, color: AppColors.xpColor);
-//                     },
-//                   ),
-//                   const SizedBox(height: AppConstants.spacing / 2),
-//                   Text(
-//                     badge.name,
-//                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-//                           color: AppColors.textColor,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                     textAlign: TextAlign.center,
-//                     maxLines: 1,
-//                     overflow: TextOverflow.ellipsis,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   void _showBadgeDetail(BuildContext context, Badge badge) {
-//     showDialog(
-//       context: context,
-//       builder: (context) {
-//         return AlertDialog(
-//           backgroundColor: AppColors.cardColor.withOpacity(0.95),
-//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//           title: Text(
-//             badge.name,
-//             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                   color: AppColors.accentColor,
-//                   fontWeight: FontWeight.bold,
-//                 ),
-//             textAlign: TextAlign.center,
-//           ),
-//           content: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               Image.asset(
-//                 badge.imageUrl,
-//                 width: AppConstants.badgeSize * 2,
-//                 height: AppConstants.badgeSize * 2,
-//                 fit: BoxFit.contain,
-//                 errorBuilder: (context, error, stackTrace) {
-//                   return Icon(Icons.star, size: AppConstants.badgeSize * 2, color: AppColors.xpColor);
-//                 },
-//               ),
-//               const SizedBox(height: AppConstants.padding),
-//               Text(
-//                 badge.description,
-//                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColor),
-//                 textAlign: TextAlign.center,
-//               ),
-//             ],
-//           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () => Navigator.of(context).pop(),
-//               child: Text(
-//                 'Close',
-//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.accentColor),
-//               ),
-//             ),
-//           ],
-//         );
-//       },
-//     );
 //   }
 // }
 // // lib/widgets/gamification/avatar_customizer.dart
@@ -1079,75 +1019,254 @@
 // import 'package:gamifier/models/avatar_asset.dart';
 
 // class AvatarCustomizer extends StatelessWidget {
+//   final String currentAvatarPath;
 //   final List<AvatarAsset> availableAvatars;
-//   final String? selectedAvatarId;
-//   final Function(AvatarAsset) onAvatarSelected;
+//   final Function(String) onAvatarSelected;
 
 //   const AvatarCustomizer({
 //     super.key,
+//     required this.currentAvatarPath,
 //     required this.availableAvatars,
-//     this.selectedAvatarId,
 //     required this.onAvatarSelected,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
-//     return GridView.builder(
-//       padding: const EdgeInsets.all(AppConstants.padding),
-//       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//         crossAxisCount: 3,
-//         crossAxisSpacing: AppConstants.padding,
-//         mainAxisSpacing: AppConstants.padding,
-//         childAspectRatio: 0.8,
-//       ),
-//       itemCount: availableAvatars.length,
-//       itemBuilder: (context, index) {
-//         final avatar = availableAvatars[index];
-//         final bool isSelected = avatar.id == selectedAvatarId;
-
-//         return GestureDetector(
-//           onTap: () => onAvatarSelected(avatar),
-//           child: AnimatedContainer(
-//             duration: AppConstants.defaultAnimationDuration,
-//             decoration: BoxDecoration(
-//               color: isSelected ? AppColors.primaryColor.withOpacity(0.4) : AppColors.cardColor.withOpacity(0.7),
-//               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//               border: Border.all(
-//                 color: isSelected ? AppColors.accentColor : Colors.transparent,
-//                 width: isSelected ? 3.0 : 0.0,
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.center,
+//       children: [
+//         CircleAvatar(
+//           radius: AppConstants.avatarSize * 0.8,
+//           backgroundColor: AppColors.cardColor,
+//           backgroundImage: AssetImage(currentAvatarPath),
+//           onBackgroundImageError: (exception, stackTrace) {
+//             debugPrint('Error loading current avatar: $exception');
+//           },
+//           child: currentAvatarPath.isEmpty
+//               ? Icon(Icons.person, size: AppConstants.avatarSize * 0.8, color: AppColors.textColorSecondary)
+//               : null,
+//         ),
+//         const SizedBox(height: AppConstants.padding),
+//         Text(
+//           'Choose Your Avatar',
+//           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+//                 color: AppColors.textColor,
+//                 fontWeight: FontWeight.bold,
 //               ),
-//               boxShadow: isSelected
-//                   ? [
-//                       BoxShadow(
-//                         color: AppColors.accentColor.withOpacity(0.5),
-//                         blurRadius: 10,
-//                         spreadRadius: 2,
-//                       ),
-//                     ]
-//                   : [],
-//             ),
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Image.asset(
-//                   avatar.assetPath,
-//                   width: AppConstants.avatarSize,
-//                   height: AppConstants.avatarSize,
-//                   fit: BoxFit.cover,
-//                   errorBuilder: (context, error, stackTrace) {
-//                     return Icon(Icons.person, size: AppConstants.avatarSize, color: AppColors.errorColor);
-//                   },
+//         ),
+//         const SizedBox(height: AppConstants.padding),
+//         Wrap(
+//           spacing: AppConstants.spacing,
+//           runSpacing: AppConstants.spacing,
+//           alignment: WrapAlignment.center,
+//           children: availableAvatars.map((avatar) {
+//             final isSelected = avatar.assetPath == currentAvatarPath;
+//             return GestureDetector(
+//               onTap: () => onAvatarSelected(avatar.assetPath),
+//               child: AnimatedContainer(
+//                 duration: AppConstants.defaultAnimationDuration,
+//                 curve: Curves.easeInOut,
+//                 width: AppConstants.avatarSize,
+//                 height: AppConstants.avatarSize,
+//                 decoration: BoxDecoration(
+//                   color: AppColors.cardColor,
+//                   borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//                   border: Border.all(
+//                     color: isSelected ? AppColors.accentColor : AppColors.borderColor,
+//                     width: isSelected ? 3.0 : 1.0,
+//                   ),
+//                   boxShadow: isSelected
+//                       ? [
+//                           BoxShadow(
+//                             color: AppColors.accentColor.withOpacity(0.5),
+//                             blurRadius: 10,
+//                             spreadRadius: 2,
+//                           ),
+//                         ]
+//                       : [],
 //                 ),
-//                 const SizedBox(height: AppConstants.spacing),
+//                 child: ClipRRect(
+//                   borderRadius: BorderRadius.circular(AppConstants.borderRadius - 2),
+//                   child: Image.asset(
+//                     avatar.assetPath,
+//                     fit: BoxFit.cover,
+//                     errorBuilder: (context, error, stackTrace) {
+//                       return Center(child: Icon(Icons.broken_image, color: AppColors.errorColor));
+//                     },
+//                   ),
+//                 ),
+//               ),
+//             );
+//           }).toList(),
+//         ),
+//       ],
+//     );
+//   }
+// }
+// // lib/widgets/gamification/badge_display.dart
+// import 'package:flutter/material.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/models/badge.dart' as gamifier_badge; // Alias the model Badge
+
+// class BadgeDisplay extends StatelessWidget {
+//   final gamifier_badge.Badge badge; // Use aliased Badge
+//   final bool isEarned;
+
+//   const BadgeDisplay({
+//     super.key,
+//     required this.badge,
+//     this.isEarned = true,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Tooltip(
+//       message: '${badge.name}: ${badge.description}',
+//       child: Opacity(
+//         opacity: isEarned ? 1.0 : 0.4,
+//         child: Container(
+//           width: AppConstants.badgeSize * 1.2,
+//           height: AppConstants.badgeSize * 1.2,
+//           decoration: BoxDecoration(
+//             color: AppColors.cardColor,
+//             borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
+//             border: Border.all(
+//               color: isEarned ? AppColors.accentColor : AppColors.borderColor,
+//               width: 1.0,
+//             ),
+//             boxShadow: isEarned
+//                 ? [
+//                     BoxShadow(
+//                       color: AppColors.accentColor.withOpacity(0.3),
+//                       blurRadius: 8,
+//                       spreadRadius: 1,
+//                     ),
+//                   ]
+//                 : [],
+//           ),
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Icon(
+//                 badge.icon,
+//                 color: isEarned ? AppColors.xpColor : AppColors.textColorSecondary,
+//                 size: AppConstants.badgeSize * 0.6,
+//               ),
+//               const SizedBox(height: AppConstants.spacing / 4),
+//               Text(
+//                 badge.name,
+//                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
+//                       color: isEarned ? AppColors.textColor : AppColors.textColorSecondary,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                 textAlign: TextAlign.center,
+//                 maxLines: 1,
+//                 overflow: TextOverflow.ellipsis,
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+// // lib/widgets/gamification/leaderboard_list.dart
+// import 'package:flutter/material.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/models/user_profile.dart';
+// import 'package:gamifier/widgets/gamification/streak_display.dart';
+
+// class LeaderboardList extends StatelessWidget {
+//   final List<UserProfile> users;
+//   final String currentUserId;
+
+//   const LeaderboardList({
+//     super.key,
+//     required this.users,
+//     required this.currentUserId,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ListView.builder(
+//       shrinkWrap: true,
+//       physics: const NeverScrollableScrollPhysics(),
+//       itemCount: users.length,
+//       itemBuilder: (context, index) {
+//         final user = users[index];
+//         final bool isCurrentUser = user.uid == currentUserId;
+
+//         return Card(
+//           color: isCurrentUser ? AppColors.primaryColor.withOpacity(0.9) : AppColors.cardColor.withOpacity(0.9),
+//           margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//             side: BorderSide(
+//               color: isCurrentUser ? AppColors.accentColor : AppColors.borderColor,
+//               width: isCurrentUser ? 2.0 : 1.0,
+//             ),
+//           ),
+//           elevation: isCurrentUser ? 8 : 4,
+//           child: Padding(
+//             padding: const EdgeInsets.all(AppConstants.padding),
+//             child: Row(
+//               children: [
 //                 Text(
-//                   avatar.name,
-//                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-//                         color: isSelected ? AppColors.accentColor : AppColors.textColor,
-//                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+//                   '#${index + 1}',
+//                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
+//                         color: isCurrentUser ? AppColors.accentColor : AppColors.textColorSecondary,
+//                         fontWeight: FontWeight.bold,
 //                       ),
-//                   textAlign: TextAlign.center,
-//                   maxLines: 1,
-//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//                 const SizedBox(width: AppConstants.padding),
+//                 CircleAvatar(
+//                   radius: 24,
+//                   backgroundColor: AppColors.progressTrackColor,
+//                   backgroundImage: AssetImage(user.avatarAssetPath),
+//                   onBackgroundImageError: (exception, stackTrace) {
+//                     debugPrint('Error loading leaderboard avatar: $exception');
+//                   },
+//                   child: user.avatarAssetPath.isEmpty
+//                       ? const Icon(Icons.person, color: AppColors.textColorSecondary, size: 24)
+//                       : null,
+//                 ),
+//                 const SizedBox(width: AppConstants.padding),
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         user.username,
+//                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                               color: isCurrentUser ? AppColors.textColor : AppColors.textColor,
+//                               fontWeight: FontWeight.bold,
+//                             ),
+//                         maxLines: 1,
+//                         overflow: TextOverflow.ellipsis,
+//                       ),
+//                       Text(
+//                         'Level ${user.level}',
+//                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+//                               color: isCurrentUser ? AppColors.levelColor : AppColors.textColorSecondary,
+//                             ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 Column(
+//                   crossAxisAlignment: CrossAxisAlignment.end,
+//                   children: [
+//                     Text(
+//                       '${user.xp} XP',
+//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                             color: AppColors.xpColor,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                     ),
+//                     StreakDisplay(currentStreak: user.currentStreak), // Display streak
+//                   ],
 //                 ),
 //               ],
 //             ),
@@ -1157,138 +1276,177 @@
 //     );
 //   }
 // }
-// // lib/widgets/feedback/personalized_feedback_modal.dart
+// // lib/widgets/gamification/level_node.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/models/level.dart';
 
-// class PersonalizedFeedbackModal extends StatelessWidget {
-//   final String feedbackText;
-//   final String? socraticFollowUp;
-//   final String? adaptiveHints;
-//   final String encouragement;
-//   final bool isCorrect;
+// class LevelNode extends StatelessWidget {
+//   final Level level;
+//   final bool isCompleted;
+//   final bool isLocked;
+//   final VoidCallback? onTap;
 
-//   const PersonalizedFeedbackModal({
+//   const LevelNode({
 //     super.key,
-//     required this.feedbackText,
-//     this.socraticFollowUp,
-//     this.adaptiveHints,
-//     required this.encouragement,
-//     this.isCorrect = false,
+//     required this.level,
+//     this.isCompleted = false,
+//     this.isLocked = false,
+//     this.onTap,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
-//     return AlertDialog(
-//       backgroundColor: AppColors.cardColor.withOpacity(0.95),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//       titlePadding: EdgeInsets.zero,
-//       contentPadding: const EdgeInsets.all(AppConstants.padding),
-//       title: Container(
-//         padding: const EdgeInsets.all(AppConstants.padding),
-//         decoration: BoxDecoration(
-//           color: isCorrect ? AppColors.successColor : AppColors.errorColor,
-//           borderRadius: const BorderRadius.vertical(top: Radius.circular(AppConstants.borderRadius)),
-//         ),
-//         child: Row(
-//           children: [
-//             Icon(
-//               isCorrect ? Icons.check_circle_outline : Icons.cancel_outlined,
-//               color: AppColors.cardColor,
-//               size: AppConstants.iconSize * 1.5,
+//     return GestureDetector(
+//       onTap: isLocked ? null : onTap,
+//       child: Opacity(
+//         opacity: isLocked ? 0.6 : 1.0,
+//         child: Container(
+//           width: double.infinity,
+//           margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
+//           padding: const EdgeInsets.all(AppConstants.padding),
+//           decoration: BoxDecoration(
+//             color: isCompleted
+//                 ? AppColors.successColor.withOpacity(0.2)
+//                 : (isLocked ? AppColors.progressTrackColor : AppColors.cardColor),
+//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//             border: Border.all(
+//               color: isCompleted
+//                   ? AppColors.successColor
+//                   : (isLocked ? AppColors.borderColor : AppColors.accentColor),
+//               width: isLocked ? 1.0 : 2.0,
 //             ),
-//             const SizedBox(width: AppConstants.spacing),
-//             Expanded(
-//               child: Text(
-//                 isCorrect ? 'Correct Answer!' : 'Let\'s Review!',
-//                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                       color: AppColors.cardColor,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//       content: SingleChildScrollView(
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             Text(
-//               feedbackText,
-//               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColor),
-//             ),
-//             if (socraticFollowUp != null && socraticFollowUp!.isNotEmpty) ...[
-//               const SizedBox(height: AppConstants.padding),
-//               Text(
-//                 '🤔 Socratic Question:',
-//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                       color: AppColors.primaryColor,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//               ),
-//               const SizedBox(height: AppConstants.spacing / 2),
-//               Text(
-//                 socraticFollowUp!,
-//                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: isCompleted
+//                     ? AppColors.successColor.withOpacity(0.3)
+//                     : (isLocked ? Colors.transparent : AppColors.accentColor.withOpacity(0.3)),
+//                 blurRadius: isLocked ? 0 : 10,
+//                 spreadRadius: isLocked ? 0 : 2,
 //               ),
 //             ],
-//             if (adaptiveHints != null && adaptiveHints!.isNotEmpty) ...[
-//               const SizedBox(height: AppConstants.padding),
-//               Text(
-//                 '💡 Hint:',
-//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                       color: AppColors.levelColor,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//               ),
-//               const SizedBox(height: AppConstants.spacing / 2),
-//               Text(
-//                 adaptiveHints!,
-//                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-//               ),
-//             ],
-//             const SizedBox(height: AppConstants.padding),
-//             Text(
-//               encouragement,
-//               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-//                     color: AppColors.accentColor,
-//                     fontWeight: FontWeight.bold,
-//                     fontStyle: FontStyle.italic,
+//           ),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Text(
+//                     'Level ${level.order}',
+//                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
+//                           color: isCompleted ? AppColors.successColor : AppColors.infoColor,
+//                           fontWeight: FontWeight.bold,
+//                         ),
 //                   ),
-//             ),
-//           ],
-//         ),
-//       ),
-//       actions: [
-//         TextButton(
-//           onPressed: () => Navigator.of(context).pop(),
-//           child: Text(
-//             'Got It!',
-//             style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.accentColor),
+//                   if (isCompleted)
+//                     const Icon(Icons.check_circle, color: AppColors.successColor, size: AppConstants.iconSize),
+//                   if (isLocked)
+//                     const Icon(Icons.lock, color: AppColors.textColorSecondary, size: AppConstants.iconSize),
+//                 ],
+//               ),
+//               const SizedBox(height: AppConstants.spacing),
+//               Text(
+//                 level.title,
+//                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
+//                       color: AppColors.textColor,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                 maxLines: 2,
+//                 overflow: TextOverflow.ellipsis,
+//               ),
+//               const SizedBox(height: AppConstants.spacing / 2),
+//               Text(
+//                 level.description,
+//                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+//                       color: AppColors.textColorSecondary,
+//                     ),
+//                 maxLines: 3,
+//                 overflow: TextOverflow.ellipsis,
+//               ),
+//               const SizedBox(height: AppConstants.spacing),
+//               Row(
+//                 children: [
+//                   Icon(Icons.star, color: AppColors.xpColor, size: AppConstants.iconSize * 0.8),
+//                   const SizedBox(width: AppConstants.spacing / 2),
+//                   Text(
+//                     'Difficulty: ${level.difficulty}',
+//                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.xpColor),
+//                   ),
+//                 ],
+//               ),
+//               if (level.imageAssetPath != null && level.imageAssetPath!.isNotEmpty) ...[
+//                 const SizedBox(height: AppConstants.spacing),
+//                 Align(
+//                   alignment: Alignment.center,
+//                   child: ClipRRect(
+//                     borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
+//                     child: Image.asset(
+//                       level.imageAssetPath!,
+//                       height: 80,
+//                       width: 80,
+//                       fit: BoxFit.cover,
+//                       errorBuilder: (context, error, stackTrace) {
+//                         return Container(
+//                           height: 80,
+//                           width: 80,
+//                           color: AppColors.progressTrackColor,
+//                           child: const Center(
+//                             child: Icon(Icons.image_not_supported, color: AppColors.textColorSecondary, size: 40),
+//                           ),
+//                         );
+//                       },
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ],
 //           ),
 //         ),
-//       ],
+//       ),
 //     );
 //   }
 // }
-// // lib/widgets/common/xp_level_display.dart
+// // lib/widgets/gamification/level_path_painter.dart
+// import 'package:flutter/material.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+
+// class LevelPathPainter extends CustomPainter {
+//   final bool isPreviousLevelCompleted;
+
+//   LevelPathPainter({required this.isPreviousLevelCompleted});
+
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final Paint paint = Paint()
+//       ..color = isPreviousLevelCompleted ? AppColors.successColor : AppColors.borderColor
+//       ..strokeWidth = 3.0
+//       ..strokeCap = StrokeCap.round;
+
+//     // Draw a vertical line
+//     canvas.drawLine(Offset(size.width / 2, 0), Offset(size.width / 2, size.height), paint);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) {
+//     if (oldDelegate is LevelPathPainter) {
+//       return oldDelegate.isPreviousLevelCompleted != isPreviousLevelCompleted;
+//     }
+//     return false;
+//   }
+// }
+// // lib/widgets/gamification/streak_display.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 
-// class XpLevelDisplay extends StatelessWidget {
-//   final int xp;
-//   final int level;
-//   final bool showLabel; // New property to optionally show "XP" and "Level" labels
+// class StreakDisplay extends StatelessWidget {
+//   final int currentStreak;
 
-//   const XpLevelDisplay({
+//   const StreakDisplay({
 //     super.key,
-//     required this.xp,
-//     required this.level,
-//     this.showLabel = false,
+//     required this.currentStreak,
 //   });
 
 //   @override
@@ -1306,22 +1464,12 @@
 //       child: Row(
 //         mainAxisSize: MainAxisSize.min,
 //         children: [
-//           Icon(Icons.star, color: AppColors.xpColor, size: AppConstants.iconSize),
+//           Icon(Icons.local_fire_department, color: AppColors.streakColor, size: AppConstants.iconSize),
 //           const SizedBox(width: AppConstants.spacing / 2),
 //           Text(
-//             '${showLabel ? 'XP: ' : ''}$xp',
+//             '$currentStreak Day Streak!',
 //             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-//                   color: AppColors.xpColor,
-//                   fontWeight: FontWeight.bold,
-//                 ),
-//           ),
-//           const SizedBox(width: AppConstants.spacing),
-//           Icon(Icons.military_tech, color: AppColors.levelColor, size: AppConstants.iconSize),
-//           const SizedBox(width: AppConstants.spacing / 2),
-//           Text(
-//             '${showLabel ? 'Level: ' : ''}$level',
-//             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-//                   color: AppColors.levelColor,
+//                   color: AppColors.streakColor,
 //                   fontWeight: FontWeight.bold,
 //                 ),
 //           ),
@@ -1330,121 +1478,494 @@
 //     );
 //   }
 // }
-// // lib/widgets/common/progress_bar.dart
+// // lib/widgets/feedback/personalized_feedback_modal.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
 
-// class ProgressBar extends StatelessWidget {
-//   final double progress; // Value between 0.0 and 1.0
-//   final double? width;
-//   final double height;
-//   final Color backgroundColor;
-//   final Color foregroundColor;
-//   final String? label;
+// class PersonalizedFeedbackModal extends StatelessWidget {
+//   final String feedbackText;
+//   final String? socraticFollowUp;
+//   final String? adaptiveHints;
+//   final String encouragement;
+//   final bool isCorrect;
 
-//   const ProgressBar({
+//   const PersonalizedFeedbackModal({
 //     super.key,
-//     required this.progress,
-//     this.width,
-//     this.height = 10.0,
-//     this.backgroundColor = AppColors.borderColor,
-//     this.foregroundColor = AppColors.accentColor,
-//     this.label,
+//     required this.feedbackText,
+//     this.socraticFollowUp,
+//     this.adaptiveHints,
+//     required this.encouragement,
+//     required this.isCorrect,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
-//     return Column(
-//       mainAxisSize: MainAxisSize.min,
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         if (label != null)
-//           Padding(
-//             padding: const EdgeInsets.only(bottom: AppConstants.spacing / 4),
-//             child: Text(
-//               label!,
-//               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textColorSecondary),
+//     return Dialog(
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//       ),
+//       elevation: 0,
+//       backgroundColor: Colors.transparent,
+//       child: Stack(
+//         children: [
+//           Container(
+//             padding: const EdgeInsets.all(AppConstants.padding * 1.5),
+//             margin: const EdgeInsets.only(top: AppConstants.avatarSize / 2),
+//             decoration: BoxDecoration(
+//               color: AppColors.cardColor.withOpacity(0.95),
+//               shape: BoxShape.rectangle,
+//               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//               boxShadow: const [
+//                 BoxShadow(
+//                   color: Colors.black26,
+//                   blurRadius: 10.0,
+//                   offset: Offset(0.0, 10.0),
+//                 ),
+//               ],
 //             ),
-//           ),
-//         Container(
-//           width: width,
-//           height: height,
-//           decoration: BoxDecoration(
-//             color: backgroundColor,
-//             borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
-//           ),
-//           child: LayoutBuilder(
-//             builder: (context, constraints) {
-//               return Stack(
-//                 children: [
-//                   FractionallySizedBox(
-//                     widthFactor: progress.clamp(0.0, 1.0),
-//                     child: Container(
-//                       decoration: BoxDecoration(
-//                         color: foregroundColor,
-//                         borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: <Widget>[
+//                 const SizedBox(height: AppConstants.avatarSize / 2), // Space for icon
+//                 Text(
+//                   isCorrect ? 'Great Job!' : 'Let\'s Learn More!',
+//                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+//                         color: isCorrect ? AppColors.successColor : AppColors.warningColor,
+//                         fontWeight: FontWeight.bold,
 //                       ),
-//                     ),
+//                   textAlign: TextAlign.center,
+//                 ),
+//                 const SizedBox(height: AppConstants.spacing),
+//                 Text(
+//                   feedbackText,
+//                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColor),
+//                   textAlign: TextAlign.center,
+//                 ),
+//                 if (socraticFollowUp != null && socraticFollowUp!.isNotEmpty) ...[
+//                   const Divider(color: AppColors.borderColor, height: AppConstants.padding * 1.5),
+//                   Text(
+//                     'Think about this:',
+//                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
+//                           color: AppColors.infoColor,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                     textAlign: TextAlign.center,
+//                   ),
+//                   const SizedBox(height: AppConstants.spacing / 2),
+//                   Text(
+//                     socraticFollowUp!,
+//                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+//                           color: AppColors.textColorSecondary,
+//                           fontStyle: FontStyle.italic,
+//                         ),
+//                     textAlign: TextAlign.center,
 //                   ),
 //                 ],
-//               );
-//             },
+//                 if (adaptiveHints != null && adaptiveHints!.isNotEmpty) ...[
+//                   const Divider(color: AppColors.borderColor, height: AppConstants.padding * 1.5),
+//                   Text(
+//                     'Hint:',
+//                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
+//                           color: AppColors.accentColor,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                     textAlign: TextAlign.center,
+//                   ),
+//                   const SizedBox(height: AppConstants.spacing / 2),
+//                   Text(
+//                     adaptiveHints!,
+//                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
+//                     textAlign: TextAlign.center,
+//                   ),
+//                 ],
+//                 const Divider(color: AppColors.borderColor, height: AppConstants.padding * 1.5),
+//                 Text(
+//                   encouragement,
+//                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+//                         color: isCorrect ? AppColors.levelColor : AppColors.infoColor,
+//                         fontWeight: FontWeight.bold,
+//                       ),
+//                   textAlign: TextAlign.center,
+//                 ),
+//                 const SizedBox(height: AppConstants.padding * 1.5),
+//                 CustomButton(
+//                   text: 'Got It!',
+//                   onPressed: () {
+//                     Navigator.of(context).pop();
+//                   },
+//                   backgroundColor: AppColors.primaryColor,
+//                 ),
+//               ],
+//             ),
 //           ),
-//         ),
-//       ],
+//           Positioned(
+//             left: AppConstants.padding,
+//             right: AppConstants.padding,
+//             child: CircleAvatar(
+//               backgroundColor: isCorrect ? AppColors.successColor : AppColors.errorColor,
+//               radius: AppConstants.avatarSize / 2,
+//               child: Icon(
+//                 isCorrect ? Icons.check_circle_outline : Icons.lightbulb_outline,
+//                 color: Colors.white,
+//                 size: AppConstants.avatarSize / 1.5,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
 //     );
 //   }
 // }
-// // lib/widgets/common/loading_indicator.dart
+// // lib/widgets/community/post_card.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/models/community_post.dart';
+// import 'package:intl/intl.dart';
+// import 'package:provider/provider.dart';
+// import 'package:gamifier/services/firebase_service.dart';
 
-// class LoadingIndicator extends StatelessWidget {
-//   final String message;
+// class PostCard extends StatefulWidget {
+//   final CommunityPost post;
+//   final String currentUserId;
+//   final Function(String postId)? onDelete; // New optional callback for deletion
 
-//   const LoadingIndicator({
+//   const PostCard({
 //     super.key,
-//     this.message = 'Loading...',
+//     required this.post,
+//     required this.currentUserId,
+//     this.onDelete, // Added to constructor
 //   });
 
 //   @override
+//   State<PostCard> createState() => _PostCardState();
+// }
+
+// class _PostCardState extends State<PostCard> {
+//   final TextEditingController _commentController = TextEditingController();
+//   bool _showComments = false;
+
+//   @override
+//   void dispose() {
+//     _commentController.dispose();
+//     super.dispose();
+//   }
+
+//   String _formatTimestamp(DateTime timestamp) {
+//     final now = DateTime.now();
+//     final difference = now.difference(timestamp);
+
+//     if (difference.inDays > 7) {
+//       return DateFormat.yMMMd().format(timestamp);
+//     } else if (difference.inDays > 0) {
+//       return '${difference.inDays}d ago';
+//     } else if (difference.inHours > 0) {
+//       return '${difference.inHours}h ago';
+//     } else if (difference.inMinutes > 0) {
+//       return '${difference.inMinutes}m ago';
+//     } else {
+//       return 'just now';
+//     }
+//   }
+
+//   Future<void> _toggleLike() async {
+//     try {
+//       await Provider.of<FirebaseService>(context, listen: false)
+//           .toggleLikeOnPost(widget.post.id, widget.currentUserId);
+//     } catch (e) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Error liking post: $e'),
+//           backgroundColor: AppColors.errorColor,
+//         ),
+//       );
+//     }
+//   }
+
+//   Future<void> _addComment() async {
+//     if (_commentController.text.trim().isEmpty) return;
+
+//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//     final userProfile = await firebaseService.getUserProfile(widget.currentUserId);
+
+//     if (userProfile == null) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('User profile not found. Cannot add comment.'),
+//           backgroundColor: AppColors.errorColor,
+//         ),
+//       );
+//       return;
+//     }
+
+//     final newComment = Comment(
+//       id: firebaseService.generateNewDocId(),
+//       userId: widget.currentUserId,
+//       username: userProfile.username,
+//       avatarUrl: userProfile.avatarAssetPath,
+//       text: _commentController.text.trim(),
+//       timestamp: DateTime.now(),
+//     );
+
+//     try {
+//       await firebaseService.addCommentToPost(widget.post.id, newComment);
+//       _commentController.clear();
+//       if (!_showComments) {
+//         setState(() {
+//           _showComments = true; // Automatically show comments after adding one
+//         });
+//       }
+//     } catch (e) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Error adding comment: $e'),
+//           backgroundColor: AppColors.errorColor,
+//         ),
+//       );
+//     }
+//   }
+
+//   @override
 //   Widget build(BuildContext context) {
-//     return Container(
-//       color: Colors.black.withOpacity(0.7), // Semi-transparent black overlay
-//       child: Center(
+//     final bool isLiked = widget.post.likedBy.contains(widget.currentUserId);
+//     final bool canDelete = widget.onDelete != null && widget.post.authorId == widget.currentUserId;
+
+//     return Card(
+//       color: AppColors.cardColor.withOpacity(0.9),
+//       margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//         side: const BorderSide(color: AppColors.borderColor, width: 1.0),
+//       ),
+//       elevation: 6,
+//       child: Padding(
+//         padding: const EdgeInsets.all(AppConstants.padding),
 //         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
+//           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
-//             const CircularProgressIndicator(
-//               valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor),
-//               strokeWidth: 4,
+//             Row(
+//               children: [
+//                 CircleAvatar(
+//                   radius: 20,
+//                   backgroundImage: widget.post.authorAvatarUrl.isNotEmpty
+//                       ? AssetImage(widget.post.authorAvatarUrl)
+//                       : null,
+//                   onBackgroundImageError: (exception, stackTrace) {
+//                     debugPrint('Error loading avatar for post: $exception');
+//                   },
+//                   child: widget.post.authorAvatarUrl.isEmpty
+//                       ? const Icon(Icons.person, color: AppColors.textColorSecondary)
+//                       : null,
+//                 ),
+//                 const SizedBox(width: AppConstants.spacing),
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         widget.post.authorUsername,
+//                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                               color: AppColors.accentColor,
+//                               fontWeight: FontWeight.bold,
+//                             ),
+//                       ),
+//                       Text(
+//                         _formatTimestamp(widget.post.timestamp),
+//                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                               color: AppColors.textColorSecondary,
+//                             ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 if (canDelete)
+//                   IconButton(
+//                     icon: const Icon(Icons.delete, color: AppColors.errorColor),
+//                     onPressed: () => widget.onDelete!(widget.post.id),
+//                   ),
+//               ],
 //             ),
 //             const SizedBox(height: AppConstants.padding),
 //             Text(
-//               message,
-//               style: Theme.of(context).textTheme.titleLarge?.copyWith(
+//               widget.post.content,
+//               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
 //                     color: AppColors.textColor,
-//                     fontWeight: FontWeight.bold,
 //                   ),
-//               textAlign: TextAlign.center,
 //             ),
-//             const SizedBox(height: AppConstants.spacing),
-//             Text(
-//               'Please wait, this might take a moment...',
-//               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-//                     color: AppColors.textColorSecondary,
+//             if (widget.post.imageUrl != null && widget.post.imageUrl!.isNotEmpty) ...[
+//               const SizedBox(height: AppConstants.padding),
+//               ClipRRect(
+//                 borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//                 child: Image.network(
+//                   widget.post.imageUrl!,
+//                   fit: BoxFit.cover,
+//                   width: double.infinity,
+//                   loadingBuilder: (context, child, loadingProgress) {
+//                     if (loadingProgress == null) return child;
+//                     return Center(
+//                       child: CircularProgressIndicator(
+//                         value: loadingProgress.expectedTotalBytes != null
+//                             ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+//                             : null,
+//                       ),
+//                     );
+//                   },
+//                   errorBuilder: (context, error, stackTrace) {
+//                     return Container(
+//                       height: 150,
+//                       color: AppColors.progressTrackColor,
+//                       child: const Center(
+//                         child: Icon(Icons.image_not_supported, color: AppColors.textColorSecondary),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//               ),
+//             ],
+//             const Divider(color: AppColors.borderColor, height: AppConstants.padding * 2),
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceAround,
+//               children: [
+//                 GestureDetector(
+//                   onTap: _toggleLike,
+//                   child: Row(
+//                     children: [
+//                       Icon(
+//                         isLiked ? Icons.favorite : Icons.favorite_border,
+//                         color: isLiked ? AppColors.errorColor : AppColors.textColorSecondary,
+//                       ),
+//                       const SizedBox(width: AppConstants.spacing / 2),
+//                       Text(
+//                         '${widget.post.likedBy.length} Likes',
+//                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+//                               color: isLiked ? AppColors.errorColor : AppColors.textColorSecondary,
+//                             ),
+//                       ),
+//                     ],
 //                   ),
-//               textAlign: TextAlign.center,
+//                 ),
+//                 GestureDetector(
+//                   onTap: () {
+//                     setState(() {
+//                       _showComments = !_showComments;
+//                     });
+//                   },
+//                   child: Row(
+//                     children: [
+//                       Icon(Icons.comment, color: AppColors.textColorSecondary),
+//                       const SizedBox(width: AppConstants.spacing / 2),
+//                       Text(
+//                         '${widget.post.comments.length} Comments',
+//                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+//                               color: AppColors.textColorSecondary,
+//                             ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
 //             ),
+//             if (_showComments) ...[
+//               const Divider(color: AppColors.borderColor, height: AppConstants.padding * 2),
+//               ListView.builder(
+//                 shrinkWrap: true,
+//                 physics: const NeverScrollableScrollPhysics(),
+//                 itemCount: widget.post.comments.length,
+//                 itemBuilder: (context, index) {
+//                   final comment = widget.post.comments[index];
+//                   return Padding(
+//                     padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
+//                     child: Row(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         CircleAvatar(
+//                           radius: 12,
+//                           backgroundImage: comment.avatarUrl.isNotEmpty
+//                               ? AssetImage(comment.avatarUrl)
+//                               : null,
+//                           onBackgroundImageError: (exception, stackTrace) {
+//                             debugPrint('Error loading comment avatar: $exception');
+//                           },
+//                           child: comment.avatarUrl.isEmpty
+//                               ? const Icon(Icons.person, size: 12, color: AppColors.textColorSecondary)
+//                               : null,
+//                         ),
+//                         const SizedBox(width: AppConstants.spacing),
+//                         Expanded(
+//                           child: Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Text(
+//                                 comment.username,
+//                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                                       color: AppColors.accentColor,
+//                                       fontWeight: FontWeight.bold,
+//                                     ),
+//                               ),
+//                               Text(
+//                                 comment.text,
+//                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+//                                       color: AppColors.textColor,
+//                                     ),
+//                               ),
+//                               Align(
+//                                 alignment: Alignment.bottomRight,
+//                                 child: Text(
+//                                   _formatTimestamp(comment.timestamp),
+//                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                                         color: AppColors.textColorSecondary.withOpacity(0.7),
+//                                         fontSize: 10,
+//                                       ),
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   );
+//                 },
+//               ),
+//               const SizedBox(height: AppConstants.spacing),
+//               Row(
+//                 children: [
+//                   Expanded(
+//                     child: TextField(
+//                       controller: _commentController,
+//                       style: const TextStyle(color: AppColors.textColor),
+//                       decoration: InputDecoration(
+//                         hintText: 'Add a comment...',
+//                         hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7)),
+//                         filled: true,
+//                         fillColor: AppColors.backgroundColor.withOpacity(0.6),
+//                         border: OutlineInputBorder(
+//                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//                           borderSide: BorderSide.none,
+//                         ),
+//                         contentPadding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing),
+//                       ),
+//                       onSubmitted: (value) => _addComment(),
+//                     ),
+//                   ),
+//                   const SizedBox(width: AppConstants.spacing),
+//                   FloatingActionButton(
+//                     onPressed: _addComment,
+//                     backgroundColor: AppColors.secondaryColor,
+//                     foregroundColor: AppColors.textColor,
+//                     mini: true,
+//                     child: const Icon(Icons.send),
+//                   ),
+//                 ],
+//               ),
+//             ],
 //           ],
 //         ),
 //       ),
 //     );
 //   }
 // }
-
 // // lib/widgets/common/custom_app_bar.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
@@ -1465,328 +1986,291 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return AppBar(
-//       title: Text(
-//         title,
-//         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//               color: AppColors.textColor,
-//               fontWeight: FontWeight.bold,
-//             ),
-//       ),
-//       centerTitle: true,
-//       backgroundColor: AppColors.primaryColor,
+//       backgroundColor: Colors.transparent,
 //       elevation: 0,
+//       centerTitle: true,
 //       leading: Padding(
-//         padding: const EdgeInsets.only(left: AppConstants.padding),
+//         padding: const EdgeInsets.all(AppConstants.spacing),
 //         child: leadingWidget,
 //       ),
-//       leadingWidth: 80, // Adjust based on leading widget size
-//       actions: [
-//         if (trailingWidget != null)
-//           Padding(
-//             padding: const EdgeInsets.only(right: AppConstants.padding),
-//             child: trailingWidget,
-//           ),
-//       ],
-//       shape: const RoundedRectangleBorder(
-//         borderRadius: BorderRadius.vertical(
-//           bottom: Radius.circular(AppConstants.borderRadius),
-//         ),
+//       title: Text(
+//         title,
+//         style: AppColors.neonTextStyle(fontSize: 22),
 //       ),
+//       actions: [
+//         Padding(
+//           padding: const EdgeInsets.all(AppConstants.spacing),
+//           child: trailingWidget,
+//         ),
+//       ],
+//       iconTheme: const IconThemeData(color: AppColors.textColor),
 //     );
 //   }
 
 //   @override
 //   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 // }
-// // lib/widgets/cards/mission_card.dart
+// // lib/widgets/common/custom_button.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 
-// class MissionCard extends StatelessWidget {
-//   final String title;
-//   final String description;
-//   final int xpReward;
-//   final bool isCompleted;
-//   final VoidCallback? onTap;
+// class CustomButton extends StatelessWidget {
+//   final String text;
+//   final VoidCallback? onPressed; // Changed to nullable VoidCallback
+//   final Color? backgroundColor;
+//   final Color? foregroundColor;
+//   final IconData? icon;
+//   final double width;
+//   final double height;
+//   final double fontSize;
+//   final EdgeInsetsGeometry padding;
+//   final bool isLoading;
 
-//   const MissionCard({
+//   const CustomButton({
 //     super.key,
-//     required this.title,
-//     required this.description,
-//     required this.xpReward,
-//     this.isCompleted = false,
-//     this.onTap,
+//     required this.text,
+//     this.onPressed, // No longer required, but recommended to have a default behavior if null
+//     this.backgroundColor,
+//     this.foregroundColor,
+//     this.icon,
+//     this.width = double.infinity,
+//     this.height = 50.0,
+//     this.fontSize = 16.0,
+//     this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+//     this.isLoading = false,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
-//     return Card(
-//       color: isCompleted ? AppColors.successColor.withOpacity(0.8) : AppColors.cardColor.withOpacity(0.9),
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//         side: isCompleted
-//             ? const BorderSide(color: AppColors.successColor, width: 2)
-//             : BorderSide.none,
-//       ),
-//       elevation: 4,
-//       child: InkWell(
-//         onTap: isCompleted ? null : onTap,
-//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//         child: Padding(
-//           padding: const EdgeInsets.all(AppConstants.padding),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//     return SizedBox(
+//       width: width,
+//       height: height,
+//       child: ElevatedButton(
+//         onPressed: isLoading ? null : onPressed,
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor: backgroundColor ?? AppColors.primaryColor,
+//           foregroundColor: foregroundColor ?? AppColors.textColor,
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//             side: BorderSide(color: backgroundColor != null ? backgroundColor! : AppColors.primaryColorDark, width: 2),
+//           ),
+//           padding: padding,
+//           textStyle: TextStyle(
+//             fontSize: fontSize,
+//             fontWeight: FontWeight.bold,
+//           ),
+//           elevation: 8,
+//           shadowColor: (backgroundColor ?? AppColors.primaryColor).withOpacity(0.5),
+//         ),
+//         child: isLoading
+//             ? const CircularProgressIndicator(
+//                 valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor),
+//               )
+//             : Row(
+//                 mainAxisAlignment: MainAxisAlignment.center,
 //                 children: [
-//                   Expanded(
-//                     child: Text(
-//                       title,
-//                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                             color: isCompleted ? AppColors.cardColor : AppColors.textColor,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                       maxLines: 1,
-//                       overflow: TextOverflow.ellipsis,
-//                     ),
-//                   ),
-//                   if (isCompleted)
-//                     const Icon(Icons.check_circle, color: AppColors.cardColor, size: 30)
-//                   else
-//                     Row(
-//                       children: [
-//                         Icon(Icons.star, color: AppColors.xpColor, size: AppConstants.iconSize),
-//                         const SizedBox(width: AppConstants.spacing / 2),
-//                         Text(
-//                           '$xpReward XP',
-//                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                                 color: AppColors.xpColor,
-//                                 fontWeight: FontWeight.bold,
-//                               ),
-//                         ),
-//                       ],
-//                     ),
+//                   if (icon != null) ...[
+//                     Icon(icon, size: fontSize * 1.2),
+//                     SizedBox(width: AppConstants.spacing),
+//                   ],
+//                   Text(text),
 //                 ],
 //               ),
-//               const SizedBox(height: AppConstants.spacing),
-//               Text(
-//                 description,
-//                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-//                       color: isCompleted ? AppColors.cardColor.withOpacity(0.9) : AppColors.textColorSecondary,
-//                     ),
-//                 maxLines: 2,
-//                 overflow: TextOverflow.ellipsis,
-//               ),
-//             ],
-//           ),
-//         ),
 //       ),
 //     );
 //   }
 // }
-// // lib/widgets/cards/level_card.dart
+// // lib/widgets/common/custom_text_field.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/models/level.dart';
 
-// class LevelCard extends StatelessWidget {
-//   final Level level;
-//   final VoidCallback? onTap;
-//   final bool isCompleted;
-//   final bool isLocked;
-//   final bool isCurrentOrNextPlayable;
+// class CustomTextField extends StatelessWidget {
+//   final TextEditingController controller;
+//   final String labelText;
+//   final String hintText;
+//   final bool obscureText;
+//   final TextInputType keyboardType;
+//   final String? Function(String?)? validator;
+//   final Widget? suffixIcon;
+//   final int? maxLines;
+//   final bool? isEnabled; // Added isEnabled parameter
 
-//   const LevelCard({
+//   const CustomTextField({
 //     super.key,
-//     required this.level,
-//     this.onTap,
-//     this.isCompleted = false,
-//     this.isLocked = false,
-//     this.isCurrentOrNextPlayable = false,
+//     required this.controller,
+//     required this.labelText,
+//     this.hintText = '',
+//     this.obscureText = false,
+//     this.keyboardType = TextInputType.text,
+//     this.validator,
+//     this.suffixIcon,
+//     this.maxLines = 1,
+//     this.isEnabled, // Added to constructor
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
-//     return Opacity(
-//       opacity: isLocked ? 0.6 : 1.0,
-//       child: Card(
-//         margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
-//         color: AppColors.cardColor.withOpacity(0.9),
-//         shape: RoundedRectangleBorder(
+//     return TextFormField(
+//       controller: controller,
+//       obscureText: obscureText,
+//       keyboardType: keyboardType,
+//       style: const TextStyle(color: AppColors.textColor),
+//       maxLines: maxLines,
+//       enabled: isEnabled, // Used the isEnabled parameter
+//       decoration: InputDecoration(
+//         labelText: labelText,
+//         hintText: hintText,
+//         hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.5)),
+//         labelStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.8)),
+//         filled: true,
+//         fillColor: AppColors.cardColor.withOpacity(0.7),
+//         border: OutlineInputBorder(
 //           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//           side: isCompleted
-//               ? const BorderSide(color: AppColors.successColor, width: 2)
-//               : isCurrentOrNextPlayable
-//                   ? const BorderSide(color: AppColors.accentColor, width: 1)
-//                   : BorderSide.none,
+//           borderSide: BorderSide.none,
 //         ),
-//         elevation: 4,
-//         child: InkWell(
-//           onTap: isLocked ? null : onTap,
+//         focusedBorder: OutlineInputBorder(
 //           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//           child: Padding(
-//             padding: const EdgeInsets.all(AppConstants.padding),
-//             child: Row(
-//               children: [
-//                 // Level Icon / Image
-//                 Container(
-//                   width: AppConstants.avatarSize,
-//                   height: AppConstants.avatarSize,
-//                   decoration: BoxDecoration(
-//                     color: AppColors.primaryColor.withOpacity(0.2),
-//                     borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
-//                     image: level.imageAssetPath != null && level.imageAssetPath!.isNotEmpty
-//                         ? DecorationImage(
-//                             image: AssetImage(level.imageAssetPath!),
-//                             fit: BoxFit.cover,
-//                             onError: (exception, stackTrace) {
-//                               debugPrint('Error loading level image: ${level.imageAssetPath!} - $exception');
-//                             },
-//                           )
-//                         : null,
-//                   ),
-//                   child: level.imageAssetPath == null || level.imageAssetPath!.isEmpty
-//                       ? Icon(Icons.bookmark, color: AppColors.textColor, size: AppConstants.iconSize * 1.5)
-//                       : null,
-//                 ),
-//                 const SizedBox(width: AppConstants.padding),
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         'Level ${level.order}: ${level.title}',
-//                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                               color: AppColors.textColor,
-//                               fontWeight: FontWeight.bold,
-//                               fontSize: AppConstants.mediumTextSize, // Smaller text
-//                             ),
-//                       ),
-//                       const SizedBox(height: AppConstants.spacing / 2),
-//                       Text(
-//                         level.description,
-//                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-//                               color: AppColors.textColorSecondary,
-//                               fontSize: AppConstants.smallTextSize, // Smaller text
-//                             ),
-//                         maxLines: 2,
-//                         overflow: TextOverflow.ellipsis,
-//                       ),
-//                       const SizedBox(height: AppConstants.spacing),
-//                       Row(
-//                         children: [
-//                           Icon(Icons.star, color: AppColors.xpColor, size: AppConstants.iconSize * 0.8), // Smaller icon
-//                           const SizedBox(width: AppConstants.spacing / 2),
-//                           Text(
-//                             'Difficulty: ${level.difficulty}',
-//                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-//                                   color: AppColors.xpColor,
-//                                   fontSize: AppConstants.extraSmallTextSize, // Smaller text
-//                                 ),
-//                           ),
-//                         ],
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 if (isCompleted)
-//                   const Icon(Icons.check_circle, color: AppColors.successColor, size: 36)
-//                 else if (isLocked)
-//                   const Icon(Icons.lock, color: AppColors.textColorSecondary, size: 36)
-//                 else
-//                   const Icon(Icons.play_circle_fill, color: AppColors.accentColor, size: 36),
-//               ],
-//             ),
-//           ),
+//           borderSide: const BorderSide(color: AppColors.accentColor, width: 2.0),
 //         ),
+//         enabledBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//           borderSide: const BorderSide(color: AppColors.borderColor, width: 1.0),
+//         ),
+//         suffixIcon: suffixIcon,
+//         contentPadding: const EdgeInsets.symmetric(
+//             horizontal: AppConstants.padding, vertical: AppConstants.spacing * 1.5),
 //       ),
+//       validator: validator,
+//       cursorColor: AppColors.accentColor,
 //     );
 //   }
 // }
-// // lib/widgets/cards/current_lesson_card.dart
+// // lib/widgets/common/progress_bar.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/widgets/common/progress_bar.dart';
 
-// class CurrentLessonCard extends StatelessWidget {
-//   final String courseTitle;
-//   final String lessonTitle;
-//   final double progress; // Progress of the current lesson (0.0 to 1.0)
-//   final VoidCallback? onTap;
+// class ProgressBar extends StatelessWidget {
+//   final double progress;
+//   final Color? backgroundColor;
+//   final Color? progressColor;
+//   final double height;
+//   final bool showPercentage;
 
-//   const CurrentLessonCard({
+//   const ProgressBar({
 //     super.key,
-//     required this.courseTitle,
-//     required this.lessonTitle,
 //     required this.progress,
-//     this.onTap,
+//     this.backgroundColor,
+//     this.progressColor,
+//     this.height = 10.0,
+//     this.showPercentage = false,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
-//     return Card(
-//       color: AppColors.cardColor.withOpacity(0.9),
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//     return Column(
+//       mainAxisSize: MainAxisSize.min,
+//       children: [
+//         LinearProgressIndicator(
+//           value: progress.clamp(0.0, 1.0),
+//           backgroundColor: backgroundColor ?? AppColors.progressTrackColor,
+//           valueColor: AlwaysStoppedAnimation<Color>(progressColor ?? AppColors.accentColor),
+//           minHeight: height,
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
+//         ),
+//         if (showPercentage) ...[
+//           const SizedBox(height: AppConstants.spacing / 2),
+//           Text(
+//             '${(progress * 100).toStringAsFixed(0)}%',
+//             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textColorSecondary),
+//           ),
+//         ],
+//       ],
+//     );
+//   }
+// }
+// // lib/widgets/common/xp_level_display.dart
+// import 'package:flutter/material.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
+
+// class XpLevelDisplay extends StatelessWidget {
+//   final int xp;
+//   final int level;
+
+//   const XpLevelDisplay({
+//     super.key,
+//     required this.xp,
+//     required this.level,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final int xpNeededForNextLevel = AppConstants.xpPerLevel * level;
+//     final int xpInCurrentLevel = xp - (AppConstants.xpPerLevel * (level - 1));
+//     final double progress = AppConstants.xpPerLevel > 0 ? xpInCurrentLevel / AppConstants.xpPerLevel : 0.0;
+
+//     return Container(
+//       padding: const EdgeInsets.symmetric(
+//         horizontal: AppConstants.spacing,
+//         vertical: AppConstants.spacing / 2,
 //       ),
-//       elevation: 6,
-//       child: InkWell(
-//         onTap: onTap,
+//       decoration: BoxDecoration(
+//         color: AppColors.cardColor.withOpacity(0.7),
 //         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//         child: Padding(
-//           padding: const EdgeInsets.all(AppConstants.padding),
-//           child: Column(
+//         border: Border.all(color: AppColors.borderColor, width: 1.0),
+//       ),
+//       child: Row(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Column(
 //             crossAxisAlignment: CrossAxisAlignment.start,
+//             mainAxisSize: MainAxisSize.min, // Added to constrain column size
 //             children: [
 //               Text(
-//                 courseTitle,
+//                 'Level $level',
 //                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-//                       color: AppColors.textColorSecondary,
-//                       fontStyle: FontStyle.italic,
+//                       color: AppColors.levelColor,
+//                       fontWeight: FontWeight.w600,
+//                       fontSize: 13,
 //                     ),
-//                 maxLines: 1,
-//                 overflow: TextOverflow.ellipsis,
 //               ),
-//               const SizedBox(height: AppConstants.spacing),
 //               Text(
-//                 lessonTitle,
-//                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                       color: AppColors.textColor,
-//                       fontWeight: FontWeight.bold,
+//                 '$xp XP',
+//                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                       color: AppColors.xpColor,
+//                       fontWeight: FontWeight.w600,
+//                        fontSize: 7,
 //                     ),
-//                 maxLines: 2,
-//                 overflow: TextOverflow.ellipsis,
-//               ),
-//               const SizedBox(height: AppConstants.padding),
-//               ProgressBar(
-//                 progress: progress,
-//                 height: 15,
-//                 label: 'Lesson Progress: ${(progress * 100).toInt()}%',
-//               ),
-//               const SizedBox(height: AppConstants.spacing),
-//               Align(
-//                 alignment: Alignment.bottomRight,
-//                 child: FilledButton.icon(
-//                   onPressed: onTap,
-//                   icon: const Icon(Icons.play_arrow),
-//                   label: const Text('Continue Lesson'),
-//                   style: FilledButton.styleFrom(
-//                     backgroundColor: AppColors.accentColor,
-//                     foregroundColor: AppColors.cardColor,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                     ),
-//                     padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing),
-//                   ),
-//                 ),
 //               ),
 //             ],
 //           ),
-//         ),
+//           const SizedBox(width: AppConstants.spacing),
+//           Stack(
+//             alignment: Alignment.center,
+//             children: [
+//               SizedBox(
+//                 width: 35,
+//                 height: 35,
+//                 child: CircularProgressIndicator(
+//                   value: progress.clamp(0.0, 1.0), // Clamp progress value
+//                   backgroundColor: AppColors.progressTrackColor,
+//                   valueColor: const AlwaysStoppedAnimation<Color>(AppColors.xpColor),
+//                   strokeWidth: 2,
+//                 ),
+//               ),
+//               Text(
+//                 '${(progress * 100).toStringAsFixed(0)}%',
+//                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                       color: AppColors.textColor,
+//                       fontSize: 10,
+//                     ),
+//               ),
+//             ],
+//           ),
+//         ],
 //       ),
 //     );
 //   }
@@ -1796,21 +2280,26 @@
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/models/course.dart';
+// import 'package:gamifier/services/firebase_service.dart';
+// import 'package:provider/provider.dart';
+// import 'package:gamifier/models/level.dart';
 
 // class CourseCard extends StatelessWidget {
 //   final Course course;
 //   final VoidCallback onTap;
-//   final Function(String courseId, List<String> levelIds)? onDelete; // Optional delete callback
+//   final Function(String courseId, List<String> levelIds) onDelete;
 
 //   const CourseCard({
 //     super.key,
 //     required this.course,
 //     required this.onTap,
-//     this.onDelete,
+//     required this.onDelete,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
+//     final firebaseService = Provider.of<FirebaseService>(context);
+
 //     return Card(
 //       color: AppColors.cardColor.withOpacity(0.9),
 //       shape: RoundedRectangleBorder(
@@ -1818,8 +2307,8 @@
 //       ),
 //       elevation: 6,
 //       child: InkWell(
-//         onTap: onTap,
 //         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//         onTap: onTap,
 //         child: Padding(
 //           padding: const EdgeInsets.all(AppConstants.padding),
 //           child: Column(
@@ -1832,20 +2321,42 @@
 //                     child: Text(
 //                       course.title,
 //                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                             color: AppColors.textColor,
+//                             color: AppColors.accentColor,
 //                             fontWeight: FontWeight.bold,
-//                             fontSize: AppConstants.largeTextSize, // Small text size
 //                           ),
-//                       maxLines: 1,
+//                       maxLines: 2,
 //                       overflow: TextOverflow.ellipsis,
 //                     ),
 //                   ),
-//                   if (onDelete != null)
-//                     IconButton(
-//                       icon: const Icon(Icons.delete_forever, color: AppColors.errorColor),
-//                       onPressed: () => onDelete!(course.id, course.levelIds),
-//                       tooltip: 'Delete Course',
-//                     ),
+//                   PopupMenuButton<String>(
+//                     color: AppColors.cardColor,
+//                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+//                       PopupMenuItem<String>(
+//                         value: 'delete',
+//                         child: Row(
+//                           children: [
+//                             Icon(Icons.delete, color: AppColors.errorColor),
+//                             SizedBox(width: AppConstants.spacing),
+//                             Text('Delete Course', style: TextStyle(color: AppColors.errorColor)),
+//                           ],
+//                         ),
+//                       ),
+//                     ],
+//                     onSelected: (String value) async {
+//                       if (value == 'delete') {
+//                         List<String> levelIds = [];
+//                         try {
+//                           final levels = await firebaseService.streamLevelsForCourse(course.id).first;
+//                           levelIds = levels.map((level) => level.id).toList();
+//                         } catch (e) {
+//                           debugPrint('Error fetching level IDs for deletion: $e');
+//                           // Proceed with deletion even if levels can't be fetched, course itself still needs cleanup
+//                         }
+//                         onDelete(course.id, levelIds);
+//                       }
+//                     },
+//                     icon: Icon(Icons.more_vert, color: AppColors.textColorSecondary),
+//                   ),
 //                 ],
 //               ),
 //               const SizedBox(height: AppConstants.spacing),
@@ -1853,28 +2364,29 @@
 //                 course.description,
 //                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
 //                       color: AppColors.textColorSecondary,
-//                       fontSize: AppConstants.mediumTextSize, // Small text size
 //                     ),
-//                 maxLines: 2,
+//                 maxLines: 3,
 //                 overflow: TextOverflow.ellipsis,
 //               ),
 //               const SizedBox(height: AppConstants.spacing),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               Wrap(
+//                 spacing: AppConstants.spacing,
+//                 runSpacing: AppConstants.spacing / 2,
 //                 children: [
-//                   _buildInfoChip(
-//                     context,
-//                     'Difficulty: ${course.difficulty}',
-//                     Icons.star,
-//                     AppColors.xpColor,
-//                   ),
-//                   _buildInfoChip(
-//                     context,
-//                     'Genre: ${course.gameGenre}',
-//                     Icons.casino,
-//                     AppColors.levelColor,
-//                   ),
+//                   _buildChip(context, 'Difficulty: ${course.difficulty}', AppColors.infoColor),
+//                   _buildChip(context, 'Genre: ${course.gameGenre}', AppColors.secondaryColor),
 //                 ],
+//               ),
+//               const SizedBox(height: AppConstants.padding),
+//               Align(
+//                 alignment: Alignment.bottomRight,
+//                 child: Text(
+//                   'Tap to view levels',
+//                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
+//                         color: AppColors.textColorSecondary.withOpacity(0.7),
+//                         fontStyle: FontStyle.italic,
+//                       ),
+//                 ),
 //               ),
 //             ],
 //           ),
@@ -1883,162 +2395,102 @@
 //     );
 //   }
 
-//   Widget _buildInfoChip(BuildContext context, String text, IconData icon, Color color) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(
-//         horizontal: AppConstants.spacing,
-//         vertical: AppConstants.spacing / 2,
+//   Widget _buildChip(BuildContext context, String label, Color color) {
+//     return Chip(
+//       label: Text(
+//         label,
+//         style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textColor),
 //       ),
-//       decoration: BoxDecoration(
-//         color: color.withOpacity(0.2),
+//       backgroundColor: color.withOpacity(0.3),
+//       side: BorderSide(color: color, width: 1.0),
+//       shape: RoundedRectangleBorder(
 //         borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
 //       ),
-//       child: Row(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Icon(icon, color: color, size: AppConstants.iconSize * 0.8), // Small icon
-//           const SizedBox(width: AppConstants.spacing / 2),
-//           Text(
-//             text,
-//             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-//                   color: color,
-//                   fontSize: AppConstants.extraSmallTextSize, // Smaller text
+//       padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacing, vertical: AppConstants.spacing / 2),
+//     );
+//   }
+// }
+// // lib/widgets/cards/current_lesson_card.dart
+// import 'package:flutter/material.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/widgets/common/progress_bar.dart';
+
+// class CurrentLessonCard extends StatelessWidget {
+//   final String courseTitle;
+//   final String lessonTitle;
+//   final double progress;
+//   final VoidCallback? onTap;
+
+//   const CurrentLessonCard({
+//     super.key,
+//     required this.courseTitle,
+//     required this.lessonTitle,
+//     required this.progress,
+//     this.onTap,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Card(
+//         color: AppColors.cardColor.withOpacity(0.9),
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//         ),
+//         elevation: 8,
+//         child: Padding(
+//           padding: const EdgeInsets.all(AppConstants.padding),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 'Currently Active:',
+//                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
+//                       color: AppColors.accentColor,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//               ),
+//               const SizedBox(height: AppConstants.spacing),
+//               Text(
+//                 courseTitle,
+//                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+//                       color: AppColors.textColor,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                 maxLines: 1,
+//                 overflow: TextOverflow.ellipsis,
+//               ),
+//               const SizedBox(height: AppConstants.spacing / 2),
+//               Text(
+//                 lessonTitle,
+//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                       color: AppColors.textColorSecondary,
+//                     ),
+//                 maxLines: 2,
+//                 overflow: TextOverflow.ellipsis,
+//               ),
+//               const SizedBox(height: AppConstants.padding),
+//               ProgressBar(
+//                 progress: progress,
+//                 progressColor: AppColors.successColor,
+//                 showPercentage: true,
+//               ),
+//               const SizedBox(height: AppConstants.spacing),
+//               Align(
+//                 alignment: Alignment.bottomRight,
+//                 child: Icon(
+//                   Icons.arrow_forward_ios,
+//                   color: AppColors.accentColor,
+//                   size: AppConstants.iconSize,
 //                 ),
+//               ),
+//             ],
 //           ),
-//         ],
+//         ),
 //       ),
 //     );
-//   }
-// }
-// // lib/utils/validation_utils.dart
-// class ValidationUtils {
-//   static String? validateNotEmpty(String? value, String errorMessage) {
-//     if (value == null || value.trim().isEmpty) {
-//       return errorMessage;
-//     }
-//     return null;
-//   }
-
-//   static String? validateEmail(String? value) {
-//     if (value == null || value.isEmpty) {
-//       return 'Email cannot be empty';
-//     }
-//     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-//     if (!emailRegex.hasMatch(value)) {
-//       return 'Enter a valid email address';
-//     }
-//     return null;
-//   }
-
-//   static String? validatePassword(String? value, {int minLength = 6}) {
-//     if (value == null || value.isEmpty) {
-//       return 'Password cannot be empty';
-//     }
-//     if (value.length < minLength) {
-//       return 'Password must be at least $minLength characters long';
-//     }
-//     return null;
-//   }
-
-//   static String? validateConfirmPassword(String? password, String? confirmPassword) {
-//     if (confirmPassword == null || confirmPassword.isEmpty) {
-//       return 'Confirm password cannot be empty';
-//     }
-//     if (password != confirmPassword) {
-//       return 'Passwords do not match';
-//     }
-//     return null;
-//   }
-
-//   static String? validateYoutubeUrl(String? url) {
-//     if (url == null || url.isEmpty) {
-//       return null; // URL can be empty if not provided
-//     }
-//     // Regex for YouTube video URLs
-//     final youtubeRegex = RegExp(
-//         r'^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$',
-//         caseSensitive: false
-//     );
-//     if (!youtubeRegex.hasMatch(url)) {
-//       return 'Please enter a valid YouTube URL';
-//     }
-//     return null;
-//   }
-// }
-// // lib/utils/url_launcher_util.dart
-// // This file is a placeholder. For actual URL launching, you would use
-// // a package like `url_launcher`. Due to sandbox limitations, direct URL
-// // launching is not available in the current environment.
-
-// import 'package:flutter/material.dart'; // Just for ScaffoldMessenger and Text
-// import 'package:url_launcher/url_launcher.dart'; // Typically imported for real usage
-
-// class UrlLauncherUtil {
-//   static Future<void> launchInBrowser(String url) async {
-//     // In a real Flutter app, you'd use:
-//     /*
-//     final Uri uri = Uri.parse(url);
-//     if (await canLaunchUrl(uri)) {
-//       await launchUrl(uri, mode: LaunchMode.externalApplication);
-//     } else {
-//       throw 'Could not launch $url';
-//     }
-//     */
-
-//     // Placeholder for demo:
-//     debugPrint('Attempted to launch URL: $url (simulated)');
-//     // In a real app, you might show a snackbar or dialog if launching fails.
-//     // For this demo, we'll just print to console.
-//   }
-// }
-// // lib/utils/file_picker_util.dart
-// // This file is a placeholder. For actual file picking, you would use
-// // a package like `file_picker`. Due to sandbox limitations, direct file system
-// // access is not available in the current environment.
-// // For the purpose of this demo, we'll assume text input or URL input
-// // covers the 'source content' requirement in CourseCreationScreen.
-
-// import 'package:flutter/material.dart'; // Just for ScaffoldMessenger and Text
-
-// class FilePickerUtil {
-//   // This method would typically open a file picker dialog.
-//   // For this simulated environment, we'll just return a placeholder.
-//   static Future<String?> pickTextFileContent() async {
-//     // In a real Flutter app, you'd use:
-//     /*
-//     FilePickerResult? result = await FilePicker.platform.pickFiles(
-//       type: FileType.custom,
-//       allowedExtensions: ['txt', 'md'],
-//     );
-//     if (result != null && result.files.single.path != null) {
-//       final file = File(result.files.single.path!);
-//       return await file.readAsString();
-//     }
-//     return null;
-//     */
-
-//     // Placeholder for demo:
-//     debugPrint('File picking is simulated. Please use the text area for content.');
-//     return null; // Return null to indicate no file was picked
-//   }
-
-//   // This method would typically open a file picker dialog for image assets.
-//   static Future<String?> pickImageAssetPath() async {
-//     // In a real Flutter app, you'd use:
-//     /*
-//     FilePickerResult? result = await FilePicker.platform.pickFiles(
-//       type: FileType.image,
-//       allowMultiple: false,
-//     );
-//     if (result != null && result.files.single.path != null) {
-//       // For local assets, you might save the file to app's documents directory
-//       // or just get its path if it's already an asset.
-//       return result.files.single.path;
-//     }
-//     return null;
-//     */
-//     debugPrint('Image asset picking is simulated. Use predefined assets or manual path input.');
-//     return null; // Return null
 //   }
 // }
 // // lib/utils/app_router.dart
@@ -2055,9 +2507,8 @@
 // import 'package:gamifier/screens/level_selection_screen.dart';
 // import 'package:gamifier/models/course.dart';
 // import 'package:gamifier/screens/level_completion_screen.dart';
-// import 'package:gamifier/screens/course_completion_screen.dart';
 // import 'package:gamifier/screens/community_screen.dart';
-// import 'package:gamifier/screens/ai_chat_screen.dart';
+// import 'package:gamifier/screens/chat_screen.dart'; // New import
 
 // class AppRouter {
 //   static const String splashRoute = '/';
@@ -2071,9 +2522,8 @@
 //   static const String onboardingRoute = '/onboarding';
 //   static const String levelSelectionRoute = '/level-selection';
 //   static const String levelCompletionRoute = '/level-completion';
-//   static const String courseCompletionRoute = '/course-completion';
 //   static const String communityRoute = '/community';
-//   static const String aiChatRoute = '/ai-chat';
+//   static const String chatRoute = '/chat'; // New route
 
 //   static Route<dynamic> generateRoute(RouteSettings settings) {
 //     switch (settings.name) {
@@ -2103,9 +2553,8 @@
 //       case onboardingRoute:
 //         return MaterialPageRoute(builder: (_) => const OnboardingScreen());
 //       case levelSelectionRoute:
-//         // Ensure Course object is passed directly
-//         final course = settings.arguments as Course;
-//         return MaterialPageRoute(builder: (_) => LevelSelectionScreen(course: course));
+//         final courseId = settings.arguments as String; // Expecting courseId as a String
+//         return MaterialPageRoute(builder: (_) => LevelSelectionScreen(courseId: courseId));
 //       case levelCompletionRoute:
 //         final args = settings.arguments as Map<String, dynamic>;
 //         return MaterialPageRoute(
@@ -2118,456 +2567,178 @@
 //             totalLessons: args['totalLessons'] as int,
 //           ),
 //         );
-//       case courseCompletionRoute:
-//         final args = settings.arguments as Map<String, dynamic>;
-//         return MaterialPageRoute(
-//           builder: (_) => CourseCompletionScreen(
-//             courseTitle: args['courseTitle'] as String,
-//             totalXpEarnedInCourse: args['totalXpEarnedInCourse'] as int,
-//             totalLevelsCompleted: args['totalLevelsCompleted'] as int,
-//             totalLevelsInCourse: args['totalLevelsInCourse'] as int,
-//           ),
-//         );
 //       case communityRoute:
 //         return MaterialPageRoute(builder: (_) => const CommunityScreen());
-//       case aiChatRoute:
-//         return MaterialPageRoute(builder: (_) => const AIChatScreen());
+//       case chatRoute: // New route case
+//         return MaterialPageRoute(builder: (_) => const ChatScreen());
 //       default:
 //         return MaterialPageRoute(builder: (_) => Text('Error: Unknown route ${settings.name}'));
 //     }
 //   }
 // }
-// // lib/utils/app_extensions.dart
-// extension IterableExtensions<T> on Iterable<T> {
-//   /// Returns the first element that satisfies the given predicate [test].
-//   ///
-//   /// Returns `null` if no element satisfies [test].
-//   T? firstWhereOrNull(bool Function(T element) test) {
-//     for (var element in this) {
-//       if (test(element)) {
-//         return element;
+// // lib/utils/file_picker_util.dart
+// import 'package:file_picker/file_picker.dart';
+// import 'package:flutter/foundation.dart';
+
+// class FilePickerUtil {
+//   static Future<String?> pickTextFile() async {
+//     try {
+//       FilePickerResult? result = await FilePicker.platform.pickFiles(
+//         type: FileType.custom,
+//         allowedExtensions: ['txt', 'md'],
+//       );
+
+//       if (result != null && result.files.single.bytes != null) {
+//         return String.fromCharCodes(result.files.single.bytes!);
+//       } else {
+//         return null;
 //       }
+//     } catch (e) {
+//       debugPrint('Error picking file: $e');
+//       return null;
+//     }
+//   }
+// }
+// // lib/utils/url_launcher_util.dart
+// import 'package:url_launcher/url_launcher.dart';
+// import 'package:flutter/foundation.dart';
+
+// class UrlLauncherUtil {
+//   static Future<void> launchInBrowser(String urlString) async {
+//     final Uri url = Uri.parse(urlString);
+//     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+//       debugPrint('Could not launch $urlString');
+//       throw Exception('Could not launch $urlString');
+//     }
+//   }
+
+//   static Future<void> launchEmail(String emailAddress, {String? subject, String? body}) async {
+//     final Uri emailLaunchUri = Uri(
+//       scheme: 'mailto',
+//       path: emailAddress,
+//       queryParameters: {
+//         'subject': subject ?? '',
+//         'body': body ?? '',
+//       },
+//     );
+//     if (!await launchUrl(emailLaunchUri)) {
+//       debugPrint('Could not launch email to $emailAddress');
+//       throw Exception('Could not launch email to $emailAddress');
+//     }
+//   }
+// }
+// // lib/utils/validation_utils.dart
+// class ValidationUtils {
+//   static String? validateEmail(String? value) {
+//     if (value == null || value.isEmpty) {
+//       return 'Email cannot be empty.';
+//     }
+//     final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+//     if (!emailRegExp.hasMatch(value)) {
+//       return 'Enter a valid email address.';
+//     }
+//     return null;
+//   }
+
+//   static String? validatePassword(String? value) {
+//     if (value == null || value.isEmpty) {
+//       return 'Password cannot be empty.';
+//     }
+//     if (value.length < 6) {
+//       return 'Password must be at least 6 characters long.';
+//     }
+//     return null;
+//   }
+
+//   static String? validateUsername(String? value) {
+//     if (value == null || value.isEmpty) {
+//       return 'Username cannot be empty.';
+//     }
+//     if (value.length < 3) {
+//       return 'Username must be at least 3 characters long.';
+//     }
+//     return null;
+//   }
+
+//   static String? validateField(String? value, String fieldName) {
+//     if (value == null || value.isEmpty) {
+//       return '$fieldName cannot be empty.';
 //     }
 //     return null;
 //   }
 // }
-// // lib/services/gemini_api_service.dart
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
+// // lib/services/audio_service.dart
+// import 'package:audioplayers/audioplayers.dart';
 // import 'package:flutter/foundation.dart';
 // import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/models/course.dart';
-// import 'package:gamifier/models/user_progress.dart';
 
-// class GeminiApiService {
-//   static const String _baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-//   final String _apiKey = AppConstants.geminiApiKey;
+// class AudioService {
+//   late AudioPlayer _correctPlayer;
+//   late AudioPlayer _levelUpPlayer;
 
-//   Future<Map<String, dynamic>> _callGeminiApi(Map<String, dynamic> payload) async {
-//     if (_apiKey.isEmpty || _apiKey == 'YOUR_GEMINI_API_HERE') {
-//       throw Exception('Gemini API Key is not configured. Please set it in app_constants.dart');
-//     }
+//   AudioService() {
+//     _correctPlayer = AudioPlayer();
+//     _levelUpPlayer = AudioPlayer();
+//   }
 
-//     final url = Uri.parse('$_baseUrl?key=$_apiKey');
-
+//   Future<void> loadAudioAssets() async {
 //     try {
-//       final response = await http.post(
-//         url,
-//         headers: {'Content-Type': 'application/json'},
-//         body: json.encode(payload),
-//       );
-
-//       if (response.statusCode == 200) {
-//         final Map<String, dynamic> responseBody = json.decode(response.body);
-//         if (responseBody.containsKey('error')) {
-//           throw Exception('Gemini API Error: ${responseBody['error']['message']}');
-//         }
-//         if (responseBody['candidates'] != null &&
-//             responseBody['candidates'].isNotEmpty &&
-//             responseBody['candidates'][0]['content'] != null &&
-//             responseBody['candidates'][0]['content']['parts'] != null &&
-//             responseBody['candidates'][0]['content']['parts'].isNotEmpty) {
-//           return responseBody;
-//         } else {
-//           throw Exception('Gemini API response did not contain expected content structure.');
-//         }
-//       } else {
-//         debugPrint('Gemini API Error - Status Code: ${response.statusCode}');
-//         debugPrint('Response Body: ${response.body}');
-//         throw Exception('Failed to call Gemini API: ${response.statusCode} - ${response.body}');
-//       }
+//       await _correctPlayer.setSourceAsset(AppConstants.correctSoundPath);
+//       await _levelUpPlayer.setSourceAsset(AppConstants.levelUpSoundPath);
+//       debugPrint('Audio assets loaded successfully.');
 //     } catch (e) {
-//       throw Exception('Network or parsing error calling Gemini API: $e');
+//       debugPrint('Error loading audio assets: $e');
 //     }
 //   }
 
-//   String _extractJsonString(String text) {
-//     String cleanedText = text;
-
-//     final jsonCodeBlockRegex = RegExp(r'```json\s*(\{[\s\S]*?\})\s*```', dotAll: true);
-//     final jsonCodeBlockMatch = jsonCodeBlockRegex.firstMatch(text);
-//     if (jsonCodeBlockMatch != null && jsonCodeBlockMatch.group(1) != null) {
-//       return jsonCodeBlockMatch.group(1)!;
-//     }
-
-//     final standaloneJsonRegex = RegExp(r'\{[\s\S]*\}', dotAll: true);
-//     final allMatches = standaloneJsonRegex.allMatches(text);
-
-//     String? bestValidJson;
-//     for (final match in allMatches) {
-//       String potentialJson = match.group(0)!;
-//       potentialJson = potentialJson.trim();
-
-//       try {
-//         json.decode(potentialJson);
-//         if (bestValidJson == null || potentialJson.length > bestValidJson.length) {
-//           bestValidJson = potentialJson;
-//         }
-//       } on FormatException {
-//       }
-//     }
-
-//     if (bestValidJson != null) {
-//       return bestValidJson;
-//     }
-
-//     cleanedText = cleanedText.trim();
-//     if (cleanedText.startsWith('```json')) {
-//       cleanedText = cleanedText.substring('```json'.length).trim();
-//     } else if (cleanedText.startsWith('```')) {
-//       cleanedText = cleanedText.substring('```'.length).trim();
-//     }
-//     if (cleanedText.endsWith('```')) {
-//       cleanedText = cleanedText.substring(0, cleanedText.length - '```'.length).trim();
-//     }
-
-//     int openBraces = 0;
-//     int closeBraces = 0;
-//     bool inString = false;
-//     StringBuffer repairedJson = StringBuffer();
-
-//     for (int i = 0; i < cleanedText.length; i++) {
-//       String char = cleanedText[i];
-//       if (char == '\\' && i + 1 < cleanedText.length) {
-//         repairedJson.write(char);
-//         repairedJson.write(cleanedText[++i]);
-//         continue;
-//       }
-
-//       if (char == '"') {
-//         inString = !inString;
-//       } else if (char == '{' && !inString) {
-//         openBraces++;
-//       } else if (char == '}' && !inString) {
-//         closeBraces++;
-//       }
-//       repairedJson.write(char);
-//     }
-
-//     while (openBraces > closeBraces) {
-//       repairedJson.write('}');
-//       closeBraces++;
-//     }
-
-//     if (inString) {
-//       repairedJson.write('"');
-//     }
-
-//     String finalRepairedText = repairedJson.toString();
-//     return finalRepairedText;
-//   }
-
-//   Future<Map<String, dynamic>> generateCourseContent({
-//     required String topicName,
-//     required String ageGroup,
-//     required String domain,
-//     required String difficulty,
-//     String? educationLevel,
-//     String? specialty,
-//     String? sourceContent,
-//     String? youtubeUrl,
-//   }) async {
-//     String prompt = '''
-//     As an AI-powered gamification engine, your task is to transform a static course topic into an interactive, game-based learning module.
-//     Generate a complete course structure including:
-//     - courseTitle: A catchy title for the course.
-//     - gameGenre: A suitable game genre for the course (e.g., "Fantasy", "Sci-Fi", "Adventure", "Mystery", "Cyberpunk"). Choose one from: ${AppConstants.gameThemes.join(', ')}.
-//     - difficulty: The difficulty level of the course ("Beginner", "Intermediate", "Advanced", "Expert").
-//     - levels: An array of 10 to 15 distinct levels, ordered from easy to hard, each tailored to the course's difficulty. Each level should have:
-//         - id: A unique string ID for the level (e.g., "level_1").
-//         - title: The title of the level.
-//         - description: A brief, engaging description of the level.
-//         - difficulty: The specific difficulty of this level (e.g., "Easy", "Medium"). The difficulty should progressively increase with the level order.
-//         - order: An integer representing the sequential order of the level (e.g., 1, 2, 3...).
-//         - imageAssetPath: An optional path to a local asset image for this level's icon/visual (e.g., "assets/level_icons/level1.png", "assets/level_icons/level2.png"). Create unique, descriptive paths for each.
-//         - lessons: An array of 1-3 detailed lessons. Each lesson should have:
-//             - id: A unique string ID for the lesson (e.g., "lesson_1_1").
-//             - title: The title of the lesson.
-//             - content: Comprehensive learning material for the lesson (min 200 words), suitable for a college student, formatted in Markdown.
-//             - questions: An array of 3-5 small, interesting, and engaging questions for the lesson, appropriate for the level's difficulty. Each question should have:
-//                 - id: A unique string ID for the question (e.g., "q1_lesson_1_1").
-//                 - questionText: The question itself.
-//                 - xpReward: An integer for XP reward (e.g., 10, 15, 20), appropriate for the question difficulty.
-//                 - type: One of "MCQ", "FillInBlank", "ShortAnswer", "Scenario". Favor a mix of types for variety.
-//                 - specific fields based on type (if applicable):
-//                     - For MCQ: options (List<String>), correctAnswer (String, one of options). Ensure options are distinct and plausible, and there is only ONE correct option.
-//                     - For FillInBlank: correctAnswer (String).
-//                     - For ShortAnswer: expectedAnswerKeywords (String, comma-separated keywords for evaluation).
-//                     - For Scenario: scenarioText (String, concise and engaging), expectedOutcome (String).
-
-//     The course is for "$topicName" for college students in the "$domain" domain, with an overall "$difficulty" difficulty level.
-//     The user's education level is "$educationLevel" and their specialty is "$specialty". Tailor content and examples to these if relevant.
-//     ''';
-
-//     if (sourceContent != null && sourceContent.isNotEmpty) {
-//       prompt += '''
-//       \n\nUse the following provided text as the primary source material for generating the course content, lessons, and questions. Focus on the key concepts and details within this text:\n\n"$sourceContent"
-//       ''';
-//     } else if (youtubeUrl != null && youtubeUrl.isNotEmpty) {
-//       prompt += '''
-//       \n\nConsider the topic "$topicName" as if it were a YouTube video found at this URL: $youtubeUrl. Generate the course content, lessons, and questions based on what you would expect to be covered in such a video. If possible, imagine and use key points or a transcript from this video to structure the content.
-//       ''';
-//     }
-
-//     prompt += '''
-//     \n\nOutput ONLY the JSON object. Do NOT include any descriptive text, markdown code block fences (\`\`\`json), or any other characters outside the JSON structure.
-//     All string values within the JSON, especially multi-line content or text containing special characters (like backslashes, double quotes, or newlines), MUST be correctly escaped for JSON validity. For example, newlines should be "\\\\n", double quotes should be "\\\\\\"", and backslashes should be "\\\\\\\\".
-//     The output MUST be a JSON object conforming to the following schema.
-//     ''';
-
-//     final payload = {
-//       "contents": [
-//         {"role": "user", "parts": [{"text": prompt}]}
-//       ],
-//       "generationConfig": {
-//         "responseMimeType": "application/json",
-//         "responseSchema": {
-//           "type": "OBJECT",
-//           "properties": {
-//             "courseTitle": {"type": "STRING"},
-//             "gameGenre": {"type": "STRING"},
-//             "difficulty": {"type": "STRING"},
-//             "levels": {
-//               "type": "ARRAY",
-//               "items": {
-//                 "type": "OBJECT",
-//                 "properties": {
-//                   "id": {"type": "STRING"},
-//                   "title": {"type": "STRING"},
-//                   "description": {"type": "STRING"},
-//                   "difficulty": {"type": "STRING"},
-//                   "order": {"type": "INTEGER"},
-//                   "imageAssetPath": {"type": "STRING"}, // New
-//                   "lessons": {
-//                     "type": "ARRAY",
-//                     "items": {
-//                       "type": "OBJECT",
-//                       "properties": {
-//                         "id": {"type": "STRING"},
-//                         "title": {"type": "STRING"},
-//                         "content": {"type": "STRING"},
-//                         "questions": {
-//                           "type": "ARRAY",
-//                           "items": {
-//                             "type": "OBJECT",
-//                             "properties": {
-//                               "id": {"type": "STRING"},
-//                               "questionText": {"type": "STRING"},
-//                               "xpReward": {"type": "INTEGER"},
-//                               "type": {"type": "STRING"},
-//                               "options": {
-//                                 "type": "ARRAY",
-//                                 "items": {"type": "STRING"}
-//                               },
-//                               "correctAnswer": {"type": "STRING"},
-//                               "expectedAnswerKeywords": {"type": "STRING"},
-//                               "scenarioText": {"type": "STRING"},
-//                               "expectedOutcome": {"type": "STRING"},
-//                             },
-//                             "required": ["id", "questionText", "xpReward", "type"]
-//                           }
-//                         }
-//                       },
-//                       "required": ["id", "title", "content", "questions"]
-//                     }
-//                   }
-//                 },
-//                 "required": ["id", "title", "description", "difficulty", "order", "lessons"]
-//               }
-//             }
-//           },
-//           "required": ["courseTitle", "gameGenre", "difficulty", "levels"]
-//         }
-//       },
-//       "safetySettings": [
-//         {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
-//       ]
-//     };
-
+//   Future<void> playCorrectSound() async {
 //     try {
-//       final responseBody = await _callGeminiApi(payload);
-//       final String rawJsonString = responseBody['candidates'][0]['content']['parts'][0]['text'];
-//       String extractedJsonString = rawJsonString;
-
-//       try {
-//         extractedJsonString = _extractJsonString(rawJsonString);
-//         return json.decode(extractedJsonString);
-//       } on FormatException catch (e, stacktrace) {
-//         debugPrint('FormatException during JSON decoding. Raw response: \n$rawJsonString');
-//         debugPrint('Extracted string attempt: \n$extractedJsonString');
-//         debugPrint('Decoding error: $e');
-//         debugPrint('Stacktrace: $stacktrace');
-//         throw Exception('Failed to parse AI response: JSON is malformed. Details: $e. Raw: "$rawJsonString"');
-//       }
+//       await _correctPlayer.stop(); // Stop any currently playing sound
+//       await _correctPlayer.resume(); // Resume from start
+//       await _correctPlayer.play(AssetSource(AppConstants.correctSoundPath));
 //     } catch (e) {
-//       debugPrint('Error generating course content: $e');
-//       rethrow;
+//       debugPrint('Error playing correct sound: $e');
 //     }
 //   }
 
-//   Future<Map<String, dynamic>> generateSocraticFeedback({
-//     required String userAnswer,
-//     required String questionText,
-//     required String correctAnswer,
-//     required String lessonContent,
-//     UserProgress? userProgress,
-//   }) async {
-//     String userProgressContext = "No prior specific lesson progress available.";
-//     if (userProgress != null) {
-//       userProgressContext = "User's overall progress: "
-//           "Last lesson: ${userProgress.currentLessonId ?? 'N/A'}. "
-//           "Completed lessons count: ${userProgress.lessonsProgress.values.where((p) => p.isCompleted).length}.";
-//     }
-
-//     final String prompt = '''
-//     You are an AI tutor designed to provide personalized, Socratic feedback to college students.
-//     Your goal is to guide students to understand concepts deeply, not just give answers.
-    
-//     Here is the context:
-//     - User's Answer: "$userAnswer"
-//     - Correct Answer: "$correctAnswer"
-//     - Question Text: "$questionText"
-//     - Lesson Content (for contextual understanding): "$lessonContent"
-//     - User's Prior Progress Summary: "$userProgressContext"
-    
-//     Based on this information, provide feedback in the following JSON format.
-    
-//     Output ONLY the JSON object. Do NOT include any descriptive text or markdown code block fences (\`\`\`json).
-//     All string values within the JSON, especially multi-line content or text containing special characters (like backslashes, double quotes, or newlines), MUST be correctly escaped for JSON validity. For example, newlines should be "\\\\n", double quotes should be "\\\\\\"", and backslashes should be "\\\\\\\\".
-//     The output MUST be a JSON object conforming to the following schema.
-//     {
-//       "feedbackText": "Your feedback here...",
-//       "socraticFollowUp": "A question to make them think...",
-//       "adaptiveHints": "Subtle hints based on their answer...",
-//       "encouragement": "Encouraging words adapted to their performance..."
-//     }
-//     ''';
-
-//     final payload = {
-//       "contents": [
-//         {"role": "user", "parts": [{"text": prompt}]}
-//       ],
-//       "generationConfig": {
-//         "responseMimeType": "application/json",
-//         "responseSchema": {
-//           "type": "OBJECT",
-//           "properties": {
-//             "feedbackText": {"type": "STRING"},
-//             "socraticFollowUp": {"type": "STRING"},
-//             "adaptiveHints": {"type": "STRING"},
-//             "encouragement": {"type": "STRING"}
-//           },
-//           "required": ["feedbackText", "encouragement"]
-//         }
-//       },
-//       "safetySettings": [
-//         {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
-//       ]
-//     };
-
+//   Future<void> playLevelUpSound() async {
 //     try {
-//       final responseBody = await _callGeminiApi(payload);
-//       final String rawJsonString = responseBody['candidates'][0]['content']['parts'][0]['text'];
-//       String extractedJsonString = rawJsonString;
-
-//       try {
-//         extractedJsonString = _extractJsonString(rawJsonString);
-//         return json.decode(extractedJsonString);
-//       } on FormatException catch (e, stacktrace) {
-//         debugPrint('FormatException during JSON decoding. Raw response: \n$rawJsonString');
-//         debugPrint('Extracted string attempt: \n$extractedJsonString');
-//         debugPrint('Decoding error: $e');
-//         debugPrint('Stacktrace: $stacktrace');
-//         throw Exception('Failed to parse AI response: JSON is malformed. Details: $e. Raw: "$rawJsonString"');
-//       }
+//       await _levelUpPlayer.stop(); // Stop any currently playing sound
+//       await _levelUpPlayer.resume(); // Resume from start
+//       await _levelUpPlayer.play(AssetSource(AppConstants.levelUpSoundPath));
 //     } catch (e) {
-//       debugPrint('Error generating Socratic feedback: $e');
-//       rethrow;
+//       debugPrint('Error playing level up sound: $e');
 //     }
 //   }
 
-//   Future<Map<String, dynamic>> generateAIChatResponse({
-//     required List<Map<String, dynamic>> chatHistory,
-//     String userContext = '',
-//     String userCourseProgressContext = '',
-//   }) async {
-//     List<Map<String, dynamic>> conversation = [
-//       {
-//         "role": "user",
-//         "parts": [
-//           {"text": "You are an AI tutor named 'Gamifier Tutor'. Your primary goal is to help college students learn by providing clear explanations, guiding them with Socratic questions, offering hints, and clarifying concepts. You should always be encouraging and adapt your responses to the user's reported education level and specialty. If you don't know the answer, admit it. Keep your answers concise but comprehensive. Focus on academic topics. Current user context: $userContext Current user course progress context: $userCourseProgressContext"}
-//         ]
-//       },
-//       ...chatHistory,
-//     ];
-
-//     final payload = {
-//       "contents": conversation,
-//       "generationConfig": {
-//         "temperature": AppConstants.geminiTemperature,
-//         "maxOutputTokens": AppConstants.geminiMaxOutputTokens,
-//       },
-//       "safetySettings": [
-//         {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-//         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
-//       ]
-//     };
-
-//     try {
-//       final responseBody = await _callGeminiApi(payload);
-//       final String responseText = responseBody['candidates'][0]['content']['parts'][0]['text'];
-//       return {'text': responseText};
-//     } catch (e) {
-//       debugPrint('Error generating AI chat response: $e');
-//       rethrow;
-//     }
+//   void dispose() {
+//     _correctPlayer.dispose();
+//     _levelUpPlayer.dispose();
 //   }
 // }
 // // lib/services/firebase_service.dart
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter/foundation.dart';
-// import 'package:gamifier/models/lesson.dart';
-// import 'package:gamifier/models/question.dart';
 // import 'package:gamifier/models/user_profile.dart';
 // import 'package:gamifier/models/course.dart';
 // import 'package:gamifier/models/user_progress.dart';
 // import 'package:gamifier/models/badge.dart';
 // import 'package:gamifier/models/level.dart';
-// import 'package:gamifier/models/community_post.dart'; // New import for social features
+// import 'package:gamifier/models/community_post.dart';
+// import 'package:gamifier/models/chat_message.dart'; // New import
+// import 'package:gamifier/models/lesson.dart'; // New import for saveLevels
+// import 'package:gamifier/models/question.dart'; // New import for saveLevels
 // import 'package:gamifier/constants/app_constants.dart';
 
 // class FirebaseService {
 //   final FirebaseAuth _auth = FirebaseAuth.instance;
 //   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+//   // Added getter for Firestore instance
+//   FirebaseFirestore getFirestore() {
+//     return _firestore;
+//   }
 
 //   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
@@ -2583,8 +2754,7 @@
 //         email: email,
 //         password: password,
 //       );
-//       await _ensureUserProfileExists(userCredential.user!);
-//       await _updateUserStreak(userCredential.user!.uid); // Update streak on login
+//       await _ensureUserProfileAndStreak(userCredential.user!); // Update streak
 //       return userCredential;
 //     } on FirebaseAuthException catch (e) {
 //       if (e.code == 'user-not-found') {
@@ -2628,12 +2798,75 @@
 //     }
 //   }
 
-//   Future<void> _ensureUserProfileExists(User user) async {
-//     final userDoc = _firestore.collection(AppConstants.usersCollection).doc(user.uid);
-//     final docSnapshot = await userDoc.get();
+//   Future<void> _ensureUserProfileAndStreak(User user) async {
+//     final userRef = _firestore.collection(AppConstants.usersCollection).doc(user.uid);
+//     final docSnapshot = await userRef.get();
 
 //     if (!docSnapshot.exists) {
 //       await createUserProfile(user.uid, user.displayName ?? 'New Learner');
+//     } else {
+//       UserProfile userProfile = UserProfile.fromMap(docSnapshot.data()!);
+//       DateTime today = DateTime.now();
+//       DateTime? lastLogin = userProfile.lastLoginDate;
+
+//       // Normalize dates to just year, month, day for comparison
+//       DateTime todayNormalized = DateTime(today.year, today.month, today.day);
+//       DateTime? lastLoginNormalized = lastLogin != null ? DateTime(lastLogin.year, lastLogin.month, lastLogin.day) : null;
+
+//       int newStreak = userProfile.currentStreak;
+//       int xpToAdd = 0;
+
+//       if (lastLoginNormalized == null) {
+//         // First login or streak reset (if not logged in for a while)
+//         newStreak = 1;
+//         xpToAdd = 0; // No bonus for starting streak
+//       } else if (todayNormalized.difference(lastLoginNormalized).inDays == 1) {
+//         // Consecutive day
+//         newStreak++;
+//         if (newStreak >= AppConstants.minStreakDaysForBonus) {
+//           xpToAdd = AppConstants.streakBonusXp;
+//         }
+//       } else if (todayNormalized.difference(lastLoginNormalized).inDays > 1) {
+//         // Streak broken
+//         newStreak = 1;
+//         xpToAdd = 0;
+//       } else {
+//         // Logged in multiple times today, streak doesn't change, no bonus
+//         xpToAdd = 0;
+//       }
+
+//       Map<String, dynamic> updates = {
+//         'lastLoginDate': Timestamp.fromDate(today),
+//         'currentStreak': newStreak,
+//       };
+
+//       if (xpToAdd > 0) {
+//         updates['xp'] = FieldValue.increment(xpToAdd);
+//         // Recalculate level if XP changes, or handle it in addXp if it's called
+//         // For now, let's assume addXp takes care of level updates.
+//       }
+//       await userRef.update(updates);
+
+//       // If XP was added, refresh user profile to update level instantly in UI
+//       if (xpToAdd > 0) {
+//         UserProfile updatedProfile = UserProfile.fromMap((await userRef.get()).data()!);
+//         int newXpTotal = updatedProfile.xp;
+//         int newLevel = updatedProfile.level;
+
+//         int xpAtCurrentLevelStart = (newLevel - 1) * AppConstants.xpPerLevel;
+
+//         while (newXpTotal >= xpAtCurrentLevelStart + AppConstants.xpPerLevel) {
+//           newLevel++;
+//           xpAtCurrentLevelStart = (newLevel - 1) * AppConstants.xpPerLevel;
+//         }
+
+//         if (newLevel > userProfile.level) {
+//           // Play level up sound if level changed
+//           // This typically needs to be handled by a UI-layer logic reacting to the stream
+//         }
+//         // Update profile in local state or notify listeners if XP was added
+//         await userRef.update({'level': newLevel}); // Ensure level is updated in Firestore too
+//       }
 //     }
 //   }
 
@@ -2644,8 +2877,8 @@
 //       createdAt: DateTime.now(),
 //       educationLevel: educationLevel,
 //       specialty: specialty,
-//       currentStreak: AppConstants.initialStreak, // Initialize streak
-//       lastStreakUpdate: DateTime.now(), // Set initial streak update time
+//       currentStreak: 1, // Start streak on first profile creation
+//       lastLoginDate: DateTime.now(),
 //     );
 //     try {
 //       await _firestore.collection(AppConstants.usersCollection).doc(uid).set(userProfile.toMap());
@@ -2720,88 +2953,20 @@
 //     }
 //   }
 
-//   Future<void> deductXp(String userId, int amount) async {
-//     try {
-//       final userRef = _firestore.collection(AppConstants.usersCollection).doc(userId);
-//       await _firestore.runTransaction((transaction) async {
-//         final userDoc = await transaction.get(userRef);
-//         if (!userDoc.exists) {
-//           throw Exception("User does not exist to deduct XP!");
-//         }
-
-//         UserProfile userProfile = UserProfile.fromMap(userDoc.data()!);
-//         int newXpTotal = userProfile.xp - amount;
-//         if (newXpTotal < 0) newXpTotal = 0; // Prevent negative XP
-
-//         // Re-calculate level if XP drops below current level's threshold
-//         int newLevel = userProfile.level;
-//         while (newXpTotal < (newLevel - 1) * AppConstants.xpPerLevel && newLevel > 1) {
-//           newLevel--;
-//         }
-
-//         transaction.update(userRef, {
-//           'xp': newXpTotal,
-//           'level': newLevel,
-//         });
-//       });
-//     } catch (e) {
-//       throw Exception('Error deducting XP from user: $e');
-//     }
-//   }
-
-//   // New: Streak Management
-//   Future<void> _updateUserStreak(String userId) async {
-//     try {
-//       final userRef = _firestore.collection(AppConstants.usersCollection).doc(userId);
-//       await _firestore.runTransaction((transaction) async {
-//         final userDoc = await transaction.get(userRef);
-//         if (!userDoc.exists) {
-//           throw Exception("User does not exist for streak update!");
-//         }
-
-//         UserProfile userProfile = UserProfile.fromMap(userDoc.data()!);
-//         DateTime now = DateTime.now();
-//         DateTime? lastUpdate = userProfile.lastStreakUpdate;
-
-//         // Normalize dates to just year, month, day for comparison
-//         DateTime today = DateTime(now.year, now.month, now.day);
-//         DateTime? lastUpdateDay = lastUpdate != null ? DateTime(lastUpdate.year, lastUpdate.month, lastUpdate.day) : null;
-
-//         int newStreak = userProfile.currentStreak;
-//         int bonusXp = 0;
-
-//         if (lastUpdateDay == null) {
-//           // First login/activity
-//           newStreak = 1;
-//         } else if (today.difference(lastUpdateDay).inDays == 1) {
-//           // Streak continues
-//           newStreak++;
-//           bonusXp = AppConstants.streakBonusXp; // Award streak bonus
-//         } else if (today.difference(lastUpdateDay).inDays > 1) {
-//           // Streak broken
-//           newStreak = 1;
-//         }
-//         // If it's the same day, do nothing (streak already counted for today)
-
-//         transaction.update(userRef, {
-//           'currentStreak': newStreak,
-//           'lastStreakUpdate': Timestamp.fromDate(now),
-//           'xp': FieldValue.increment(bonusXp), // Add bonus XP
-//         });
-//         debugPrint('Streak updated for user $userId: newStreak=$newStreak, bonusXp=$bonusXp');
-//       });
-//     } catch (e) {
-//       debugPrint('Error updating user streak: $e');
-//       // Do not throw to prevent login/activity from failing due to streak update
-//     }
-//   }
-
-
 //   Future<void> saveCourse(Course course) async {
 //     try {
 //       await _firestore.collection(AppConstants.coursesCollection).doc(course.id).set(course.toMap());
 //     } catch (e) {
 //       throw Exception('Error saving course: $e');
+//     }
+//   }
+
+//   // Added updateCourse method
+//   Future<void> updateCourse(String courseId, Map<String, dynamic> updates) async {
+//     try {
+//       await _firestore.collection(AppConstants.coursesCollection).doc(courseId).update(updates);
+//     } catch (e) {
+//       throw Exception('Error updating course: $e');
 //     }
 //   }
 
@@ -2852,33 +3017,14 @@
 //     }
 //   }
 
-//   Stream<List<Course>> streamAllCoursesForUser(String userId) {
-//     return _firestore
-//         .collection(AppConstants.coursesCollection)
-//         .where('creatorId', isEqualTo: userId) // Filter by creatorId
-//         .snapshots()
-//         .map((snapshot) {
+//   Stream<List<Course>> streamAllCourses() {
+//     return _firestore.collection(AppConstants.coursesCollection).snapshots().map((snapshot) {
 //       return snapshot.docs.map((doc) => Course.fromMap(doc.data()!)).toList();
 //     }).handleError((e) {
-//       debugPrint('Error streaming user-specific courses: $e');
+//       debugPrint('Error streaming all courses: $e');
 //       return <Course>[];
 //     });
 //   }
-
-//   Stream<List<Course>> streamPublicCourses(String currentUserId) {
-//     // Stream courses that are NOT created by the current user
-//     return _firestore
-//         .collection(AppConstants.coursesCollection)
-//         .where('creatorId', isNotEqualTo: currentUserId) // Filter by creatorId
-//         .snapshots()
-//         .map((snapshot) {
-//       return snapshot.docs.map((doc) => Course.fromMap(doc.data()!)).toList();
-//     }).handleError((e) {
-//       debugPrint('Error streaming public courses: $e');
-//       return <Course>[];
-//     });
-//   }
-
 
 //   Future<void> saveLevel(Level level, List<Lesson> lessons, Map<String, List<Question>> questionsPerLesson) async {
 //     try {
@@ -2896,6 +3042,39 @@
 //       throw Exception('Error saving level, lessons, and questions: $e');
 //     }
 //   }
+
+//   // New method to save a list of levels with their nested lessons and questions
+//   Future<void> saveLevels(
+//     List<Level> levels,
+//     Map<String, List<Lesson>> lessonsPerLevel,
+//     Map<String, Map<String, List<Question>>> questionsPerLessonPerLevel,
+//   ) async {
+//     final batch = _firestore.batch();
+//     try {
+//       for (final level in levels) {
+//         final levelRef = _firestore.collection(AppConstants.levelsCollection).doc(level.id);
+//         batch.set(levelRef, level.toMap());
+
+//         if (lessonsPerLevel.containsKey(level.id)) {
+//           for (final lesson in lessonsPerLevel[level.id]!) {
+//             final lessonRef = levelRef.collection('lessons').doc(lesson.id);
+//             batch.set(lessonRef, lesson.toMap());
+
+//             if (questionsPerLessonPerLevel.containsKey(level.id) &&
+//                 questionsPerLessonPerLevel[level.id]!.containsKey(lesson.id)) {
+//               for (final question in questionsPerLessonPerLevel[level.id]![lesson.id]!) {
+//                 batch.set(lessonRef.collection('questions').doc(question.id), question.toMap());
+//               }
+//             }
+//           }
+//         }
+//       }
+//       await batch.commit();
+//     } catch (e) {
+//       throw Exception('Error saving multiple levels, lessons, and questions: $e');
+//     }
+//   }
+
 
 //   Future<Level?> getLevel(String levelId) async {
 //     try {
@@ -3026,7 +3205,6 @@
 //     });
 //   }
 
-//   // New: Social Features
 //   Future<void> createCommunityPost(CommunityPost post) async {
 //     try {
 //       await _firestore.collection(AppConstants.communityPostsCollection).doc(post.id).set(post.toMap());
@@ -3038,7 +3216,7 @@
 //   Stream<List<CommunityPost>> streamCommunityPosts() {
 //     return _firestore
 //         .collection(AppConstants.communityPostsCollection)
-//         .orderBy('timestamp', descending: true)
+//         .orderBy('timestamp', descending: true) // Ensure ordering by timestamp
 //         .snapshots()
 //         .map((snapshot) {
 //       return snapshot.docs.map((doc) => CommunityPost.fromMap(doc.data()!)).toList();
@@ -3141,7 +3319,7 @@
 //           transaction.update(currentUserRef, {'friends': currentUserFriends});
 //         }
 
-//         if (!friendUserFriends.contains(currentUserId)) {
+//         if (friendUserFriends.contains(currentUserId)) { // Check before removing
 //           friendUserFriends.remove(currentUserId);
 //           transaction.update(friendUserRef, {'friends': friendUserFriends});
 //         }
@@ -3150,59 +3328,501 @@
 //       throw Exception('Error removing friend: $e');
 //     }
 //   }
+
+//   // New: AI Chatbot Tutor functionality
+//   Future<void> sendChatMessage(ChatMessage message) async {
+//     try {
+//       await _firestore.collection(AppConstants.chatMessagesCollection).add(message.toMap());
+//     } catch (e) {
+//       throw Exception('Error sending chat message: $e');
+//     }
+//   }
+
+//   Stream<List<ChatMessage>> streamChatMessages() {
+//     return _firestore
+//         .collection(AppConstants.chatMessagesCollection)
+//         .orderBy('timestamp')
+//         .snapshots()
+//         .map((snapshot) {
+//       return snapshot.docs.map((doc) => ChatMessage.fromMap(doc.data())).toList();
+//     }).handleError((e) {
+//       debugPrint('Error streaming chat messages: $e');
+//       return <ChatMessage>[];
+//     });
+//   }
 // }
-// // lib/services/audio_service.dart
-// import 'package:audioplayers/audioplayers.dart';
+// // lib/services/gemini_api_service.dart
+// import 'dart:convert';
+// import 'package:http/http.dart' as http;
 // import 'package:flutter/foundation.dart';
 // import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/models/course.dart';
+// import 'package:gamifier/models/level.dart'; // Import Level model
+// import 'package:gamifier/models/lesson.dart'; // Import Lesson model
+// import 'package:gamifier/models/question.dart'; // Import Question model
+// import 'package:gamifier/models/user_progress.dart';
+// import 'package:gamifier/models/chat_message.dart';
 
-// class AudioService {
-//   final AudioPlayer _correctPlayer = AudioPlayer();
-//   final AudioPlayer _levelUpPlayer = AudioPlayer();
-//   final AudioPlayer _incorrectPlayer = AudioPlayer(); // New player for incorrect sound
+// class GeminiApiService {
+//   static const String _baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+//   final String _apiKey = AppConstants.geminiApiKey;
 
-//   AudioService() {
-//     // Preload sounds if possible (though AudioCache handles this usually)
-//     // For local assets, Source.asset is the way to go.
-//     _correctPlayer.setSource(AssetSource(AppConstants.correctSoundPath));
-//     _levelUpPlayer.setSource(AssetSource(AppConstants.levelUpSoundPath));
-//     _incorrectPlayer.setSource(AssetSource('assets/audios/incorrect.mp3')); // Assuming an incorrect.mp3 asset
-//   }
+//   Future<Map<String, dynamic>> _callGeminiApi(Map<String, dynamic> payload) async {
+//     if (_apiKey.isEmpty || _apiKey == 'YOUR_GEMINI_API_HERE') {
+//       throw Exception('Gemini API Key is not configured. Please set it in app_constants.dart');
+//     }
 
-//   Future<void> playCorrectSound() async {
+//     final url = Uri.parse('$_baseUrl?key=$_apiKey');
+
 //     try {
-//       await _correctPlayer.stop(); // Stop any currently playing sound
-//       await _correctPlayer.seek(Duration.zero); // Rewind to start
-//       await _correctPlayer.play(AssetSource(AppConstants.correctSoundPath));
+//       final response = await http.post(
+//         url,
+//         headers: {'Content-Type': 'application/json'},
+//         body: json.encode(payload),
+//       );
+
+//       if (response.statusCode == 200) {
+//         final Map<String, dynamic> responseBody = json.decode(response.body);
+//         if (responseBody.containsKey('error')) {
+//           throw Exception('Gemini API Error: ${responseBody['error']['message']}');
+//         }
+//         if (responseBody['candidates'] != null &&
+//             responseBody['candidates'].isNotEmpty &&
+//             responseBody['candidates'][0]['content'] != null &&
+//             responseBody['candidates'][0]['content']['parts'] != null &&
+//             responseBody['candidates'][0]['content']['parts'].isNotEmpty) {
+//           return responseBody;
+//         } else {
+//           throw Exception('Gemini API response did not contain expected content structure.');
+//         }
+//       } else {
+//         debugPrint('Gemini API Error - Status Code: ${response.statusCode}');
+//         debugPrint('Response Body: ${response.body}');
+//         throw Exception('Failed to call Gemini API: ${response.statusCode} - ${response.body}');
+//       }
 //     } catch (e) {
-//       debugPrint('Error playing correct sound: $e');
+//       throw Exception('Network or parsing error calling Gemini API: $e');
 //     }
 //   }
 
-//   Future<void> playLevelUpSound() async {
+//   // Refined _extractJsonString to be more robust
+//   String _extractJsonString(String text) {
+//     String cleanedText = text.trim();
+
+//     // Try to find a JSON code block (```json{...}```) first
+//     final jsonCodeBlockRegex = RegExp(r'```json\s*(\{[\s\S]*?\})\s*```', dotAll: true);
+//     final jsonCodeBlockMatch = jsonCodeBlockRegex.firstMatch(cleanedText);
+//     if (jsonCodeBlockMatch != null && jsonCodeBlockMatch.group(1) != null) {
+//       return jsonCodeBlockMatch.group(1)!;
+//     }
+
+//     // Try to find a standalone JSON object
+//     final standaloneJsonRegex = RegExp(r'\{[\s\S]*\}', dotAll: true);
+//     final allMatches = standaloneJsonRegex.allMatches(cleanedText);
+
+//     String? bestValidJson;
+//     for (final match in allMatches) {
+//       String potentialJson = match.group(0)!;
+//       try {
+//         json.decode(potentialJson); // Test if it's valid JSON
+//         if (bestValidJson == null || potentialJson.length > bestValidJson.length) {
+//           bestValidJson = potentialJson; // Keep the longest valid one
+//         }
+//       } on FormatException {
+//         // Not a valid JSON, continue
+//       }
+//     }
+
+//     if (bestValidJson != null) {
+//       return bestValidJson;
+//     }
+
+//     // Fallback: Attempt to repair truncated JSON, especially for unterminated strings
+//     // This is a heuristic and might not catch all cases, but targets common truncation.
+//     int openBraces = 0;
+//     int openBrackets = 0;
+//     bool inString = false;
+//     StringBuffer repairedJsonBuffer = StringBuffer();
+
+//     for (int i = 0; i < cleanedText.length; i++) {
+//       String char = cleanedText[i];
+//       if (char == '\\' && i + 1 < cleanedText.length) { // Handle escaped characters
+//         repairedJsonBuffer.write(char);
+//         repairedJsonBuffer.write(cleanedText[++i]);
+//       } else if (char == '"') {
+//         inString = !inString;
+//         repairedJsonBuffer.write(char);
+//       } else if (char == '{' && !inString) {
+//         openBraces++;
+//         repairedJsonBuffer.write(char);
+//       } else if (char == '}' && !inString) {
+//         openBraces--;
+//         repairedJsonBuffer.write(char);
+//       } else if (char == '[' && !inString) {
+//         openBrackets++;
+//         repairedJsonBuffer.write(char);
+//       } else if (char == ']' && !inString) {
+//         openBrackets--;
+//         repairedJsonBuffer.write(char);
+//       } else {
+//         repairedJsonBuffer.write(char);
+//       }
+//     }
+
+//     // Try to close any unclosed strings, brackets, or braces
+//     if (inString) {
+//       repairedJsonBuffer.write('"');
+//     }
+//     while (openBraces > 0) {
+//       repairedJsonBuffer.write('}');
+//       openBraces--;
+//     }
+//     while (openBrackets > 0) {
+//       repairedJsonBuffer.write(']');
+//       openBrackets--;
+//     }
+
+//     String finalRepairedText = repairedJsonBuffer.toString();
+//     debugPrint('Attempting to parse repaired JSON: $finalRepairedText');
+//     return finalRepairedText;
+//   }
+
+
+//   Future<Map<String, dynamic>> generateCourseContent({
+//     required String topicName,
+//     required String ageGroup,
+//     required String domain,
+//     required String difficulty,
+//     String? educationLevel,
+//     String? specialty,
+//     String? sourceContent,
+//     String? youtubeUrl,
+//     int numberOfLevels = AppConstants.initialLevelsCount, // Default to initial count
+//     int startingLevelOrder = 1, // For subsequent generation
+//     List<Level>? previousLevelsContext, // For subsequent generation
+//   }) async {
+//     String prompt = '''
+//     As an AI-powered gamification engine, your task is to transform a static course topic into an interactive, game-based learning module.
+//     Generate a complete course structure including:
+//     - courseTitle: A catchy title for the course.
+//     - gameGenre: A suitable game genre for the course (e.g., "Fantasy", "Sci-Fi", "Adventure", "Mystery", "Cyberpunk"). Choose one from: ${AppConstants.gameThemes.join(', ')}.
+//     - difficulty: The difficulty level of the course ("Beginner", "Intermediate", "Advanced", "Expert").
+//     - levels: An array of $numberOfLevels distinct levels, ordered from easy to hard, each tailored to the course's difficulty. Each level should have:
+//         - id: A unique string ID for the level (e.g., "level_${startingLevelOrder}").
+//         - title: The title of the level.
+//         - description: A brief, engaging description of the level.
+//         - difficulty: The specific difficulty of this level (e.g., "Easy", "Medium").
+//         - order: An integer representing the sequential order of the level (e.g., $startingLevelOrder, ${startingLevelOrder + 1}, ...).
+//         - imageAssetPath: An optional path to a local asset image for this level's icon/visual (e.g., "assets/level_icons/level${startingLevelOrder}.png", "assets/level_icons/level${startingLevelOrder + 1}.png"). Create unique, descriptive paths for each.
+//         - lessons: An array of 1-3 detailed lessons. Each lesson should have:
+//             - id: A unique string ID for the lesson (e.g., "lesson_${startingLevelOrder}_1").
+//             - title: The title of the lesson.
+//             - content: Comprehensive learning material for the lesson (min 200 words), suitable for a college student, formatted in Markdown.
+//             - questions: An array of 3-5 small, interesting, and engaging questions for the lesson, appropriate for the level's difficulty. Each question should have:
+//                 - id: A unique string ID for the question (e.g., "q1_lesson_${startingLevelOrder}_1").
+//                 - questionText: The question itself.
+//                 - xpReward: An integer for XP reward (e.g., 10, 15, 20), appropriate for the question difficulty.
+//                 - type: One of "MCQ", "FillInBlank", "ShortAnswer", "Scenario". Favor a mix of types for variety.
+//                 - specific fields based on type (if applicable):
+//                     - For MCQ: options (List<String>), correctAnswer (String, one of options). Ensure options are distinct and plausible.
+//                     - For FillInBlank: correctAnswer (String).
+//                     - For ShortAnswer: expectedAnswerKeywords (String, comma-separated keywords for evaluation).
+//                     - For Scenario: scenarioText (String, concise and engaging), expectedOutcome (String).
+
+//     The course is for "$topicName" for college students in the "$domain" domain, with an overall "$difficulty" difficulty level.
+//     The user's education level is "$educationLevel" and their specialty is "$specialty". Tailor content and examples to these if relevant.
+//     ''';
+
+//     if (previousLevelsContext != null && previousLevelsContext.isNotEmpty) {
+//       prompt += '''
+//       \n\nFor context, here are the previously generated levels of this course. Ensure the new levels logically follow these, increasing in difficulty and building upon prior concepts:
+//       ${json.encode(previousLevelsContext.map((level) => level.toMap()).toList())}
+//       ''';
+//     }
+
+
+//     if (sourceContent != null && sourceContent.isNotEmpty) {
+//       prompt += '''
+//       \n\nUse the following provided text as the primary source material for generating the course content, lessons, and questions. Focus on the key concepts and details within this text:\n\n"$sourceContent"
+//       ''';
+//     } else if (youtubeUrl != null && youtubeUrl.isNotEmpty) {
+//       prompt += '''
+//       \n\nConsider the topic "$topicName" as if it were a YouTube video found at this URL: $youtubeUrl. Generate the course content, lessons, and questions based on what you would expect to be covered in such a video. If possible, imagine and use key points or a transcript from this video to structure the content.
+//       ''';
+//     }
+
+//     prompt += '''
+//     \n\nOutput ONLY the JSON object. Do NOT include any descriptive text, markdown code block fences (\`\`\`json), or any other characters outside the JSON structure.
+//     All string values within the JSON, especially multi-line content or text containing special characters (like backslashes, double quotes, or newlines), MUST be correctly escaped for JSON validity. For example, newlines should be "\\\\n", double quotes should be "\\\\\\"", and backslashes should be "\\\\\\\\".
+//     The output MUST be a JSON object conforming to the following schema.
+//     ''';
+
+//     final payload = {
+//       "contents": [
+//         {"role": "user", "parts": [{"text": prompt}]}
+//       ],
+//       "generationConfig": {
+//         "responseMimeType": "application/json",
+//         "responseSchema": {
+//           "type": "OBJECT",
+//           "properties": {
+//             "courseTitle": {"type": "STRING"},
+//             "gameGenre": {"type": "STRING"},
+//             "difficulty": {"type": "STRING"},
+//             "levels": {
+//               "type": "ARRAY",
+//               "items": {
+//                 "type": "OBJECT",
+//                 "properties": {
+//                   "id": {"type": "STRING"},
+//                   "title": {"type": "STRING"},
+//                   "description": {"type": "STRING"},
+//                   "difficulty": {"type": "STRING"},
+//                   "order": {"type": "INTEGER"},
+//                   "imageAssetPath": {"type": "STRING"},
+//                   "lessons": {
+//                     "type": "ARRAY",
+//                     "items": {
+//                       "type": "OBJECT",
+//                       "properties": {
+//                         "id": {"type": "STRING"},
+//                         "title": {"type": "STRING"},
+//                         "content": {"type": "STRING"},
+//                         "questions": {
+//                           "type": "ARRAY",
+//                           "items": {
+//                             "type": "OBJECT",
+//                             "properties": {
+//                               "id": {"type": "STRING"},
+//                               "questionText": {"type": "STRING"},
+//                               "xpReward": {"type": "INTEGER"},
+//                               "type": {"type": "STRING"},
+//                               "options": {
+//                                 "type": "ARRAY",
+//                                 "items": {"type": "STRING"}
+//                               },
+//                               "correctAnswer": {"type": "STRING"},
+//                               "expectedAnswerKeywords": {"type": "STRING"},
+//                               "scenarioText": {"type": "STRING"},
+//                               "expectedOutcome": {"type": "STRING"},
+//                             },
+//                             "required": ["id", "questionText", "xpReward", "type"]
+//                           }
+//                         }
+//                       },
+//                       "required": ["id", "title", "content", "questions"]
+//                     }
+//                   }
+//                 },
+//                 "required": ["id", "title", "description", "difficulty", "order", "lessons"]
+//               }
+//             }
+//           },
+//           "required": ["courseTitle", "gameGenre", "difficulty", "levels"]
+//         }
+//       },
+//       "safetySettings": [
+//         {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+//       ]
+//     };
+
 //     try {
-//       await _levelUpPlayer.stop();
-//       await _levelUpPlayer.seek(Duration.zero);
-//       await _levelUpPlayer.play(AssetSource(AppConstants.levelUpSoundPath));
+//       final responseBody = await _callGeminiApi(payload);
+//       final String rawJsonString = responseBody['candidates'][0]['content']['parts'][0]['text'];
+//       String extractedJsonString = _extractJsonString(rawJsonString); // Use the improved extraction
+
+//       try {
+//         final Map<String, dynamic> parsedJson = json.decode(extractedJsonString);
+//         return parsedJson;
+//       } on FormatException catch (e, stacktrace) {
+//         debugPrint('FormatException during JSON decoding. Raw response: \n$rawJsonString');
+//         debugPrint('Extracted string attempt: \n$extractedJsonString');
+//         debugPrint('Decoding error: $e');
+//         debugPrint('Stacktrace: $stacktrace');
+//         throw Exception('Failed to parse AI response: JSON is malformed. Details: $e. Raw: "$rawJsonString"');
+//       }
 //     } catch (e) {
-//       debugPrint('Error playing level up sound: $e');
+//       debugPrint('Error generating course content: $e');
+//       rethrow;
 //     }
 //   }
 
-//   Future<void> playIncorrectSound() async {
+//   // New method for generating subsequent levels, returns parsed levels, lessons, and questions
+//   Future<Map<String, dynamic>> generateSubsequentLevels({
+//     required String courseId,
+//     required String topicName,
+//     required String ageGroup,
+//     required String domain,
+//     required String difficulty,
+//     required int startingLevelOrder,
+//     required int numberOfLevels,
+//     String? educationLevel,
+//     String? specialty,
+//     String? sourceContent,
+//     String? youtubeUrl,
+//     List<Level>? previousLevelsContext,
+//   }) async {
+//     // Re-use the existing generateCourseContent but with specific level count and starting order
+//     final Map<String, dynamic> generatedContent = await generateCourseContent(
+//       topicName: topicName,
+//       ageGroup: ageGroup,
+//       domain: domain,
+//       difficulty: difficulty,
+//       educationLevel: educationLevel,
+//       specialty: specialty,
+//       sourceContent: sourceContent,
+//       youtubeUrl: youtubeUrl,
+//       numberOfLevels: numberOfLevels,
+//       startingLevelOrder: startingLevelOrder,
+//       previousLevelsContext: previousLevelsContext,
+//     );
+
+//     final List<Level> levels = [];
+//     final Map<String, List<Lesson>> lessonsPerLevel = {};
+//     final Map<String, Map<String, List<Question>>> questionsPerLessonPerLevel = {};
+
+//     for (var levelData in generatedContent['levels']) {
+//       final Level newLevel = Level.fromMap(levelData as Map<String, dynamic>)..courseId = courseId;
+//       levels.add(newLevel);
+
+//       final List<Lesson> lessons = [];
+//       final Map<String, List<Question>> questionsForThisLevelLessons = {};
+
+//       for (var lessonData in levelData['lessons']) {
+//         final Lesson newLesson = Lesson.fromMap(lessonData as Map<String, dynamic>)..levelId = newLevel.id;
+//         lessons.add(newLesson);
+
+//         final List<Question> questions = [];
+//         for (var questionData in newLesson.questions) { // Assuming Lesson.fromMap populates questions
+//           questions.add(Question.fromMap(questionData as Map<String, dynamic>));
+//         }
+//         questionsForThisLevelLessons[newLesson.id] = questions;
+//       }
+//       lessonsPerLevel[newLevel.id] = lessons;
+//       questionsPerLessonPerLevel[newLevel.id] = questionsForThisLevelLessons;
+//     }
+
+//     return {
+//       'levels': levels,
+//       'lessonsPerLevel': lessonsPerLevel,
+//       'questionsPerLessonPerLevel': questionsPerLessonPerLevel,
+//     };
+//   }
+
+
+//   Future<Map<String, dynamic>> generateSocraticFeedback({
+//     required String userAnswer,
+//     required String questionText,
+//     required String correctAnswer,
+//     required String lessonContent,
+//     UserProgress? userProgress,
+//   }) async {
+//     String userProgressContext = "No prior specific lesson progress available.";
+//     if (userProgress != null) {
+//       userProgressContext = "User's overall progress: "
+//           "Last lesson: ${userProgress.currentLessonId ?? 'N/A'}. "
+//           "Completed lessons count: ${userProgress.lessonsProgress.values.where((p) => p.isCompleted).length}.";
+//     }
+
+//     final String prompt = '''
+//     You are an AI tutor designed to provide personalized, Socratic feedback to college students.
+//     Your goal is to guide students to understand concepts deeply, not just give answers.
+    
+//     Here is the context:
+//     - User's Answer: "$userAnswer"
+//     - Correct Answer: "$correctAnswer"
+//     - Question Text: "$questionText"
+//     - Lesson Content (for contextual understanding): "$lessonContent"
+//     - User's Prior Progress Summary: "$userProgressContext"
+    
+//     Based on this information, provide feedback in the following JSON format.
+    
+//     Output ONLY the JSON object. Do NOT include any descriptive text or markdown code block fences (\`\`\`json).
+//     All string values within the JSON, especially multi-line content or text containing special characters (like backslashes, double quotes, or newlines), MUST be correctly escaped for JSON validity. For example, newlines should be "\\\\n", double quotes should be "\\\\\\"", and backslashes should be "\\\\\\\\".
+//     The output MUST be a JSON object conforming to the following schema.
+//     {
+//       "feedbackText": "Your feedback here...",
+//       "socraticFollowUp": "A question to make them think...",
+//       "adaptiveHints": "Subtle hints based on their answer...",
+//       "encouragement": "Encouraging words adapted to their performance..."
+//     }
+//     ''';
+
+//     final payload = {
+//       "contents": [
+//         {"role": "user", "parts": [{"text": prompt}]}
+//       ],
+//       "generationConfig": {
+//         "responseMimeType": "application/json",
+//         "responseSchema": {
+//           "type": "OBJECT",
+//           "properties": {
+//             "feedbackText": {"type": "STRING"},
+//             "socraticFollowUp": {"type": "STRING"},
+//             "adaptiveHints": {"type": "STRING"},
+//             "encouragement": {"type": "STRING"}
+//           },
+//           "required": ["feedbackText", "encouragement"]
+//         }
+//       },
+//       "safetySettings": [
+//         {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+//       ]
+//     };
+
 //     try {
-//       await _incorrectPlayer.stop();
-//       await _incorrectPlayer.seek(Duration.zero);
-//       await _incorrectPlayer.play(AssetSource('assets/audios/incorrect.mp3'));
+//       final responseBody = await _callGeminiApi(payload);
+//       final String rawJsonString = responseBody['candidates'][0]['content']['parts'][0]['text'];
+//       String extractedJsonString = _extractJsonString(rawJsonString);
+
+//       try {
+//         return json.decode(extractedJsonString);
+//       } on FormatException catch (e, stacktrace) {
+//         debugPrint('FormatException during JSON decoding. Raw response: \n$rawJsonString');
+//         debugPrint('Extracted string attempt: \n$extractedJsonString');
+//         debugPrint('Decoding error: $e');
+//         debugPrint('Stacktrace: $stacktrace');
+//         throw Exception('Failed to parse AI response: JSON is malformed. Details: $e. Raw: "$rawJsonString"');
+//       }
 //     } catch (e) {
-//       debugPrint('Error playing incorrect sound: $e');
+//       debugPrint('Error generating Socratic feedback: $e');
+//       rethrow;
 //     }
 //   }
 
-//   void dispose() {
-//     _correctPlayer.dispose();
-//     _levelUpPlayer.dispose();
-//     _incorrectPlayer.dispose();
+//   Future<String> generateChatResponse(List<ChatMessage> chatHistory) async {
+//     final List<Map<String, dynamic>> contents = chatHistory.map((msg) => {
+//       "role": msg.isUser ? "user" : "model",
+//       "parts": [{"text": msg.text}]
+//     }).toList();
+
+//     final payload = {
+//       "contents": contents,
+//       "generationConfig": {
+//         "temperature": AppConstants.geminiTemperature,
+//         "maxOutputTokens": AppConstants.geminiMaxOutputTokens,
+//       },
+//       "safetySettings": [
+//         {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+//         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+//       ]
+//     };
+
+//     try {
+//       final responseBody = await _callGeminiApi(payload);
+//       return responseBody['candidates'][0]['content']['parts'][0]['text'];
+//     } catch (e) {
+//       debugPrint('Error generating chat response: $e');
+//       throw Exception('Failed to get response from AI: $e');
+//     }
 //   }
 // }
 // // lib/screens/splash_screen.dart
@@ -3243,7 +3863,10 @@
 //         Navigator.of(context).pushReplacementNamed(AppRouter.authRoute);
 //       } else {
 //         try {
-//           final userProfile = await firebaseService.getUserProfile(user.uid);
+//           // Ensure user profile exists and streak is updated
+//           await firebaseService.getUserProfile(user.uid); // This will trigger _ensureUserProfileAndStreak
+//           final userProfile = await firebaseService.getUserProfile(user.uid); // Fetch updated profile
+
 //           if (userProfile == null || userProfile.educationLevel == null || userProfile.specialty == null || userProfile.educationLevel!.isEmpty || userProfile.specialty!.isEmpty) {
 //             Navigator.of(context).pushReplacementNamed(AppRouter.onboardingRoute);
 //           } else {
@@ -3312,19 +3935,16 @@
 //   }
 // }
 // // lib/screens/progress_screen.dart
-// import 'package:flutter/material.dart' hide Badge; // Hide Badge from material.dart
+// import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/services/firebase_service.dart';
 // import 'package:gamifier/models/user_profile.dart';
-// import 'package:gamifier/models/badge.dart'; // Explicitly import your Badge model
 // import 'package:gamifier/widgets/common/custom_app_bar.dart';
 // import 'package:gamifier/widgets/gamification/leaderboard_list.dart';
 // import 'package:gamifier/widgets/gamification/badge_display.dart';
-// import 'package:gamifier/widgets/common/xp_level_display.dart';
-// import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
-// import 'package:gamifier/utils/app_router.dart'; // Import AppRouter
+// import 'package:gamifier/models/badge.dart' as gamifier_badge; // Alias the model Badge
 
 // class ProgressScreen extends StatefulWidget {
 //   const ProgressScreen({super.key});
@@ -3334,8 +3954,6 @@
 // }
 
 // class _ProgressScreenState extends State<ProgressScreen> {
-//   int _selectedIndex = 2; // Set the current index for Progress screen
-
 //   @override
 //   Widget build(BuildContext context) {
 //     final firebaseService = Provider.of<FirebaseService>(context);
@@ -3344,9 +3962,7 @@
 //     if (currentUser == null) {
 //       return const Scaffold(
 //         body: Center(
-//           child: CircularProgressIndicator(
-//             valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor),
-//           ),
+//           child: Text('Please log in to view your progress.', style: TextStyle(color: AppColors.textColor)),
 //         ),
 //       );
 //     }
@@ -3360,312 +3976,351 @@
 //         ),
 //       ),
 //       body: Container(
-//         decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
+//         decoration: BoxDecoration(
+//           gradient: AppColors.backgroundGradient(),
+//         ),
 //         child: SingleChildScrollView(
 //           padding: const EdgeInsets.all(AppConstants.padding),
 //           child: Column(
 //             crossAxisAlignment: CrossAxisAlignment.start,
 //             children: [
+//               Text(
+//                 'Your Badges',
+//                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+//                       color: AppColors.accentColor,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//               ),
+//               const SizedBox(height: AppConstants.spacing),
 //               StreamBuilder<UserProfile?>(
 //                 stream: firebaseService.streamUserProfile(currentUser.uid),
-//                 builder: (context, snapshot) {
-//                   if (snapshot.connectionState == ConnectionState.waiting) {
-//                     return const Center(
-//                         child: CircularProgressIndicator(
-//                             valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor)));
+//                 builder: (context, userProfileSnapshot) {
+//                   if (userProfileSnapshot.connectionState == ConnectionState.waiting) {
+//                     return const Center(child: CircularProgressIndicator());
 //                   }
-//                   if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
-//                     return Center(
-//                         child: Text('Error loading user data: ${snapshot.error}',
-//                             style: const TextStyle(color: AppColors.errorColor)));
+//                   if (userProfileSnapshot.hasError || !userProfileSnapshot.hasData || userProfileSnapshot.data == null) {
+//                     return Center(child: Text('Error loading badges: ${userProfileSnapshot.error ?? "No data"}', style: const TextStyle(color: AppColors.errorColor)));
 //                   }
 
-//                   final userProfile = snapshot.data!;
-//                   return Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Center(
-//                         child: Column(
-//                           children: [
-//                             CircleAvatar(
-//                               radius: AppConstants.avatarSize,
-//                               backgroundColor: AppColors.cardColor,
-//                               backgroundImage: AssetImage(userProfile.avatarAssetPath),
-//                               onBackgroundImageError: (exception, stackTrace) {
-//                                 debugPrint('Error loading avatar image: $exception');
-//                               },
-//                             ),
-//                             const SizedBox(height: AppConstants.spacing),
-//                             Text(
-//                               userProfile.username,
-//                               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-//                                     color: AppColors.textColor,
-//                                     fontWeight: FontWeight.bold,
-//                                   ),
-//                             ),
-//                             const SizedBox(height: AppConstants.spacing / 2),
-//                             XpLevelDisplay(
-//                               xp: userProfile.xp,
-//                               level: userProfile.level,
-//                               showLabel: true,
-//                             ),
-//                             const SizedBox(height: AppConstants.spacing),
-//                             Container(
-//                               padding: const EdgeInsets.symmetric(
-//                                 horizontal: AppConstants.padding,
-//                                 vertical: AppConstants.spacing / 2,
-//                               ),
-//                               decoration: BoxDecoration(
-//                                 color: AppColors.cardColor.withOpacity(0.7),
-//                                 borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                                 border: Border.all(color: AppColors.borderColor, width: 1.0),
-//                               ),
-//                               child: Row(
-//                                 mainAxisSize: MainAxisSize.min,
-//                                 children: [
-//                                   Icon(Icons.local_fire_department, color: AppColors.xpColor, size: AppConstants.iconSize), // 🔥 icon
-//                                   const SizedBox(width: AppConstants.spacing / 2),
-//                                   Text(
-//                                     'Streak: ${userProfile.currentStreak} days',
-//                                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                                           color: AppColors.xpColor,
-//                                           fontWeight: FontWeight.bold,
-//                                         ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           ],
-//                         ),
+//                   final userProfile = userProfileSnapshot.data!;
+//                   final List<String> earnedBadgeIds = userProfile.earnedBadges;
+
+//                   // Example static badges. In a real app, these would be fetched from Firestore.
+//                   final List<gamifier_badge.Badge> allPossibleBadges = [ // Used aliased Badge
+//                     const gamifier_badge.Badge(id: 'first_course', name: 'First Course', description: 'Completed your first course!', icon: Icons.school),
+//                     const gamifier_badge.Badge(id: 'level_5', name: 'Level 5 Achiever', description: 'Reached Level 5!', icon: Icons.star),
+//                     const gamifier_badge.Badge(id: 'streak_7', name: '7-Day Streak', description: 'Maintained a 7-day learning streak!', icon: Icons.local_fire_department),
+//                     const gamifier_badge.Badge(id: 'master_quiz', name: 'Quiz Master', description: 'Achieved 100% on a quiz!', icon: Icons.quiz),
+//                     const gamifier_badge.Badge(id: 'community_contributor', name: 'Community Pro', description: 'Made 5 community posts!', icon: Icons.people),
+//                   ];
+
+//                   if (allPossibleBadges.isEmpty) {
+//                     return Center(
+//                       child: Text(
+//                         'No badges defined yet.',
+//                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
 //                       ),
-//                       const SizedBox(height: AppConstants.padding * 2),
-//                       Text(
-//                         'Badges Earned',
-//                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                               color: AppColors.textColor,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                       ),
-//                       const SizedBox(height: AppConstants.spacing),
-//                       if (userProfile.earnedBadges.isEmpty)
-//                         Text(
-//                           'No badges earned yet. Keep learning to earn badges!',
-//                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
-//                         )
-//                       else
-//                         FutureBuilder<List<Badge>>( // Use your Badge model here
-//                           future: Future.wait(userProfile.earnedBadges.map((badgeId) async {
-//                             final badge = await firebaseService.getBadge(badgeId);
-//                             return badge;
-//                           }).where((e) => e != null).cast<Future<Badge>>()), // Cast to Future<Badge>
-//                           builder: (context, badgeSnapshot) {
-//                             if (badgeSnapshot.connectionState == ConnectionState.waiting) {
-//                               return const Center(child: CircularProgressIndicator());
-//                             }
-//                             if (badgeSnapshot.hasError) {
-//                               return Center(child: Text('Error loading badges: ${badgeSnapshot.error}'));
-//                             }
-//                             if (!badgeSnapshot.hasData || badgeSnapshot.data!.isEmpty) {
-//                               return Text(
-//                                 'No badges found for earned IDs.',
-//                                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
-//                               );
-//                             }
-//                             return BadgeDisplay(badges: badgeSnapshot.data!);
-//                           },
-//                         ),
-//                       const SizedBox(height: AppConstants.padding * 2),
-//                       Text(
-//                         'Leaderboard',
-//                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                               color: AppColors.textColor,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                       ),
-//                       const SizedBox(height: AppConstants.spacing),
-//                       StreamBuilder<List<UserProfile>>(
-//                         stream: firebaseService.streamLeaderboard(),
-//                         builder: (context, leaderboardSnapshot) {
-//                           if (leaderboardSnapshot.connectionState == ConnectionState.waiting) {
-//                             return const Center(child: CircularProgressIndicator());
-//                           }
-//                           if (leaderboardSnapshot.hasError) {
-//                             return Center(child: Text('Error loading leaderboard: ${leaderboardSnapshot.error}'));
-//                           }
-//                           if (!leaderboardSnapshot.hasData || leaderboardSnapshot.data!.isEmpty) {
-//                             return Text(
-//                               'No leaderboard data available.',
-//                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
-//                             );
-//                           }
-//                           return LeaderboardList(users: leaderboardSnapshot.data!);
-//                         },
-//                       ),
-//                     ],
+//                     );
+//                   }
+
+//                   return GridView.builder(
+//                     shrinkWrap: true,
+//                     physics: const NeverScrollableScrollPhysics(),
+//                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//                       crossAxisCount: 3,
+//                       crossAxisSpacing: AppConstants.spacing,
+//                       mainAxisSpacing: AppConstants.spacing,
+//                       childAspectRatio: 1.0,
+//                     ),
+//                     itemCount: allPossibleBadges.length,
+//                     itemBuilder: (context, index) {
+//                       final badge = allPossibleBadges[index];
+//                       final isEarned = earnedBadgeIds.contains(badge.id);
+//                       return BadgeDisplay(badge: badge, isEarned: isEarned);
+//                     },
 //                   );
 //                 },
 //               ),
+//               const SizedBox(height: AppConstants.padding * 2),
+//               Text(
+//                 'Global Leaderboard',
+//                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+//                       color: AppColors.accentColor,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//               ),
+//               const SizedBox(height: AppConstants.spacing),
+//               StreamBuilder<List<UserProfile>>(
+//                 stream: firebaseService.streamLeaderboard(),
+//                 builder: (context, leaderboardSnapshot) {
+//                   if (leaderboardSnapshot.connectionState == ConnectionState.waiting) {
+//                     return const Center(child: CircularProgressIndicator());
+//                   }
+//                   if (leaderboardSnapshot.hasError) {
+//                     return Center(child: Text('Error loading leaderboard: ${leaderboardSnapshot.error}', style: const TextStyle(color: AppColors.errorColor)));
+//                   }
+//                   if (!leaderboardSnapshot.hasData || leaderboardSnapshot.data!.isEmpty) {
+//                     return Center(
+//                       child: Text(
+//                         'No one on the leaderboard yet. Start earning XP!',
+//                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
+//                       ),
+//                     );
+//                   }
+//                   return LeaderboardList(
+//                       users: leaderboardSnapshot.data!, currentUserId: currentUser.uid);
+//                 },
+//               ),
+//               const SizedBox(height: AppConstants.padding * 2),
 //             ],
 //           ),
 //         ),
 //       ),
-//       bottomNavigationBar: BottomNavBar(
-//         selectedIndex: _selectedIndex,
-//         onItemTapped: (index) {
-//           setState(() {
-//             _selectedIndex = index;
-//           });
-//           // Handle navigation here based on index
-//           switch (index) {
-//             case 0:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
-//               break;
-//             case 1:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.courseCreationRoute);
-//               break;
-//             case 2:
-//             // Already on progress screen
-//               break;
-//             case 3:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.profileRoute);
-//               break;
-//             case 4:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.communityRoute);
-//               break;
-//             case 5:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.aiChatRoute);
-//               break;
-//           }
-//         },
-//       ),
 //     );
 //   }
 // }
-// // lib/utils/app_router.dart
-// import 'package:flutter/material.dart';
-// import 'package:gamifier/screens/splash_screen.dart';
-// import 'package:gamifier/screens/auth_screen.dart';
-// import 'package:gamifier/screens/home_screen.dart';
-// import 'package:gamifier/screens/course_creation_screen.dart';
-// import 'package:gamifier/screens/lesson_screen.dart';
-// import 'package:gamifier/screens/progress_screen.dart';
-// import 'package:gamifier/screens/profile_screen.dart';
-// import 'package:gamifier/screens/avatar_customizer_screen.dart';
-// import 'package:gamifier/screens/onboarding_screen.dart';
-// import 'package:gamifier/screens/level_selection_screen.dart';
-// import 'package:gamifier/models/course.dart';
-// import 'package:gamifier/screens/level_completion_screen.dart';
-// import 'package:gamifier/screens/course_completion_screen.dart';
-// import 'package:gamifier/screens/community_screen.dart';
-// import 'package:gamifier/screens/ai_chat_screen.dart';
-
-// class AppRouter {
-//   static const String splashRoute = '/';
-//   static const String authRoute = '/auth';
-//   static const String homeRoute = '/home';
-//   static const String courseCreationRoute = '/create-course';
-//   static const String lessonRoute = '/lesson';
-//   static const String progressRoute = '/progress';
-//   static const String profileRoute = '/profile';
-//   static const String avatarCustomizerRoute = '/avatar-customizer';
-//   static const String onboardingRoute = '/onboarding';
-//   static const String levelSelectionRoute = '/level-selection';
-//   static const String levelCompletionRoute = '/level-completion';
-//   static const String courseCompletionRoute = '/course-completion';
-//   static const String communityRoute = '/community';
-//   static const String aiChatRoute = '/ai-chat';
-
-//   static Route<dynamic> generateRoute(RouteSettings settings) {
-//     switch (settings.name) {
-//       case splashRoute:
-//         return MaterialPageRoute(builder: (_) => const SplashScreen());
-//       case authRoute:
-//         return MaterialPageRoute(builder: (_) => const AuthScreen());
-//       case homeRoute:
-//         return MaterialPageRoute(builder: (_) => const HomeScreen());
-//       case courseCreationRoute:
-//         return MaterialPageRoute(builder: (_) => const CourseCreationScreen());
-//       case lessonRoute:
-//         final args = settings.arguments as Map<String, dynamic>;
-//         return MaterialPageRoute(
-//           builder: (_) => LessonScreen(
-//             courseId: args['courseId'] as String,
-//             levelId: args['levelId'] as String,
-//             lessonId: args['lessonId'] as String,
-//           ),
-//         );
-//       case progressRoute:
-//         return MaterialPageRoute(builder: (_) => const ProgressScreen());
-//       case profileRoute:
-//         return MaterialPageRoute(builder: (_) => const ProfileScreen());
-//       case avatarCustomizerRoute:
-//         return MaterialPageRoute(builder: (_) => const AvatarCustomizerScreen());
-//       case onboardingRoute:
-//         return MaterialPageRoute(builder: (_) => const OnboardingScreen());
-//       case levelSelectionRoute:
-//         // Ensure Course object is passed directly
-//         final course = settings.arguments as Course;
-//         return MaterialPageRoute(builder: (_) => LevelSelectionScreen(course: course));
-//       case levelCompletionRoute:
-//         final args = settings.arguments as Map<String, dynamic>;
-//         return MaterialPageRoute(
-//           builder: (_) => LevelCompletionScreen(
-//             courseId: args['courseId'] as String,
-//             levelId: args['levelId'] as String,
-//             totalXpEarned: args['totalXpEarned'] as int,
-//             levelScore: args['levelScore'] as int,
-//             lessonsCompleted: args['lessonsCompleted'] as int,
-//             totalLessons: args['totalLessons'] as int,
-//           ),
-//         );
-//       case courseCompletionRoute:
-//         final args = settings.arguments as Map<String, dynamic>;
-//         return MaterialPageRoute(
-//           builder: (_) => CourseCompletionScreen(
-//             courseTitle: args['courseTitle'] as String,
-//             totalXpEarnedInCourse: args['totalXpEarnedInCourse'] as int,
-//             totalLevelsCompleted: args['totalLevelsCompleted'] as int,
-//             totalLevelsInCourse: args['totalLevelsInCourse'] as int,
-//           ),
-//         );
-//       case communityRoute:
-//         return MaterialPageRoute(builder: (_) => const CommunityScreen());
-//       case aiChatRoute:
-//         return MaterialPageRoute(builder: (_) => const AIChatScreen());
-//       default:
-//         return MaterialPageRoute(builder: (_) => Text('Error: Unknown route ${settings.name}'));
-//     }
-//   }
-// }
 // // lib/screens/profile_screen.dart
-// import 'package:flutter/material.dart'; // Hide Badge from material.dart to avoid conflict
-// import 'package:gamifier/models/badge.dart' as gamifier;
-// import 'package:provider/provider.dart';
+// import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/services/firebase_service.dart';
 // import 'package:gamifier/models/user_profile.dart';
 // import 'package:gamifier/widgets/common/custom_app_bar.dart';
-// import 'package:gamifier/widgets/common/xp_level_display.dart';
-// import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
-// import 'package:gamifier/utils/app_router.dart'; // Import AppRouter
-// import 'package:gamifier/widgets/gamification/badge_display.dart'; // Import BadgeDisplay
-// import 'package:gamifier/models/badge.dart'; // Explicitly import your Badge model
-// import 'package:gamifier/widgets/common/loading_indicator.dart';
+// import 'package:gamifier/widgets/gamification/streak_display.dart'; // New import
+// import 'package:gamifier/utils/app_router.dart';
+// import 'package:provider/provider.dart';
 
-// class ProfileScreen extends StatefulWidget {
+// class ProfileScreen extends StatelessWidget {
 //   const ProfileScreen({super.key});
 
+//   void _showSnackBar(BuildContext context, String message, {bool isError = false}) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Text(message),
+//         backgroundColor: isError ? AppColors.errorColor : AppColors.successColor,
+//         duration: const Duration(seconds: 3),
+//       ),
+//     );
+//   }
+
+//   Future<void> _signOut(BuildContext context) async {
+//     try {
+//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//       await firebaseService.signOut();
+//       Navigator.of(context).pushReplacementNamed(AppRouter.authRoute);
+//       _showSnackBar(context, 'Successfully signed out.');
+//     } catch (e) {
+//       _showSnackBar(context, 'Error signing out: $e', isError: true);
+//     }
+//   }
+
 //   @override
-//   State<ProfileScreen> createState() => _ProfileScreenState();
+//   Widget build(BuildContext context) {
+//     final firebaseService = Provider.of<FirebaseService>(context);
+//     final currentUser = firebaseService.currentUser;
+
+//     if (currentUser == null) {
+//       return const Scaffold(
+//         body: Center(
+//           child: Text('Please log in to view your profile.', style: TextStyle(color: AppColors.textColor)),
+//         ),
+//       );
+//     }
+
+//     return Scaffold(
+//       appBar: CustomAppBar(
+//         title: 'My Profile',
+//         leadingWidget: IconButton(
+//           icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
+//           onPressed: () => Navigator.of(context).pop(),
+//         ),
+//       ),
+//       body: Container(
+//         decoration: BoxDecoration(
+//           gradient: AppColors.backgroundGradient(),
+//         ),
+//         child: StreamBuilder<UserProfile?>(
+//           stream: firebaseService.streamUserProfile(currentUser.uid),
+//           builder: (context, snapshot) {
+//             if (snapshot.connectionState == ConnectionState.waiting) {
+//               return const Center(
+//                 child: CircularProgressIndicator(
+//                   valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor),
+//                 ),
+//               );
+//             }
+//             if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+//               return Center(
+//                 child: Text('Error loading profile: ${snapshot.error ?? "No data"}',
+//                     style: const TextStyle(color: AppColors.errorColor)),
+//               );
+//             }
+
+//             final userProfile = snapshot.data!;
+//             return SingleChildScrollView(
+//               padding: const EdgeInsets.all(AppConstants.padding),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.center,
+//                 children: [
+//                   const SizedBox(height: AppConstants.padding),
+//                   CircleAvatar(
+//                     radius: AppConstants.avatarSize,
+//                     backgroundColor: AppColors.cardColor,
+//                     backgroundImage: AssetImage(userProfile.avatarAssetPath),
+//                     onBackgroundImageError: (exception, stackTrace) {
+//                     },
+//                     child: userProfile.avatarAssetPath.isEmpty
+//                         ? Icon(Icons.person, size: AppConstants.avatarSize, color: AppColors.textColorSecondary)
+//                         : null,
+//                   ),
+//                   const SizedBox(height: AppConstants.padding),
+//                   ElevatedButton.icon(
+//                     onPressed: () {
+//                       Navigator.of(context).pushNamed(AppRouter.avatarCustomizerRoute);
+//                     },
+//                     icon: const Icon(Icons.palette),
+//                     label: const Text('Customize Avatar'),
+//                     style: ElevatedButton.styleFrom(
+//                       backgroundColor: AppColors.secondaryColor,
+//                       foregroundColor: AppColors.textColor,
+//                     ),
+//                   ),
+//                   const SizedBox(height: AppConstants.padding * 2),
+//                   Card(
+//                     color: AppColors.cardColor.withOpacity(0.9),
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//                     ),
+//                     elevation: 8,
+//                     child: Padding(
+//                       padding: const EdgeInsets.all(AppConstants.padding * 1.5),
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.stretch,
+//                         children: [
+//                           _buildProfileDetailRow(
+//                             context,
+//                             icon: Icons.person_outline,
+//                             label: 'Username',
+//                             value: userProfile.username,
+//                           ),
+//                           _buildProfileDetailRow(
+//                             context,
+//                             icon: Icons.school,
+//                             label: 'Education Level',
+//                             value: userProfile.educationLevel ?? 'Not set',
+//                           ),
+//                           _buildProfileDetailRow(
+//                             context,
+//                             icon: Icons.lightbulb,
+//                             label: 'Specialty',
+//                             value: userProfile.specialty ?? 'Not set',
+//                           ),
+//                           _buildProfileDetailRow(
+//                             context,
+//                             icon: Icons.star_border,
+//                             label: 'Level',
+//                             value: userProfile.level.toString(),
+//                             valueColor: AppColors.levelColor,
+//                           ),
+//                           _buildProfileDetailRow(
+//                             context,
+//                             icon: Icons.military_tech,
+//                             label: 'Total XP',
+//                             value: userProfile.xp.toString(),
+//                             valueColor: AppColors.xpColor,
+//                           ),
+//                           _buildProfileDetailRow(
+//                             context,
+//                             icon: Icons.local_fire_department, // Streak icon
+//                             label: 'Current Streak',
+//                             value: '${userProfile.currentStreak} Days',
+//                             valueColor: AppColors.streakColor,
+//                           ),
+//                           _buildProfileDetailRow(
+//                             context,
+//                             icon: Icons.calendar_today,
+//                             label: 'Member Since',
+//                             value: '${userProfile.createdAt.day}/${userProfile.createdAt.month}/${userProfile.createdAt.year}',
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ),
+//                   const SizedBox(height: AppConstants.padding * 2),
+//                   ElevatedButton.icon(
+//                     onPressed: () => _signOut(context),
+//                     icon: const Icon(Icons.logout),
+//                     label: const Text('Sign Out'),
+//                     style: ElevatedButton.styleFrom(
+//                       backgroundColor: AppColors.errorColor,
+//                       foregroundColor: AppColors.textColor,
+//                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+//                       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             );
+//           },
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildProfileDetailRow(BuildContext context, {
+//     required IconData icon,
+//     required String label,
+//     required String value,
+//     Color? valueColor,
+//   }) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
+//       child: Row(
+//         children: [
+//           Icon(icon, color: AppColors.accentColor, size: AppConstants.iconSize),
+//           const SizedBox(width: AppConstants.spacing),
+//           Expanded(
+//             child: Text(
+//               '$label:',
+//               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary),
+//             ),
+//           ),
+//           Text(
+//             value,
+//             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                   color: valueColor ?? AppColors.textColor,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+// // lib/screens/onboarding_screen.dart
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/services/firebase_service.dart';
+// import 'package:gamifier/models/user_profile.dart';
+// import 'package:gamifier/utils/app_router.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
+
+// class OnboardingScreen extends StatefulWidget {
+//   const OnboardingScreen({super.key});
+
+//   @override
+//   State<OnboardingScreen> createState() => _OnboardingScreenState();
 // }
 
-// class _ProfileScreenState extends State<ProfileScreen> {
-//   int _selectedIndex = 3; // Set the current index for Profile screen
-//   bool _isEditing = false;
-//   final TextEditingController _usernameController = TextEditingController();
+// class _OnboardingScreenState extends State<OnboardingScreen> {
 //   String? _selectedEducationLevel;
-//   final TextEditingController _specialtyController = TextEditingController();
+//   String? _selectedSpecialty;
+//   bool _isLoading = false;
 
 //   void _showSnackBar(String message, {bool isError = false}) {
 //     if (!mounted) return;
@@ -3678,438 +4333,9 @@
 //     );
 //   }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final firebaseService = Provider.of<FirebaseService>(context);
-//     final currentUser = firebaseService.currentUser;
-
-//     if (currentUser == null) {
-//       return const Scaffold(
-//         body: Center(
-//           child: CircularProgressIndicator(
-//             valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor),
-//           ),
-//         ),
-//       );
-//     }
-
-//     return Scaffold(
-//       appBar: CustomAppBar(
-//         title: 'My Profile',
-//         leadingWidget: IconButton(
-//           icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
-//           onPressed: () => Navigator.of(context).pop(),
-//         ),
-//         trailingWidget: IconButton(
-//           icon: Icon(
-//             _isEditing ? Icons.save : Icons.edit,
-//             color: AppColors.textColor,
-//             size: AppConstants.iconSize,
-//           ),
-//           onPressed: () {
-//             if (_isEditing) {
-//               _saveProfile();
-//             }
-//             setState(() {
-//               _isEditing = !_isEditing;
-//             });
-//           },
-//         ),
-//       ),
-//       body: Container(
-//         decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-//         child: StreamBuilder<UserProfile?>(
-//           stream: firebaseService.streamUserProfile(currentUser.uid),
-//           builder: (context, snapshot) {
-//             if (snapshot.connectionState == ConnectionState.waiting) {
-//               return const Center(
-//                   child: LoadingIndicator(message: 'Loading profile...'));
-//             }
-//             if (snapshot.hasError) {
-//               return Center(
-//                   child: Text('Error loading profile: ${snapshot.error}',
-//                       style: const TextStyle(color: AppColors.errorColor)));
-//             }
-//             if (!snapshot.hasData || snapshot.data == null) {
-//               return Center(
-//                   child: Text('User profile not found.',
-//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary)));
-//             }
-
-//             final userProfile = snapshot.data!;
-//             if (!_isEditing) {
-//               _usernameController.text = userProfile.username;
-//               _selectedEducationLevel = userProfile.educationLevel;
-//               _specialtyController.text = userProfile.specialty ?? '';
-//             }
-
-//             return SingleChildScrollView(
-//               padding: const EdgeInsets.all(AppConstants.padding),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Center(
-//                     child: Column(
-//                       children: [
-//                         GestureDetector(
-//                           onTap: () {
-//                             if (_isEditing) {
-//                               Navigator.of(context).pushNamed(AppRouter.avatarCustomizerRoute);
-//                             }
-//                           },
-//                           child: Stack(
-//                             alignment: Alignment.bottomRight,
-//                             children: [
-//                               CircleAvatar(
-//                                 radius: AppConstants.avatarSize,
-//                                 backgroundColor: AppColors.cardColor,
-//                                 backgroundImage: AssetImage(userProfile.avatarAssetPath),
-//                                 onBackgroundImageError: (exception, stackTrace) {
-//                                   debugPrint('Error loading avatar image: $exception');
-//                                 },
-//                               ),
-//                               if (_isEditing)
-//                                 Positioned(
-//                                   right: 0,
-//                                   bottom: 0,
-//                                   child: Container(
-//                                     padding: const EdgeInsets.all(AppConstants.spacing / 2),
-//                                     decoration: BoxDecoration(
-//                                       color: AppColors.accentColor,
-//                                       shape: BoxShape.circle,
-//                                     ),
-//                                     child: Icon(Icons.edit, color: AppColors.cardColor, size: AppConstants.iconSize),
-//                                   ),
-//                                 ),
-//                             ],
-//                           ),
-//                         ),
-//                         const SizedBox(height: AppConstants.padding),
-//                         if (_isEditing)
-//                           TextFormField(
-//                             controller: _usernameController,
-//                             style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.largeTextSize),
-//                             decoration: InputDecoration(
-//                               labelText: 'Username',
-//                               labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//                               filled: true,
-//                               fillColor: AppColors.cardColor.withOpacity(0.8),
-//                               border: OutlineInputBorder(
-//                                 borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                                 borderSide: BorderSide.none,
-//                               ),
-//                             ),
-//                           )
-//                         else
-//                           Text(
-//                             userProfile.username,
-//                             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-//                                   color: AppColors.textColor,
-//                                   fontWeight: FontWeight.bold,
-//                                   fontSize: AppConstants.largeTextSize + 4,
-//                                 ),
-//                           ),
-//                         const SizedBox(height: AppConstants.spacing),
-//                         XpLevelDisplay(
-//                           xp: userProfile.xp,
-//                           level: userProfile.level,
-//                           showLabel: true,
-//                         ),
-//                         const SizedBox(height: AppConstants.spacing),
-//                         Container(
-//                           padding: const EdgeInsets.symmetric(
-//                             horizontal: AppConstants.padding,
-//                             vertical: AppConstants.spacing / 2,
-//                           ),
-//                           decoration: BoxDecoration(
-//                             color: AppColors.cardColor.withOpacity(0.7),
-//                             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                             border: Border.all(color: AppColors.borderColor, width: 1.0),
-//                           ),
-//                           child: Row(
-//                             mainAxisSize: MainAxisSize.min,
-//                             children: [
-//                               Icon(Icons.local_fire_department, color: AppColors.xpColor, size: AppConstants.iconSize), // 🔥 icon
-//                               const SizedBox(width: AppConstants.spacing / 2),
-//                               Text(
-//                                 'Streak: ${userProfile.currentStreak} days',
-//                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                                       color: AppColors.xpColor,
-//                                       fontWeight: FontWeight.bold,
-//                                       fontSize: AppConstants.mediumTextSize,
-//                                     ),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   const SizedBox(height: AppConstants.padding * 2),
-//                   Text(
-//                     'About Me',
-//                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                           color: AppColors.textColor,
-//                           fontWeight: FontWeight.bold,
-//                           fontSize: AppConstants.largeTextSize,
-//                         ),
-//                   ),
-//                   const SizedBox(height: AppConstants.spacing),
-//                   if (_isEditing)
-//                     Column(
-//                       children: [
-//                         DropdownButtonFormField<String>(
-//                           value: _selectedEducationLevel,
-//                           decoration: InputDecoration(
-//                             labelText: 'Education Level',
-//                             labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                             filled: true,
-//                             fillColor: AppColors.cardColor.withOpacity(0.8),
-//                             border: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                               borderSide: BorderSide.none,
-//                             ),
-//                           ),
-//                           dropdownColor: AppColors.cardColor,
-//                           style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                           items: AppConstants.educationLevels.map((String level) {
-//                             return DropdownMenuItem<String>(
-//                               value: level,
-//                               child: Text(level),
-//                             );
-//                           }).toList(),
-//                           onChanged: (String? newValue) {
-//                             setState(() {
-//                               _selectedEducationLevel = newValue;
-//                             });
-//                           },
-//                         ),
-//                         const SizedBox(height: AppConstants.spacing),
-//                         TextFormField(
-//                           controller: _specialtyController,
-//                           style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                           decoration: InputDecoration(
-//                             labelText: 'Specialty/Interest',
-//                             labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                             filled: true,
-//                             fillColor: AppColors.cardColor.withOpacity(0.8),
-//                             border: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                               borderSide: BorderSide.none,
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     )
-//                   else ...[
-//                     _buildInfoRow(
-//                       context,
-//                       'Education Level:',
-//                       userProfile.educationLevel ?? 'Not set',
-//                       Icons.school,
-//                     ),
-//                     _buildInfoRow(
-//                       context,
-//                       'Specialty:',
-//                       userProfile.specialty ?? 'Not set',
-//                       Icons.category,
-//                     ),
-//                   ],
-//                   const SizedBox(height: AppConstants.padding * 2),
-//                   Text(
-//                     'Badges Earned',
-//                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                           color: AppColors.textColor,
-//                           fontWeight: FontWeight.bold,
-//                           fontSize: AppConstants.largeTextSize,
-//                         ),
-//                   ),
-//                   const SizedBox(height: AppConstants.spacing),
-//                   if (userProfile.earnedBadges.isEmpty)
-//                     Text(
-//                       'No badges earned yet. Keep learning to earn badges!',
-//                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//                     )
-//                   else
-//                     FutureBuilder<List<gamifier.Badge>>( // Use alias for Badge
-//                       future: Future.wait(userProfile.earnedBadges.map((badgeId) async {
-//                         final badge = await firebaseService.getBadge(badgeId);
-//                         return badge;
-//                       }).where((e) => e != null).cast<Future<gamifier.Badge>>()), // Use alias here too
-//                       builder: (context, badgeSnapshot) {
-//                         if (badgeSnapshot.connectionState == ConnectionState.waiting) {
-//                           return const Center(child: CircularProgressIndicator());
-//                         }
-//                         if (badgeSnapshot.hasError) {
-//                           return Center(child: Text('Error loading badges: ${badgeSnapshot.error}'));
-//                         }
-//                         if (!badgeSnapshot.hasData || badgeSnapshot.data!.isEmpty) {
-//                           return Text(
-//                             'No badges found for earned IDs.',
-//                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//                           );
-//                         }
-//                         return BadgeDisplay(badges: badgeSnapshot.data!);
-//                       },
-//                     ),
-//                   const SizedBox(height: AppConstants.padding),
-//                   Center(
-//                     child: ElevatedButton.icon(
-//                       onPressed: () async {
-//                         await firebaseService.signOut();
-//                         if (mounted) {
-//                           Navigator.of(context).pushReplacementNamed(AppRouter.authRoute);
-//                         }
-//                       },
-//                       icon: const Icon(Icons.logout),
-//                       label: const Text('Sign Out'),
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: AppColors.errorColor,
-//                         foregroundColor: AppColors.cardColor,
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                         ),
-//                         padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                         textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: AppConstants.mediumTextSize),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//       bottomNavigationBar: BottomNavBar(
-//         selectedIndex: _selectedIndex,
-//         onItemTapped: (index) {
-//           setState(() {
-//             _selectedIndex = index;
-//           });
-//           switch (index) {
-//             case 0:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
-//               break;
-//             case 1:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.courseCreationRoute);
-//               break;
-//             case 2:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.progressRoute);
-//               break;
-//             case 3:
-//             // Already on profile screen
-//               break;
-//             case 4:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.communityRoute);
-//               break;
-//             case 5:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.aiChatRoute);
-//               break;
-//           }
-//         },
-//       ),
-//     );
-//   }
-
-//   Widget _buildInfoRow(BuildContext context, String label, String value, IconData icon) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Icon(icon, color: AppColors.textColorSecondary, size: AppConstants.iconSize),
-//           const SizedBox(width: AppConstants.spacing),
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(
-//                   label,
-//                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-//                         color: AppColors.textColorSecondary,
-//                         fontSize: AppConstants.smallTextSize,
-//                       ),
-//                 ),
-//                 Text(
-//                   value,
-//                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                         color: AppColors.textColor,
-//                         fontWeight: FontWeight.bold,
-//                         fontSize: AppConstants.mediumTextSize,
-//                       ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Future<void> _saveProfile() async {
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final currentUser = firebaseService.currentUser;
-
-//     if (currentUser == null) {
-//       _showSnackBar('User not logged in.', isError: true);
-//       return;
-//     }
-
-//     try {
-//       await firebaseService.updateUserProfile(
-//         currentUser.uid,
-//         {
-//           'username': _usernameController.text.trim(),
-//           'educationLevel': _selectedEducationLevel,
-//           'specialty': _specialtyController.text.trim(),
-//         },
-//       );
-//       _showSnackBar('Profile updated successfully!');
-//     } catch (e) {
-//       _showSnackBar('Error updating profile: $e', isError: true);
-//     }
-//   }
-// }
-// // lib/screens/onboarding_screen.dart
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'package:gamifier/constants/app_colors.dart';
-// import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/services/firebase_service.dart';
-// import 'package:gamifier/utils/app_router.dart';
-// import 'package:gamifier/utils/validation_utils.dart'; // Import for validation
-
-// class OnboardingScreen extends StatefulWidget {
-//   const OnboardingScreen({super.key});
-
-//   @override
-//   State<OnboardingScreen> createState() => _OnboardingScreenState();
-// }
-
-// class _OnboardingScreenState extends State<OnboardingScreen> {
-//   final _formKey = GlobalKey<FormState>();
-//   String? _selectedEducationLevel;
-//   final TextEditingController _specialtyController = TextEditingController();
-//   bool _isLoading = false;
-
-//   @override
-//   void dispose() {
-//     _specialtyController.dispose();
-//     super.dispose();
-//   }
-
-//   void _showSnackBar(String message, {bool isError = false}) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: Text(message),
-//         backgroundColor: isError ? AppColors.errorColor : AppColors.successColor,
-//         duration: const Duration(seconds: 3),
-//       ),
-//     );
-//   }
-
 //   Future<void> _completeOnboarding() async {
-//     if (!_formKey.currentState!.validate()) {
+//     if (_selectedEducationLevel == null || _selectedSpecialty == null) {
+//       _showSnackBar('Please select your education level and specialty.', isError: true);
 //       return;
 //     }
 
@@ -4117,33 +4343,28 @@
 //       _isLoading = true;
 //     });
 
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final currentUser = firebaseService.currentUser;
-
-//     if (currentUser == null) {
-//       _showSnackBar('User not logged in.', isError: true);
-//       setState(() => _isLoading = false);
-//       return;
-//     }
-
 //     try {
-//       await firebaseService.updateUserProfile(
-//         currentUser.uid,
-//         {
-//           'educationLevel': _selectedEducationLevel,
-//           'specialty': _specialtyController.text.trim(),
-//         },
-//       );
-//       _showSnackBar('Profile updated! Welcome to Gamifier!');
-//       Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
-//     } catch (e) {
-//       _showSnackBar('Error completing onboarding: $e', isError: true);
-//     } finally {
-//       if (mounted) {
-//         setState(() {
-//           _isLoading = false;
-//         });
+//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//       final currentUser = firebaseService.currentUser;
+//       if (currentUser != null) {
+//         await firebaseService.updateUserProfile(
+//           currentUser.uid,
+//           {
+//             'educationLevel': _selectedEducationLevel,
+//             'specialty': _selectedSpecialty,
+//           },
+//         );
+//         _showSnackBar('Profile updated successfully! Welcome to Gamifier!');
+//         Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
+//       } else {
+//         _showSnackBar('User not logged in.', isError: true);
 //       }
+//     } catch (e) {
+//       _showSnackBar('Failed to save profile: $e', isError: true);
+//     } finally {
+//       setState(() {
+//         _isLoading = false;
+//       });
 //     }
 //   }
 
@@ -4157,108 +4378,106 @@
 //         child: Center(
 //           child: SingleChildScrollView(
 //             padding: const EdgeInsets.all(AppConstants.padding * 2),
-//             child: Card(
-//               color: AppColors.cardColor.withOpacity(0.95),
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2),
-//               ),
-//               elevation: 12,
-//               child: Padding(
-//                 padding: const EdgeInsets.all(AppConstants.padding * 2),
-//                 child: Form(
-//                   key: _formKey,
-//                   child: Column(
-//                     mainAxisSize: MainAxisSize.min,
-//                     children: [
-//                       Text(
-//                         'Tell us about yourself!',
-//                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-//                               color: AppColors.accentColor,
-//                               fontWeight: FontWeight.bold,
-//                               // Replace neonTextStyle with a standard style
-//                               shadows: [
-//                                 Shadow(
-//                                   blurRadius: 10.0,
-//                                   color: AppColors.accentColor.withOpacity(0.5),
-//                                   offset: const Offset(0, 0),
-//                                 ),
-//                               ],
-//                             ),
-//                         textAlign: TextAlign.center,
-//                       ),
-//                       const SizedBox(height: AppConstants.padding * 1.5),
-//                       Text(
-//                         'This helps us personalize your learning experience and AI tutor interactions.',
-//                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
-//                         textAlign: TextAlign.center,
-//                       ),
-//                       const SizedBox(height: AppConstants.padding),
-//                       DropdownButtonFormField<String>(
-//                         value: _selectedEducationLevel,
-//                         decoration: InputDecoration(
-//                           labelText: 'Your Highest Education Level',
-//                           labelStyle: const TextStyle(color: AppColors.textColorSecondary),
-//                           filled: true,
-//                           fillColor: AppColors.primaryColor.withOpacity(0.1),
-//                           border: OutlineInputBorder(
-//                             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                             borderSide: BorderSide.none,
-//                           ),
-//                         ),
-//                         dropdownColor: AppColors.cardColor,
-//                         style: const TextStyle(color: AppColors.textColor),
-//                         items: AppConstants.educationLevels.map((String level) {
-//                           return DropdownMenuItem<String>(
-//                             value: level,
-//                             child: Text(level),
-//                           );
-//                         }).toList(),
-//                         onChanged: (String? newValue) {
-//                           setState(() {
-//                             _selectedEducationLevel = newValue;
-//                           });
-//                         },
-//                         validator: (value) => ValidationUtils.validateNotEmpty(value, 'Please select your education level'),
-//                       ),
-//                       const SizedBox(height: AppConstants.spacing),
-//                       TextFormField(
-//                         controller: _specialtyController,
-//                         style: const TextStyle(color: AppColors.textColor),
-//                         decoration: InputDecoration(
-//                           labelText: 'Your Specialty or Primary Interest (e.g., Computer Science, History)',
-//                           labelStyle: const TextStyle(color: AppColors.textColorSecondary),
-//                           filled: true,
-//                           fillColor: AppColors.primaryColor.withOpacity(0.1),
-//                           border: OutlineInputBorder(
-//                             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                             borderSide: BorderSide.none,
-//                           ),
-//                         ),
-//                         validator: (value) => ValidationUtils.validateNotEmpty(value, 'Please enter your specialty/interest'),
-//                       ),
-//                       const SizedBox(height: AppConstants.padding * 1.5),
-//                       _isLoading
-//                           ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor))
-//                           : ElevatedButton(
-//                               onPressed: _completeOnboarding,
-//                               style: ElevatedButton.styleFrom(
-//                                 backgroundColor: AppColors.accentColor,
-//                                 foregroundColor: AppColors.cardColor,
-//                                 padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                                 textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-//                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                                 elevation: 8,
-//                               ),
-//                               child: const Text('Continue to App'),
-//                             ),
-//                     ],
-//                   ),
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 Icon(
+//                   Icons.auto_awesome,
+//                   size: 80,
+//                   color: AppColors.accentColor,
 //                 ),
-//               ),
+//                 const SizedBox(height: AppConstants.padding),
+//                 Text(
+//                   'Personalize Your Journey!',
+//                   style: AppColors.neonTextStyle(fontSize: 32),
+//                   textAlign: TextAlign.center,
+//                 ),
+//                 Text(
+//                   'Help us tailor your learning experience.',
+//                   style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary),
+//                   textAlign: TextAlign.center,
+//                 ),
+//                 const SizedBox(height: AppConstants.padding * 2),
+//                 _buildDropdownField(
+//                   context,
+//                   label: 'Your Education Level',
+//                   value: _selectedEducationLevel,
+//                   items: AppConstants.educationLevels,
+//                   onChanged: (value) {
+//                     setState(() {
+//                       _selectedEducationLevel = value;
+//                     });
+//                   },
+//                 ),
+//                 const SizedBox(height: AppConstants.padding),
+//                 _buildDropdownField(
+//                   context,
+//                   label: 'Your Specialty/Interests',
+//                   value: _selectedSpecialty,
+//                   items: AppConstants.defaultCourseTopics,
+//                   onChanged: (value) {
+//                     setState(() {
+//                       _selectedSpecialty = value;
+//                     });
+//                   },
+//                 ),
+//                 const SizedBox(height: AppConstants.padding * 2),
+//                 CustomButton(
+//                   text: 'Start Learning!',
+//                   onPressed: _completeOnboarding,
+//                   isLoading: _isLoading,
+//                   backgroundColor: AppColors.primaryColor,
+//                 ),
+//               ],
 //             ),
 //           ),
 //         ),
 //       ),
+//     );
+//   }
+
+//   Widget _buildDropdownField(BuildContext context, {
+//     required String label,
+//     required String? value,
+//     required List<String> items,
+//     required ValueChanged<String?> onChanged,
+//   }) {
+//     return DropdownButtonFormField<String>(
+//       value: value,
+//       decoration: InputDecoration(
+//         labelText: label,
+//         labelStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.8)),
+//         filled: true,
+//         fillColor: AppColors.cardColor.withOpacity(0.7),
+//         border: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//           borderSide: BorderSide.none,
+//         ),
+//         focusedBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//           borderSide: const BorderSide(color: AppColors.accentColor, width: 2.0),
+//         ),
+//         enabledBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//           borderSide: const BorderSide(color: AppColors.borderColor, width: 1.0),
+//         ),
+//       ),
+//       dropdownColor: AppColors.cardColor.withOpacity(0.95),
+//       style: const TextStyle(color: AppColors.textColor),
+//       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textColorSecondary),
+//       items: items.map((item) {
+//         return DropdownMenuItem(
+//           value: item,
+//           child: Text(item, style: const TextStyle(color: AppColors.textColor)),
+//         );
+//       }).toList(),
+//       onChanged: onChanged,
+//       validator: (value) {
+//         if (value == null || value.isEmpty) {
+//           return 'Please select an option.';
+//         }
+//         return null;
+//       },
 //     );
 //   }
 // }
@@ -4271,22 +4490,16 @@
 // import 'package:gamifier/models/course.dart';
 // import 'package:gamifier/models/level.dart';
 // import 'package:gamifier/models/user_progress.dart';
-// import 'package:gamifier/widgets/common/custom_app_bar.dart';
 // import 'package:gamifier/utils/app_router.dart';
-// import 'package:gamifier/utils/app_extensions.dart'; // Import for firstWhereOrNull
-// import 'package:gamifier/widgets/cards/level_card.dart'; // Import new LevelCard widget
+// import 'package:gamifier/widgets/common/custom_app_bar.dart';
+// import 'package:gamifier/widgets/gamification/level_node.dart';
+// import 'package:gamifier/widgets/gamification/level_path_painter.dart';
+// import 'package:gamifier/models/lesson.dart'; // Import Lesson for fetching
 
-// class LevelSelectionScreen extends StatefulWidget {
-//   final Course course;
+// class LevelSelectionScreen extends StatelessWidget {
+//   final String courseId; // Changed to accept courseId
 
-//   const LevelSelectionScreen({super.key, required this.course});
-
-//   @override
-//   State<LevelSelectionScreen> createState() => _LevelSelectionScreenState();
-// }
-
-// class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
-//   // We no longer need _userProgress state here, as we'll use StreamBuilder directly.
+//   const LevelSelectionScreen({super.key, required this.courseId});
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -4305,7 +4518,7 @@
 
 //     return Scaffold(
 //       appBar: CustomAppBar(
-//         title: '${widget.course.title} Levels',
+//         title: 'Levels', // Title will be fetched from course later
 //         leadingWidget: IconButton(
 //           icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
 //           onPressed: () => Navigator.of(context).pop(),
@@ -4313,114 +4526,174 @@
 //       ),
 //       body: Container(
 //         decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-//         child: StreamBuilder<List<Level>>(
-//           stream: firebaseService.streamLevelsForCourse(widget.course.id),
-//           builder: (context, snapshot) {
-//             if (snapshot.connectionState == ConnectionState.waiting) {
+//         child: FutureBuilder<Course?>( // Fetch course to get its title
+//           future: firebaseService.getCourse(courseId),
+//           builder: (context, courseSnapshot) {
+//             if (courseSnapshot.connectionState == ConnectionState.waiting) {
 //               return const Center(
 //                   child: CircularProgressIndicator(
 //                       valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor)));
 //             }
-//             if (snapshot.hasError) {
-//               return Center(
-//                   child: Text('Error loading levels: ${snapshot.error}',
-//                       style: const TextStyle(color: AppColors.errorColor)));
+//             if (courseSnapshot.hasError || !courseSnapshot.hasData || courseSnapshot.data == null) {
+//               return Center(child: Text('Error loading course: ${courseSnapshot.error ?? "Course not found"}',
+//                   style: const TextStyle(color: AppColors.errorColor)));
 //             }
-//             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-//               return Center(
-//                   child: Text('No levels found for this course.',
-//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary)));
-//             }
+//             final Course course = courseSnapshot.data!;
 
-//             final levels = snapshot.data!;
-//             // Fetch user progress here as well, so it's always up-to-date with level changes.
-//             return StreamBuilder<UserProgress?>(
-//               stream: firebaseService.streamUserCourseProgress(currentUser.uid, widget.course.id),
-//               builder: (context, progressSnapshot) {
-//                 if (progressSnapshot.connectionState == ConnectionState.waiting) {
+//             // Update app bar title once course is loaded
+//             WidgetsBinding.instance.addPostFrameCallback((_) {
+//               if (Scaffold.of(context).appBarMaxHeight != null && Scaffold.of(context).appBarMaxHeight! > 0) {
+//                 // This is a bit of a hack to update the AppBar title after it's built
+//                 // A better approach would be to pass the Course object to LevelSelectionScreen directly
+//                 // or use a Provider for the Course. For now, this works.
+//               }
+//             });
+
+
+//             return StreamBuilder<List<Level>>(
+//               stream: firebaseService.streamLevelsForCourse(course.id),
+//               builder: (context, levelsSnapshot) {
+//                 if (levelsSnapshot.connectionState == ConnectionState.waiting) {
 //                   return const Center(
 //                       child: CircularProgressIndicator(
 //                           valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor)));
 //                 }
-//                 if (progressSnapshot.hasError) {
+//                 if (levelsSnapshot.hasError) {
 //                   return Center(
-//                       child: Text('Error loading user progress: ${progressSnapshot.error}',
+//                       child: Text('Error loading levels: ${levelsSnapshot.error}',
 //                           style: const TextStyle(color: AppColors.errorColor)));
 //                 }
+//                 if (!levelsSnapshot.hasData || levelsSnapshot.data!.isEmpty) {
+//                   return Center(
+//                     child: Text(
+//                       'No levels available for this course yet.',
+//                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
+//                       textAlign: TextAlign.center,
+//                     ),
+//                   );
+//                 }
 
-//                 final userProgress = progressSnapshot.data;
+//                 final levels = levelsSnapshot.data!;
+//                 // Ensure levels are sorted by order just in case
+//                 levels.sort((a, b) => a.order.compareTo(b.order));
 
-//                 return ListView.builder(
-//                   padding: const EdgeInsets.all(AppConstants.padding),
-//                   itemCount: levels.length,
-//                   itemBuilder: (context, index) {
-//                     final level = levels[index];
-//                     final bool isCompleted = userProgress?.levelsCompleted.contains(level.id) ?? false;
-//                     final bool isCurrentOrNextPlayable = _determinePlayability(level, levels, userProgress);
-//                     final bool isLocked = !isCurrentOrNextPlayable && !isCompleted;
+//                 return StreamBuilder<UserProgress?>(
+//                   stream: firebaseService.streamUserCourseProgress(currentUser.uid, course.id),
+//                   builder: (context, progressSnapshot) {
+//                     if (progressSnapshot.connectionState == ConnectionState.waiting) {
+//                       return const Center(
+//                           child: CircularProgressIndicator(
+//                               valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor)));
+//                     }
+//                     if (progressSnapshot.hasError) {
+//                       return Center(
+//                           child: Text('Error loading user progress: ${progressSnapshot.error}',
+//                               style: const TextStyle(color: AppColors.errorColor)));
+//                     }
 
-//                     return LevelCard( // Using the new LevelCard widget
-//                       level: level,
-//                       isCompleted: isCompleted,
-//                       isLocked: isLocked,
-//                       isCurrentOrNextPlayable: isCurrentOrNextPlayable,
-//                       onTap: isLocked
-//                           ? null
-//                           : () async {
-//                               // Handle reattempt logic: deduct XP if reattempting a completed level
-//                               if (isCompleted) {
-//                                 final bool confirmReattempt = await showDialog(
-//                                   context: context,
-//                                   builder: (context) => AlertDialog(
-//                                     title: Text('Reattempt Level?', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: AppConstants.largeTextSize)),
-//                                     content: Text(
-//                                       'You have completed this level. Reattempting will deduct ${AppConstants.levelXpDeductionOnReattempt} XP. Do you want to proceed?',
-//                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: AppConstants.mediumTextSize),
+//                     final userProgress = progressSnapshot.data;
+
+//                     return CustomScrollView(
+//                       slivers: [
+//                         SliverPadding(
+//                           padding: const EdgeInsets.all(AppConstants.padding),
+//                           sliver: SliverList(
+//                             delegate: SliverChildBuilderDelegate(
+//                               (context, index) {
+//                                 final level = levels[index];
+//                                 final bool isLevelCompleted = userProgress?.levelsProgress[level.id]?.isCompleted ?? false;
+//                                 // A level is locked if it's not the first level AND the previous level is not completed.
+//                                 final bool isLocked = index > 0 && !(userProgress?.levelsProgress[levels[index - 1].id]?.isCompleted ?? false);
+                                
+//                                 return Column(
+//                                   children: [
+//                                     // Level node
+//                                     LevelNode(
+//                                       level: level,
+//                                       isCompleted: isLevelCompleted,
+//                                       isLocked: isLocked,
+//                                       onTap: isLocked
+//                                           ? null
+//                                           : () async {
+//                                               // Fetch lessons for the selected level
+//                                               final lessonDocs = await firebaseService
+//                                                   .getFirestore()
+//                                                   .collection(AppConstants.levelsCollection)
+//                                                   .doc(level.id)
+//                                                   .collection('lessons')
+//                                                   .orderBy('order')
+//                                                   .get();
+
+//                                               final List<Lesson> lessons = lessonDocs.docs.map((doc) => Lesson.fromMap(doc.data())).toList();
+
+//                                               if (lessons.isNotEmpty) {
+//                                                 // Find the first incomplete lesson for this level
+//                                                 Lesson? lessonToStart;
+//                                                 for (final lesson in lessons) {
+//                                                   if (!(userProgress?.lessonsProgress[lesson.id]?.isCompleted ?? false)) {
+//                                                     lessonToStart = lesson;
+//                                                     break;
+//                                                   }
+//                                                 }
+
+//                                                 if (lessonToStart == null) {
+//                                                   // All lessons in this level are completed, maybe show level completion screen again or just go home
+//                                                   ScaffoldMessenger.of(context).showSnackBar(
+//                                                     const SnackBar(
+//                                                       content: Text('This level is already completed!'),
+//                                                       backgroundColor: AppColors.infoColor,
+//                                                     ),
+//                                                   );
+//                                                   return;
+//                                                 }
+
+//                                                 // Save current progress if user navigates to a new lesson
+//                                                 final String progressId = '${currentUser.uid}_${course.id}';
+//                                                 final existingProgress = userProgress ?? UserProgress(
+//                                                   id: progressId,
+//                                                   userId: currentUser.uid,
+//                                                   courseId: course.id,
+//                                                 );
+
+//                                                 final updatedProgress = existingProgress.copyWith(
+//                                                   currentLevelId: level.id,
+//                                                   currentLessonId: lessonToStart.id,
+//                                                 );
+//                                                 await firebaseService.saveUserProgress(updatedProgress);
+
+//                                                 Navigator.of(context).pushNamed(
+//                                                   AppRouter.lessonRoute,
+//                                                   arguments: {
+//                                                     'courseId': course.id,
+//                                                     'levelId': level.id,
+//                                                     'lessonId': lessonToStart.id,
+//                                                   },
+//                                                 );
+//                                               } else {
+//                                                 ScaffoldMessenger.of(context).showSnackBar(
+//                                                   const SnackBar(
+//                                                     content: Text('No lessons found for this level.'),
+//                                                     backgroundColor: AppColors.warningColor,
+//                                                   ),
+//                                                 );
+//                                               }
+//                                             },
 //                                     ),
-//                                     actions: [
-//                                       TextButton(
-//                                         onPressed: () => Navigator.of(context).pop(false),
-//                                         child: const Text('Cancel'),
+//                                     if (index < levels.length - 1)
+//                                       CustomPaint(
+//                                         size: const Size(2, 80), // Line connecting nodes
+//                                         painter: LevelPathPainter(
+//                                           isPreviousLevelCompleted: userProgress?.levelsProgress[levels[index].id]?.isCompleted ?? false,
+//                                         ),
 //                                       ),
-//                                       ElevatedButton(
-//                                         onPressed: () => Navigator.of(context).pop(true),
-//                                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.warningColor),
-//                                         child: const Text('Reattempt'),
-//                                       ),
-//                                     ],
-//                                   ),
-//                                 ) ?? false;
-
-//                                 if (confirmReattempt) {
-//                                   await firebaseService.deductXp(currentUser.uid, AppConstants.levelXpDeductionOnReattempt);
-//                                   ScaffoldMessenger.of(context).showSnackBar(
-//                                     SnackBar(
-//                                       content: Text('${AppConstants.levelXpDeductionOnReattempt} XP deducted for reattempt.'),
-//                                       backgroundColor: AppColors.warningColor,
-//                                     ),
-//                                   );
-//                                   // Proceed to lesson
-//                                   Navigator.of(context).pushNamed(
-//                                     AppRouter.lessonRoute,
-//                                     arguments: {
-//                                       'courseId': widget.course.id,
-//                                       'levelId': level.id,
-//                                       'lessonId': level.lessonIds.first, // Start with the first lesson of the level
-//                                     },
-//                                   );
-//                                 }
-//                               } else {
-//                                 // Not completed, just proceed
-//                                 Navigator.of(context).pushNamed(
-//                                   AppRouter.lessonRoute,
-//                                   arguments: {
-//                                     'courseId': widget.course.id,
-//                                     'levelId': level.id,
-//                                     'lessonId': level.lessonIds.first, // Start with the first lesson of the level
-//                                   },
+//                                   ],
 //                                 );
-//                               }
-//                             },
+//                               },
+//                               childCount: levels.length,
+//                             ),
+//                           ),
+//                         ),
+//                       ],
 //                     );
 //                   },
 //                 );
@@ -4431,50 +4704,31 @@
 //       ),
 //     );
 //   }
-
-//   // Logic to determine if a level is playable
-//   bool _determinePlayability(Level currentLevel, List<Level> allLevels, UserProgress? userProgress) {
-//     if (userProgress == null) {
-//       return currentLevel.order == 1; // Only the first level is playable if no progress exists
-//     }
-
-//     // If the level is already completed, it's playable (for review/reattempt)
-//     if (userProgress.levelsCompleted.contains(currentLevel.id)) {
-//       return true;
-//     }
-
-//     // If it's the first level, it's always playable
-//     if (currentLevel.order == 1) {
-//       return true;
-//     }
-
-//     // Check if the previous level is completed
-//     final previousLevelOrder = currentLevel.order - 1;
-//     // Use the imported extension method for firstWhereOrNull
-//     final previousLevel = allLevels.firstWhereOrNull((l) => l.order == previousLevelOrder);
-
-//     if (previousLevel != null) {
-//       return userProgress.levelsCompleted.contains(previousLevel.id);
-//     }
-
-//     return false; // Should not happen for well-ordered levels
-//   }
 // }
-
 // // lib/screens/level_completion_screen.dart
 // import 'package:flutter/material.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/utils/app_router.dart';
-// import 'package:gamifier/widgets/common/custom_app_bar.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
+// import 'package:gamifier/widgets/common/progress_bar.dart';
+// import 'package:provider/provider.dart';
+// import 'package:gamifier/services/firebase_service.dart';
+// import 'package:gamifier/services/gemini_api_service.dart'; // Import GeminiApiService
+// import 'package:gamifier/models/user_profile.dart';
+// import 'package:gamifier/services/audio_service.dart';
+// import 'package:gamifier/models/level.dart'; // Import Level
+// import 'package:gamifier/models/lesson.dart'; // Import Lesson
+// import 'package:gamifier/models/question.dart'; // Import Question
+// import 'package:gamifier/models/course.dart'; // Import Course
 
-// class LevelCompletionScreen extends StatelessWidget {
+// class LevelCompletionScreen extends StatefulWidget {
 //   final String courseId;
-//   final String levelId; // The level that was just completed
-//   final int totalXpEarned; // XP earned in this specific level
-//   final int levelScore; // Score for the just completed level (e.g., in percentage)
-//   final int lessonsCompleted; // Number of lessons completed in this level
-//   final int totalLessons; // Total number of lessons in this level
+//   final String levelId;
+//   final int totalXpEarned;
+//   final int levelScore;
+//   final int lessonsCompleted;
+//   final int totalLessons;
 
 //   const LevelCompletionScreen({
 //     super.key,
@@ -4487,86 +4741,218 @@
 //   });
 
 //   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: CustomAppBar(
-//         title: 'Level Completed!',
-//         leadingWidget: IconButton(
-//           icon: const Icon(Icons.close, color: AppColors.textColor),
-//           onPressed: () => Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute),
-//         ),
+//   State<LevelCompletionScreen> createState() => _LevelCompletionScreenState();
+// }
+
+// class _LevelCompletionScreenState extends State<LevelCompletionScreen> {
+//   UserProfile? _currentUserProfile;
+//   int _currentLevel = 0;
+//   int _currentXp = 0;
+//   bool _isGeneratingLevels = false; // New state for loading indicator
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadUserProfile();
+//     Provider.of<AudioService>(context, listen: false).playLevelUpSound();
+//   }
+
+//   Future<void> _loadUserProfile() async {
+//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//     final currentUser = firebaseService.currentUser;
+//     if (currentUser != null) {
+//       _currentUserProfile = await firebaseService.getUserProfile(currentUser.uid);
+//       if (_currentUserProfile != null) {
+//         setState(() {
+//           _currentLevel = _currentUserProfile!.level;
+//           _currentXp = _currentUserProfile!.xp;
+//         });
+//       }
+//     }
+//   }
+
+//   void _showSnackBar(String message, {bool isError = false}) {
+//     if (!mounted) return;
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Text(message),
+//         backgroundColor: isError ? AppColors.errorColor : AppColors.successColor,
+//         duration: const Duration(seconds: 3),
 //       ),
+//     );
+//   }
+
+//   Future<void> _generateNextLevels() async {
+//     if (_isGeneratingLevels) return;
+
+//     setState(() {
+//       _isGeneratingLevels = true;
+//     });
+
+//     try {
+//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//       final geminiApiService = Provider.of<GeminiApiService>(context, listen: false);
+
+//       final Course? currentCourse = await firebaseService.getCourse(widget.courseId);
+//       if (currentCourse == null) {
+//         _showSnackBar('Error: Course not found for generating new levels.', isError: true);
+//         return;
+//       }
+
+//       final List<Level> existingLevels = await firebaseService.streamLevelsForCourse(widget.courseId).first;
+//       final int lastLevelOrder = existingLevels.map((l) => l.order).fold(0, (max, current) => current > max ? current : max);
+
+//       if (lastLevelOrder >= AppConstants.maxLevelsPerCourse) {
+//         _showSnackBar('Course already has the maximum number of levels.', isError: true);
+//         setState(() { _isGeneratingLevels = false; }); // Ensure loading state is reset
+//         return;
+//       }
+
+//       final int nextStartingOrder = lastLevelOrder + 1;
+//       final int levelsToGenerate = AppConstants.subsequentLevelsBatchSize;
+
+//       _showSnackBar('Generating next ${levelsToGenerate} levels...', isError: false);
+
+//       final Map<String, dynamic> generatedData = await geminiApiService.generateSubsequentLevels(
+//         courseId: widget.courseId,
+//         topicName: currentCourse.title, // Use course title as topic context
+//         ageGroup: 'college students', // Assuming consistent age group
+//         domain: currentCourse.gameGenre, // Using gameGenre as domain for simplicity
+//         difficulty: currentCourse.difficulty,
+//         startingLevelOrder: nextStartingOrder,
+//         numberOfLevels: levelsToGenerate,
+//         educationLevel: _currentUserProfile?.educationLevel,
+//         specialty: _currentUserProfile?.specialty,
+//         previousLevelsContext: existingLevels, // Pass existing levels for context
+//       );
+
+//       final List<Level> newLevels = generatedData['levels'];
+//       final Map<String, List<Lesson>> lessonsPerLevel = generatedData['lessonsPerLevel'];
+//       final Map<String, Map<String, List<Question>>> questionsPerLessonPerLevel = generatedData['questionsPerLessonPerLevel'];
+
+//       // Save all newly generated levels, lessons, and questions
+//       await firebaseService.saveLevels(newLevels, lessonsPerLevel, questionsPerLessonPerLevel);
+
+//       // Update the course document with the new level IDs
+//       final List<String> newlyGeneratedLevelIds = newLevels.map((level) => level.id).toList();
+//       final List<String> updatedCourseLevelIds = List<String>.from(currentCourse.levelIds)..addAll(newlyGeneratedLevelIds);
+//       await firebaseService.updateCourse(widget.courseId, {'levelIds': updatedCourseLevelIds});
+
+//       _showSnackBar('Next batch of levels generated and added to course!', isError: false);
+//       Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.homeRoute);
+//     } catch (e) {
+//       _showSnackBar('Failed to generate next levels: $e', isError: true);
+//       debugPrint('Error generating next levels: $e');
+//     } finally {
+//       setState(() {
+//         _isGeneratingLevels = false;
+//       });
+//     }
+//   }
+
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final double completionProgress = widget.lessonsCompleted / widget.totalLessons;
+//     final int xpNeededForNextLevel = AppConstants.xpPerLevel * _currentLevel;
+//     final int xpInCurrentLevel = _currentXp - (AppConstants.xpPerLevel * (_currentLevel - 1));
+//     final double levelProgress = _currentLevel > 0 ? xpInCurrentLevel / AppConstants.xpPerLevel : 0.0;
+
+//     return Scaffold(
 //       body: Container(
-//         decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-//         padding: const EdgeInsets.all(AppConstants.padding),
+//         decoration: BoxDecoration(
+//           gradient: AppColors.backgroundGradient(),
+//         ),
 //         child: Center(
-//           child: Card(
-//             color: AppColors.cardColor.withOpacity(0.95),
-//             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2)),
-//             elevation: 10,
-//             child: Padding(
-//               padding: const EdgeInsets.all(AppConstants.padding * 2),
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   const Icon(
-//                     Icons.celebration,
-//                     color: AppColors.successColor,
-//                     size: 80,
+//           child: Padding(
+//             padding: const EdgeInsets.all(AppConstants.padding * 2),
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 Icon(
+//                   Icons.celebration,
+//                   size: 100,
+//                   color: AppColors.accentColor,
+//                 ),
+//                 const SizedBox(height: AppConstants.padding),
+//                 Text(
+//                   'Level Completed!',
+//                   style: AppColors.neonTextStyle(fontSize: 36),
+//                 ),
+//                 const SizedBox(height: AppConstants.spacing),
+//                 Text(
+//                   'Congratulations on completing this level!',
+//                   style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary),
+//                   textAlign: TextAlign.center,
+//                 ),
+//                 const SizedBox(height: AppConstants.padding * 2),
+//                 Card(
+//                   color: AppColors.cardColor.withOpacity(0.9),
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(AppConstants.borderRadius),
 //                   ),
-//                   const SizedBox(height: AppConstants.padding),
-//                   Text(
-//                     'Level Complete!',
-//                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-//                           color: AppColors.successColor,
-//                           fontWeight: FontWeight.bold,
-//                           fontSize: AppConstants.largeTextSize + 4, // Larger for emphasis
-//                         ),
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: AppConstants.spacing),
-//                   Text(
-//                     'You have successfully completed Level $levelId!', // Assuming levelId can be used for display
-//                     style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor, fontSize: AppConstants.largeTextSize),
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: AppConstants.padding),
-//                   _buildStatRow(context, 'XP Earned:', '$totalXpEarned XP', Icons.star, AppColors.xpColor),
-//                   _buildStatRow(context, 'Level Score:', '$levelScore%', Icons.score, AppColors.accentColor),
-//                   _buildStatRow(context, 'Lessons Completed:', '$lessonsCompleted / $totalLessons', Icons.menu_book, AppColors.primaryColor),
-//                   const SizedBox(height: AppConstants.padding * 2),
-//                   ElevatedButton.icon(
-//                     onPressed: () {
-//                       // Navigate back to Level Selection for the same course
-//                       Navigator.of(context).pushReplacementNamed(
-//                         AppRouter.levelSelectionRoute,
-//                         arguments: {'courseId': courseId}, // Pass courseId to LevelSelectionScreen
-//                       );
-//                     },
-//                     icon: const Icon(Icons.navigate_next),
-//                     label: const Text('Continue to Next Level'),
-//                     style: ElevatedButton.styleFrom(
-//                       backgroundColor: AppColors.accentColor,
-//                       foregroundColor: AppColors.cardColor,
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                       ),
-//                       padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                       textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: AppConstants.mediumTextSize),
+//                   elevation: 8,
+//                   child: Padding(
+//                     padding: const EdgeInsets.all(AppConstants.padding * 1.5),
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.stretch,
+//                       children: [
+//                         _buildStatRow(context, 'XP Earned:', '${widget.totalXpEarned}', AppColors.xpColor),
+//                         _buildStatRow(context, 'Level Score:', '${widget.levelScore}%', AppColors.successColor),
+//                         _buildStatRow(context, 'Lessons Completed:', '${widget.lessonsCompleted}/${widget.totalLessons}', AppColors.infoColor),
+//                         const Divider(color: AppColors.borderColor, height: AppConstants.padding * 2),
+//                         _currentUserProfile != null
+//                             ? Column(
+//                                 children: [
+//                                   _buildStatRow(context, 'Your New Level:', '${_currentUserProfile!.level}', AppColors.levelColor),
+//                                   _buildStatRow(context, 'Total XP:', '${_currentUserProfile!.xp}', AppColors.xpColor),
+//                                   const SizedBox(height: AppConstants.spacing),
+//                                   Text(
+//                                     'Progress to next level:',
+//                                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
+//                                   ),
+//                                   const SizedBox(height: AppConstants.spacing / 2),
+//                                   ProgressBar(progress: levelProgress, showPercentage: true),
+//                                 ],
+//                               )
+//                             : const SizedBox.shrink(),
+//                       ],
 //                     ),
 //                   ),
-//                   const SizedBox(height: AppConstants.spacing),
-//                   TextButton(
-//                     onPressed: () {
-//                       Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
-//                     },
-//                     child: Text(
-//                       'Back to Home',
-//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//                     ),
+//                 ),
+//                 const SizedBox(height: AppConstants.padding * 2),
+//                 CustomButton(
+//                   text: 'Continue to Next Level',
+//                   onPressed: () {
+//                     Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.homeRoute);
+//                   },
+//                   backgroundColor: AppColors.primaryColor,
+//                   icon: Icons.arrow_forward,
+//                 ),
+//                 const SizedBox(height: AppConstants.spacing),
+//                 // Conditional button to generate next levels
+//                 if (!_isGeneratingLevels &&
+//                     (_currentLevel > 0 && (_currentLevel % AppConstants.initialLevelsCount == 0) && // Check if current level is a multiple of initialLevelsCount
+//                      (_currentLevel < AppConstants.maxLevelsPerCourse))) // Only show if not at max levels
+//                   CustomButton(
+//                     text: 'Unlock More Levels!',
+//                     onPressed: _generateNextLevels,
+//                     isLoading: _isGeneratingLevels,
+//                     backgroundColor: AppColors.secondaryColor,
+//                     icon: Icons.auto_awesome,
 //                   ),
-//                 ],
-//               ),
+//                 const SizedBox(height: AppConstants.spacing),
+//                 TextButton(
+//                   onPressed: () {
+//                     Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.homeRoute);
+//                     Navigator.of(context).pushNamed(AppRouter.levelSelectionRoute, arguments: widget.courseId); // Pass courseId
+//                   },
+//                   child: Text(
+//                     'Return to Level Selection',
+//                     style: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.8)),
+//                   ),
+//                 ),
+//               ],
 //             ),
 //           ),
 //         ),
@@ -4574,28 +4960,21 @@
 //     );
 //   }
 
-//   Widget _buildStatRow(BuildContext context, String label, String value, IconData icon, Color iconColor) {
+//   Widget _buildStatRow(BuildContext context, String label, String value, Color valueColor) {
 //     return Padding(
 //       padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
 //       child: Row(
 //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //         children: [
-//           Row(
-//             children: [
-//               Icon(icon, color: iconColor, size: AppConstants.iconSize),
-//               const SizedBox(width: AppConstants.spacing),
-//               Text(
-//                 label,
-//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//               ),
-//             ],
+//           Text(
+//             label,
+//             style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor),
 //           ),
 //           Text(
 //             value,
 //             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                   color: AppColors.textColor,
+//                   color: valueColor,
 //                   fontWeight: FontWeight.bold,
-//                   fontSize: AppConstants.mediumTextSize,
 //                 ),
 //           ),
 //         ],
@@ -4604,8 +4983,7 @@
 //   }
 // }
 // // lib/screens/lesson_screen.dart
-// import 'package:flutter/material.dart' hide ProgressBar; // Hide ProgressBar from material.dart to avoid conflict
-// import 'package:flutter_markdown/flutter_markdown.dart';
+// import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
@@ -4615,16 +4993,14 @@
 // import 'package:gamifier/models/lesson.dart';
 // import 'package:gamifier/models/question.dart';
 // import 'package:gamifier/models/user_progress.dart';
-// import 'package:gamifier/models/level.dart'; // Import Level model
-// import 'package:gamifier/models/course.dart'; // Import Course model
-// import 'package:gamifier/widgets/common/custom_app_bar.dart';
-// import 'package:gamifier/widgets/common/loading_indicator.dart';
-// import 'package:gamifier/widgets/questions/question_renderer.dart';
-// import 'package:gamifier/widgets/feedback/personalized_feedback_modal.dart';
+// import 'package:gamifier/models/user_profile.dart';
 // import 'package:gamifier/utils/app_router.dart';
-// import 'package:gamifier/widgets/common/progress_bar.dart' as gamifier_progress_bar; // Explicitly import your ProgressBar with an alias
-// import 'package:gamifier/utils/app_extensions.dart'; // Import for firstWhereOrNull
-// import 'package:youtube_player_flutter/youtube_player_flutter.dart'; // Import youtube_player_flutter
+// import 'package:gamifier/widgets/common/custom_app_bar.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
+// import 'package:gamifier/widgets/common/progress_bar.dart';
+// import 'package:gamifier/widgets/lesson/lesson_content_display.dart';
+// import 'package:gamifier/widgets/questions/question_renderer.dart';
+// import 'package:gamifier/widgets/feedback/personalized_feedback_modal.dart'; // New import
 
 // class LessonScreen extends StatefulWidget {
 //   final String courseId;
@@ -4645,29 +5021,20 @@
 // class _LessonScreenState extends State<LessonScreen> {
 //   Lesson? _currentLesson;
 //   List<Question> _questions = [];
-//   int _currentQuestionIndex = 0;
-//   bool _isLoading = true;
-//   String _loadingMessage = 'Loading lesson...';
 //   UserProgress? _userProgress;
-//   Level? _currentLevel; // To store the current level details
-//   int _correctAnswersInLesson = 0;
-//   int _xpEarnedInLesson = 0; // XP earned in the current session of this lesson
-//   int _totalLessonsInLevel = 0; // To track total lessons in the current level
-//   Course? _currentCourse; // To store the current course details
+//   UserProfile? _userProfile;
 
-//   YoutubePlayerController? _youtubeController;
-//   String? _youtubeVideoId; // Store the extracted YouTube video ID
+//   int _currentQuestionIndex = 0;
+//   bool _showFeedback = false;
+//   bool _isAnswerCorrect = false;
+//   String? _lastUserAnswer;
+//   int _xpEarnedInLesson = 0;
+//   bool _isLoading = true;
 
 //   @override
 //   void initState() {
 //     super.initState();
-//     _loadLessonAndQuestions();
-//   }
-
-//   @override
-//   void dispose() {
-//     _youtubeController?.dispose(); // Dispose YouTube player
-//     super.dispose();
+//     _loadLessonData();
 //   }
 
 //   void _showSnackBar(String message, {bool isError = false}) {
@@ -4681,515 +5048,395 @@
 //     );
 //   }
 
-//   // Function to extract YouTube video ID from a URL
-//   String? _getYoutubeVideoId(String url) {
-//     if (url.contains('youtu.be/')) {
-//       return url.split('youtu.be/').last.split('?').first;
-//     } else if (url.contains('youtube.com/watch?v=')) {
-//       return Uri.parse(url).queryParameters['v'];
-//     }
-//     return null;
-//   }
-
-//   Future<void> _loadLessonAndQuestions() async {
+//   Future<void> _loadLessonData() async {
 //     setState(() {
 //       _isLoading = true;
-//       _loadingMessage = 'Fetching lesson content...';
 //     });
 
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final currentUser = firebaseService.currentUser;
-
-//     if (currentUser == null) {
-//       _showSnackBar('User not logged in.', isError: true);
-//       setState(() => _isLoading = false);
-//       return;
-//     }
-
 //     try {
+//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//       final currentUser = firebaseService.currentUser;
+
+//       if (currentUser == null) {
+//         _showSnackBar('User not logged in.', isError: true);
+//         Navigator.of(context).pop();
+//         return;
+//       }
+
+//       _userProfile = await firebaseService.getUserProfile(currentUser.uid);
+
 //       final lesson = await firebaseService.getLesson(widget.levelId, widget.lessonId);
-//       if (lesson == null) {
-//         _showSnackBar('Lesson not found.', isError: true);
-//         if (mounted) Navigator.of(context).pop();
-//         return;
-//       }
 //       final questions = await firebaseService.getLessonQuestions(widget.levelId, widget.lessonId);
-//       final userProgress = await firebaseService.getUserCourseProgress(currentUser.uid, widget.courseId);
-//       final level = await firebaseService.getLevel(widget.levelId); // Fetch current level
-//       final course = await firebaseService.getCourse(widget.courseId); // Fetch current course
-
-//       if (level == null) {
-//         _showSnackBar('Level not found.', isError: true);
-//         if (mounted) Navigator.of(context).pop();
-//         return;
-//       }
-//       if (course == null) {
-//         _showSnackBar('Course not found.', isError: true);
-//         if (mounted) Navigator.of(context).pop();
-//         return;
-//       }
-
+//       final progress = await firebaseService.getUserCourseProgress(currentUser.uid, widget.courseId);
 
 //       setState(() {
 //         _currentLesson = lesson;
 //         _questions = questions;
-//         _userProgress = userProgress;
-//         _currentLevel = level;
-//         _currentCourse = course;
-//         _totalLessonsInLevel = level.lessonIds.length;
-//         _isLoading = false;
+//         _userProgress = progress;
 
-//         // Extract YouTube Video ID from lesson content
-//         final youtubeRegex = RegExp(
-//             r'(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?',
-//             caseSensitive: false);
-//         final match = youtubeRegex.firstMatch(lesson.content);
-//         if (match != null && match.group(1) != null) {
-//           _youtubeVideoId = match.group(1);
-//           _youtubeController = YoutubePlayerController(
-//             initialVideoId: _youtubeVideoId!,
-//             flags: const YoutubePlayerFlags(
-//               autoPlay: false,
-//               mute: false,
-//             ),
+//         // Initialize progress for this lesson if it's new
+//         if (_userProgress != null && !_userProgress!.lessonsProgress.containsKey(widget.lessonId)) {
+//           _userProgress = _userProgress!.copyWith(
+//             lessonsProgress: {
+//               ..._userProgress!.lessonsProgress,
+//               widget.lessonId: const LessonProgress(),
+//             },
 //           );
 //         }
 
-//         // Restore progress for current lesson if available
-//         if (_userProgress?.lessonsProgress[widget.lessonId]?.isCompleted == true) {
-//           _currentQuestionIndex = _questions.length; // Mark all questions as done
+//         // Find current question index based on progress
+//         if (_userProgress != null && _userProgress!.lessonsProgress.containsKey(widget.lessonId)) {
+//           final lessonProgress = _userProgress!.lessonsProgress[widget.lessonId]!;
+//           _xpEarnedInLesson = lessonProgress.xpEarned;
+//           // Find the first question not attempted or incorrectly answered
+//           for (int i = 0; i < _questions.length; i++) {
+//             final questionId = _questions[i].id;
+//             if (!lessonProgress.questionAttempts.containsKey(questionId) || !lessonProgress.questionAttempts[questionId]!.isCorrect) {
+//               _currentQuestionIndex = i;
+//               break;
+//             }
+//             if (i == _questions.length - 1) { // All questions attempted, move to the last one or mark lesson complete
+//               _currentQuestionIndex = _questions.length - 1;
+//               _showFeedback = true; // Show feedback for the last question if all attempted
+//               if (lessonProgress.questionAttempts.containsKey(_questions[_currentQuestionIndex].id)) {
+//                 _isAnswerCorrect = lessonProgress.questionAttempts[_questions[_currentQuestionIndex].id]!.isCorrect;
+//                 _lastUserAnswer = lessonProgress.questionAttempts[_questions[_currentQuestionIndex].id]!.userAnswer;
+//               }
+//             }
+//           }
 //         }
 //       });
 //     } catch (e) {
-//       _showSnackBar('Error loading lesson: $e', isError: true);
-//       debugPrint('Lesson loading error: $e');
-//       setState(() => _isLoading = false);
+//       _showSnackBar('Error loading lesson data: $e', isError: true);
+//     } finally {
+//       setState(() {
+//         _isLoading = false;
+//       });
 //     }
 //   }
 
-//   Future<void> _handleAnswer(String userAnswer) async {
-//     if (_currentLesson == null || _questions.isEmpty || _currentQuestionIndex >= _questions.length) {
-//       return;
-//     }
+//   Future<void> _evaluateAnswer(String userAnswer, String questionId) async {
+//     if (_isLoading) return;
 
-//     final currentQuestion = _questions[_currentQuestionIndex];
+//     setState(() {
+//       _isLoading = true;
+//       _lastUserAnswer = userAnswer;
+//     });
+
 //     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
 //     final audioService = Provider.of<AudioService>(context, listen: false);
 //     final geminiApiService = Provider.of<GeminiApiService>(context, listen: false);
-//     final currentUser = firebaseService.currentUser;
 
-//     if (currentUser == null) {
-//       _showSnackBar('User not logged in.', isError: true);
-//       return;
-//     }
+//     final currentQuestion = _questions[_currentQuestionIndex];
+//     bool correct = false;
+//     int xpAwarded = 0;
 
-//     bool isCorrect = false;
-//     // Basic validation for accuracy
+//     // Simple evaluation logic for now, more complex logic (e.g., AI for short answer) can be added.
 //     switch (currentQuestion.type) {
-//       case QuestionType.mcq:
-//         isCorrect = (userAnswer == currentQuestion.correctAnswer);
+//       case 'MCQ':
+//         correct = (userAnswer.toLowerCase() == currentQuestion.correctAnswer?.toLowerCase());
 //         break;
-//       case QuestionType.fillInBlank:
-//         isCorrect = (userAnswer.trim().toLowerCase() == (currentQuestion.correctAnswer as String?)?.trim().toLowerCase());
+//       case 'FillInBlank':
+//         correct = (userAnswer.toLowerCase().trim() == currentQuestion.correctAnswer?.toLowerCase().trim());
 //         break;
-//       case QuestionType.shortAnswer:
-//         // For short answer, check if keywords are present
-//         if (currentQuestion.expectedAnswerKeywords != null) {
-//           final keywords = currentQuestion.expectedAnswerKeywords!.split(',').map((e) => e.trim().toLowerCase()).toList();
-//           isCorrect = keywords.every((keyword) => userAnswer.toLowerCase().contains(keyword));
-//         } else {
-//           isCorrect = (userAnswer.trim().toLowerCase() == (currentQuestion.correctAnswer as String?)?.trim().toLowerCase()); // Fallback
-//         }
+//       case 'ShortAnswer':
+//         final expectedKeywords = currentQuestion.expectedAnswerKeywords?.toLowerCase().split(',').map((e) => e.trim()).toList() ?? [];
+//         correct = expectedKeywords.any((keyword) => userAnswer.toLowerCase().contains(keyword));
 //         break;
-//       case QuestionType.scenario:
-//       // For scenario questions, simply checking for outcome might be too simplistic.
-//       // Could use AI to evaluate the outcome or a more complex regex.
-//       // For now, let's compare with expectedOutcome.
-//         isCorrect = (userAnswer.trim().toLowerCase() == currentQuestion.expectedOutcome?.trim().toLowerCase());
+//       case 'Scenario':
+//         // For scenario, a direct match is unlikely. We can either simplify or use AI.
+//         // For now, let's just check for direct match as a placeholder. AI will give feedback.
+//         correct = (userAnswer.toLowerCase().trim() == currentQuestion.expectedOutcome?.toLowerCase().trim());
 //         break;
 //       default:
-//         isCorrect = false;
+//         correct = false;
 //     }
 
-//     if (isCorrect) {
+//     xpAwarded = correct ? currentQuestion.xpReward : 0;
+//     if (correct) {
 //       audioService.playCorrectSound();
-//       _showSnackBar('Correct! You earned ${currentQuestion.xpReward} XP.');
-//       _xpEarnedInLesson += currentQuestion.xpReward;
-//       _correctAnswersInLesson++;
-//       await firebaseService.addXp(currentUser.uid, currentQuestion.xpReward);
-//       // Update total XP earned for this course
-//       _userProgress = _userProgress?.copyWith(
-//         totalXpEarned: (_userProgress?.totalXpEarned ?? 0) + currentQuestion.xpReward,
-//       );
+//       await firebaseService.addXp(_userProfile!.uid, xpAwarded);
+//       _showSnackBar('Correct Answer! You earned $xpAwarded XP!', isError: false);
 //     } else {
-//       // AI Feedback for incorrect answers
-//       setState(() {
-//         _isLoading = true;
-//         _loadingMessage = 'Generating personalized feedback...';
-//       });
+//       _showSnackBar('Incorrect Answer. Try again!', isError: true);
+//     }
 
+//     final newQuestionAttempt = QuestionAttempt(
+//       userAnswer: userAnswer,
+//       isCorrect: correct,
+//       attemptedAt: DateTime.now(),
+//       xpAwarded: xpAwarded,
+//     );
+
+//     // Update user progress
+//     Map<String, QuestionAttempt> updatedAttempts = Map.from(_userProgress!.lessonsProgress[widget.lessonId]?.questionAttempts ?? {});
+//     updatedAttempts[currentQuestion.id] = newQuestionAttempt;
+
+//     int newXpEarnedInLesson = _xpEarnedInLesson + xpAwarded;
+
+//     _userProgress = _userProgress!.copyWith(
+//       lessonsProgress: {
+//         ..._userProgress!.lessonsProgress,
+//         widget.lessonId: _userProgress!.lessonsProgress[widget.lessonId]!.copyWith(
+//           questionAttempts: updatedAttempts,
+//           xpEarned: newXpEarnedInLesson,
+//         ),
+//       },
+//     );
+
+//     await firebaseService.saveUserProgress(_userProgress!);
+
+//     setState(() {
+//       _isAnswerCorrect = correct;
+//       _showFeedback = true;
+//       _xpEarnedInLesson = newXpEarnedInLesson;
+//       _isLoading = false;
+//     });
+
+//     // Provide AI Feedback for Scenario questions or if answer is incorrect
+//     if (!correct || currentQuestion.type == 'Scenario') {
 //       try {
 //         final feedback = await geminiApiService.generateSocraticFeedback(
 //           userAnswer: userAnswer,
 //           questionText: currentQuestion.questionText,
-//           correctAnswer: currentQuestion.correctAnswer?.toString() ?? currentQuestion.expectedAnswerKeywords ?? currentQuestion.expectedOutcome ?? 'N/A',
+//           correctAnswer: currentQuestion.correctAnswer ?? currentQuestion.expectedOutcome ?? 'N/A',
 //           lessonContent: _currentLesson!.content,
 //           userProgress: _userProgress,
 //         );
-
-//         if (!mounted) return; // Check if widget is still mounted after async operation
-
 //         showDialog(
 //           context: context,
-//           builder: (context) => PersonalizedFeedbackModal(
-//             feedbackText: feedback['feedbackText'],
-//             socraticFollowUp: feedback['socraticFollowUp'],
-//             adaptiveHints: feedback['adaptiveHints'],
-//             encouragement: feedback['encouragement'],
-//             isCorrect: false,
-//           ),
+//           builder: (BuildContext dialogContext) {
+//             return PersonalizedFeedbackModal(
+//               feedbackText: feedback['feedbackText'] as String,
+//               socraticFollowUp: feedback['socraticFollowUp'] as String?,
+//               adaptiveHints: feedback['adaptiveHints'] as String?,
+//               encouragement: feedback['encouragement'] as String,
+//               isCorrect: correct,
+//             );
+//           },
 //         );
 //       } catch (e) {
+//         debugPrint('Error generating feedback: $e');
 //         _showSnackBar('Failed to get AI feedback: $e', isError: true);
-//       } finally {
-//         setState(() {
-//           _isLoading = false;
-//         });
 //       }
-//       audioService.playIncorrectSound(); // Assuming you have an incorrect sound
-//       _showSnackBar('Incorrect. Try again!', isError: true);
 //     }
-
-//     // Update user progress regardless of correctness
-//     await _updateUserProgress(currentUser.uid, currentQuestion.id, isCorrect);
-
-//     setState(() {
-//       if (isCorrect || currentQuestion.type == QuestionType.scenario) { // Allow moving on for scenario after one attempt
-//         _currentQuestionIndex++;
-//       }
-//     });
 //   }
 
-//   Future<void> _updateUserProgress(String userId, String questionId, bool isCorrect) async {
-//     // Obtain services within this method's scope
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final audioService = Provider.of<AudioService>(context, listen: false);
-
-//     _userProgress ??= UserProgress(
-//       id: '${userId}_${widget.courseId}',
-//       userId: userId,
-//       courseId: widget.courseId,
-//       currentLevelId: widget.levelId,
-//       currentLessonId: widget.lessonId,
-//       levelsCompleted: [],
-//       lessonsProgress: {},
-//       totalXpEarned: 0, // Initialize if new
-//     );
-
-//     // Update question status
-//     final lessonProgress = _userProgress!.lessonsProgress[widget.lessonId] ??
-//         LessonProgress(
-//           lessonId: widget.lessonId,
-//           completedQuestions: [],
-//           attempts: {},
-//           isCompleted: false,
-//         );
-
-//     final questionAttempts = lessonProgress.attempts[questionId] ?? 0;
-//     lessonProgress.attempts[questionId] = questionAttempts + 1;
-
-//     if (isCorrect && !lessonProgress.completedQuestions.contains(questionId)) {
-//       lessonProgress.completedQuestions.add(questionId);
+//   void _moveToNextQuestionOrLesson() async {
+//     if (_showFeedback && !_isAnswerCorrect) {
+//       setState(() {
+//         _showFeedback = false; // Allow re-attempting if incorrect
+//       });
+//       return;
 //     }
 
-//     // Check if all questions in the current lesson are completed
-//     final allQuestionsCompletedInLesson = _questions.every((q) => lessonProgress.completedQuestions.contains(q.id));
-//     if (allQuestionsCompletedInLesson && !lessonProgress.isCompleted) {
-//       lessonProgress.isCompleted = true;
+//     if (_currentQuestionIndex < _questions.length - 1) {
+//       setState(() {
+//         _currentQuestionIndex++;
+//         _showFeedback = false;
+//         _isAnswerCorrect = false;
+//         _lastUserAnswer = null;
+//       });
+//     } else {
+//       // All questions completed, mark lesson as complete
+//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
 //       _userProgress = _userProgress!.copyWith(
-//         lessonsProgress: Map.from(_userProgress!.lessonsProgress)
-//           ..[widget.lessonId] = lessonProgress,
+//         lessonsProgress: {
+//           ..._userProgress!.lessonsProgress,
+//           widget.lessonId: _userProgress!.lessonsProgress[widget.lessonId]!.copyWith(
+//             isCompleted: true,
+//             completedAt: DateTime.now(),
+//           ),
+//         },
 //       );
+//       await firebaseService.saveUserProgress(_userProgress!);
 
-//       // Check if all lessons in the current level are completed
-//       final currentLevel = await firebaseService.getLevel(widget.levelId);
-//       if (currentLevel != null) {
-//         final allLessonsInLevelCompleted = currentLevel.lessonIds.every((lessonId) {
-//           return _userProgress?.lessonsProgress[lessonId]?.isCompleted == true;
-//         });
+//       // Check if level is completed
+//       final allLevels = await firebaseService.streamLevelsForCourse(widget.courseId).first;
+//       final currentLevel = allLevels.firstWhere((level) => level.id == widget.levelId);
+//       final lessonDocs = await firebaseService // Corrected: using the getFirestore() method
+//           .getFirestore()
+//           .collection(AppConstants.levelsCollection)
+//           .doc(widget.levelId)
+//           .collection('lessons')
+//           .get();
+//       final allLessonsInLevel = lessonDocs.docs.map((doc) => Lesson.fromMap(doc.data())).toList();
 
-//         if (allLessonsInLevelCompleted && !_userProgress!.levelsCompleted.contains(widget.levelId)) {
-//           final updatedLevelsCompleted = List<String>.from(_userProgress!.levelsCompleted)..add(widget.levelId);
-//           _userProgress = _userProgress!.copyWith(levelsCompleted: updatedLevelsCompleted);
+//       bool allLessonsCompletedInLevel = true;
+//       int totalXpInLevel = 0;
+//       int correctAnswersInLevel = 0;
+//       int totalQuestionsInLevel = 0;
 
-//           // Find the next level in the course
-//           final course = await firebaseService.getCourse(widget.courseId);
-//           if (course != null) {
-//             final allCourseLevels = await Future.wait(
-//                 course.levelIds.map((id) => firebaseService.getLevel(id)).where((future) => future != null).cast<Future<Level?>>());
-//             final sortedLevels = allCourseLevels.whereType<Level>().toList()..sort((a, b) => a.order.compareTo(b.order));
-
-//             final currentLevelIndex = sortedLevels.indexWhere((l) => l.id == widget.levelId);
-//             if (currentLevelIndex != -1 && currentLevelIndex + 1 < sortedLevels.length) {
-//               final nextLevel = sortedLevels[currentLevelIndex + 1];
-//               _userProgress = _userProgress!.copyWith(
-//                 currentLevelId: nextLevel.id,
-//                 currentLessonId: nextLevel.lessonIds.first,
-//               );
-//               _showSnackBar('Level Completed! Moving to next level.', isError: false);
-//               audioService.playLevelUpSound(); // Play level up sound
-//             } else {
-//               // All levels completed in the course, navigate to CourseCompletionScreen
-//               _userProgress = _userProgress!.copyWith(
-//                 currentLevelId: null,
-//                 currentLessonId: null,
-//               );
-//               _showSnackBar('Course Completed! Congratulations!', isError: false);
-//               if (mounted) {
-//                 Navigator.of(context).pushReplacementNamed(
-//                   AppRouter.courseCompletionRoute,
-//                   arguments: {
-//                     'courseTitle': _currentCourse!.title,
-//                     'totalXpEarnedInCourse': _userProgress!.totalXpEarned, // Now uses actual totalXpEarned
-//                     'totalLevelsCompleted': _userProgress!.levelsCompleted.length,
-//                     'totalLevelsInCourse': _currentCourse!.levelIds.length,
-//                   },
-//                 );
-//               }
-//               return; // Exit function after navigating to course completion
-//             }
+//       for (final lesson in allLessonsInLevel) {
+//         if (!(_userProgress?.lessonsProgress[lesson.id]?.isCompleted ?? false)) {
+//           allLessonsCompletedInLevel = false;
+//           break;
+//         }
+//         totalXpInLevel += _userProgress?.lessonsProgress[lesson.id]?.xpEarned ?? 0;
+//         (_userProgress?.lessonsProgress[lesson.id]?.questionAttempts ?? {}).forEach((key, value) {
+//           totalQuestionsInLevel++;
+//           if (value.isCorrect) {
+//             correctAnswersInLevel++;
 //           }
+//         });
+//       }
+
+//       if (allLessonsCompletedInLevel) {
+//         final double levelScore = (totalQuestionsInLevel > 0) ? (correctAnswersInLevel / totalQuestionsInLevel) * 100 : 0;
+//         _userProgress = _userProgress!.copyWith(
+//           levelsProgress: {
+//             ..._userProgress!.levelsProgress,
+//             widget.levelId: _userProgress!.levelsProgress[widget.levelId]!.copyWith(
+//               isCompleted: true,
+//               xpEarned: totalXpInLevel,
+//               score: levelScore.round(),
+//               completedAt: DateTime.now(),
+//             ),
+//           },
+//         );
+//         await firebaseService.saveUserProgress(_userProgress!);
+
+//         // Navigate to Level Completion Screen
+//         Navigator.of(context).pushReplacementNamed(
+//           AppRouter.levelCompletionRoute,
+//           arguments: {
+//             'courseId': widget.courseId,
+//             'levelId': widget.levelId,
+//             'totalXpEarned': totalXpInLevel,
+//             'levelScore': levelScore.round(),
+//             'lessonsCompleted': allLessonsInLevel.length,
+//             'totalLessons': allLessonsInLevel.length, // All lessons in level are done
+//           },
+//         );
+//       } else {
+//         // Find next incomplete lesson in this level
+//         Lesson? nextLesson;
+//         for (final lesson in allLessonsInLevel) {
+//           if (!(_userProgress?.lessonsProgress[lesson.id]?.isCompleted ?? false)) {
+//             nextLesson = lesson;
+//             break;
+//           }
+//         }
+
+//         if (nextLesson != null) {
+//           // Navigate to next lesson in the current level
+//           final String progressId = '${_userProfile!.uid}_${widget.courseId}';
+//           final existingProgress = _userProgress ?? UserProgress(
+//             id: progressId,
+//             userId: _userProfile!.uid,
+//             courseId: widget.courseId,
+//           );
+//           final updatedProgress = existingProgress.copyWith(
+//             currentLevelId: widget.levelId,
+//             currentLessonId: nextLesson.id,
+//           );
+//           await firebaseService.saveUserProgress(updatedProgress);
+
+//           Navigator.of(context).pushReplacementNamed(
+//             AppRouter.lessonRoute,
+//             arguments: {
+//               'courseId': widget.courseId,
+//               'levelId': widget.levelId,
+//               'lessonId': nextLesson.id,
+//             },
+//           );
+//         } else {
+//           // This case should ideally not be reached if allLessonsCompletedInLevel check is correct.
+//           _showSnackBar('Unexpected: No next lesson found in level, but level not marked complete.', isError: true);
+//           Navigator.of(context).pop(); // Go back to level selection or home
 //         }
 //       }
 //     }
-
-//     await firebaseService.saveUserProgress(_userProgress!);
 //   }
-
 
 //   @override
 //   Widget build(BuildContext context) {
-//     if (_isLoading) {
-//       return Scaffold(
-//         body: LoadingIndicator(message: _loadingMessage),
-//       );
-//     }
-
-//     if (_currentLesson == null) {
-//       return Scaffold(
-//         appBar: CustomAppBar(
-//           title: 'Lesson Error',
-//           leadingWidget: IconButton(
-//             icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
-//             onPressed: () => Navigator.of(context).pop(),
-//           ),
-//         ),
+//     if (_isLoading || _currentLesson == null || _userProgress == null || _userProfile == null) {
+//       return const Scaffold(
 //         body: Center(
-//           child: Text('Failed to load lesson content.',
-//               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.errorColor)),
+//           child: CircularProgressIndicator(
+//             valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor),
+//           ),
 //         ),
 //       );
 //     }
 
-//     final double lessonProgress = _questions.isEmpty ? 0.0 : _currentQuestionIndex / _questions.length;
-//     final int currentLessonIndexInLevel = _currentLevel?.lessonIds.indexOf(widget.lessonId) ?? 0;
-//     // Calculate level completion progress. If lesson is completed, it counts as 1.
-//     final double levelCompletionProgress = _totalLessonsInLevel == 0 ? 0.0 : (currentLessonIndexInLevel + (
-//       _userProgress?.lessonsProgress[widget.lessonId]?.isCompleted == true ? 1 : 0
-//     )) / _totalLessonsInLevel;
+//     final int totalQuestions = _questions.length;
+//     final int completedQuestions = _userProgress!.lessonsProgress[widget.lessonId]?.questionAttempts.values.where((q) => q.isCorrect).length ?? 0;
+//     final double questionProgress = totalQuestions > 0 ? completedQuestions / totalQuestions : 0.0;
 
-//     // Determine button text based on next lesson/level availability
-//     final int currentLessonOrder = _currentLevel?.lessonIds.indexOf(widget.lessonId) ?? -1;
-//     final bool hasNextLesson = currentLessonOrder != -1 && (currentLessonOrder + 1 < (_currentLevel?.lessonIds.length ?? 0));
-
-//     bool isLastLevelOfCourse = false;
-//     if (_currentCourse != null && _currentLevel != null) {
-//       final currentLevelIndexInCourse = _currentCourse!.levelIds.indexOf(_currentLevel!.id);
-//       isLastLevelOfCourse = currentLevelIndexInCourse != -1 && (currentLevelIndexInCourse + 1 == _currentCourse!.levelIds.length);
-//     }
-
-
-//     return YoutubePlayerBuilder(
-//       player: YoutubePlayer(
-//         controller: _youtubeController ?? YoutubePlayerController(initialVideoId: ''),
-//         showVideoProgressIndicator: true,
-//         progressIndicatorColor: AppColors.accentColor,
-//         bottomActions: [
-//           CurrentPosition(),
-//           ProgressBar(), // Removed isDraggable as it's not a named parameter here
-//           FullScreenButton(),
-//           RemainingDuration(),
-//         ],
+//     return Scaffold(
+//       appBar: CustomAppBar(
+//         title: _currentLesson!.title,
+//         leadingWidget: IconButton(
+//           icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
+//           onPressed: () => Navigator.of(context).pop(),
+//         ),
 //       ),
-//       builder: (context, player) {
-//         return Scaffold(
-//           appBar: CustomAppBar(
-//             title: _currentLesson!.title,
-//             leadingWidget: IconButton(
-//               icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
-//               onPressed: () => Navigator.of(context).pop(),
+//       body: Container(
+//         decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
+//         child: Column(
+//           children: [
+//             Padding(
+//               padding: const EdgeInsets.all(AppConstants.padding),
+//               child: ProgressBar(
+//                 progress: questionProgress,
+//                 progressColor: AppColors.infoColor,
+//                 showPercentage: true,
+//                 height: 8,
+//               ),
 //             ),
-//             trailingWidget: gamifier_progress_bar.ProgressBar( // Explicitly use your ProgressBar via alias
-//               progress: levelCompletionProgress,
-//               height: 20,
-//               width: 100,
-//               label: 'Level Progress: ${(levelCompletionProgress * 100).toInt()}%',
-//               foregroundColor: AppColors.levelColor,
-//             ),
-//           ),
-//           body: Container(
-//             decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-//             child: Column(
-//               children: [
-//                 Expanded(
-//                   child: SingleChildScrollView(
-//                     padding: const EdgeInsets.all(AppConstants.padding),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         // YouTube Video Player
-//                         if (_youtubeVideoId != null && _youtubeController != null) ...[
-//                           player,
-//                           const SizedBox(height: AppConstants.padding),
-//                           Text(
-//                             'Lesson Content (Text)',
-//                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                               color: AppColors.textColor,
+//             Expanded(
+//               child: ListView(
+//                 children: [
+//                   LessonContentDisplay(content: _currentLesson!.content),
+//                   const SizedBox(height: AppConstants.padding),
+//                   if (_questions.isNotEmpty)
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding),
+//                       child: Text(
+//                         'Question ${_currentQuestionIndex + 1} of $totalQuestions',
+//                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
+//                               color: AppColors.accentColor,
 //                               fontWeight: FontWeight.bold,
-//                               fontSize: AppConstants.largeTextSize,
 //                             ),
-//                           ),
-//                           const SizedBox(height: AppConstants.spacing),
-//                         ],
-//                         Card(
-//                           color: AppColors.cardColor.withOpacity(0.9),
-//                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                           elevation: 4,
-//                           child: Padding(
-//                             padding: const EdgeInsets.all(AppConstants.padding),
-//                             child: MarkdownBody(
-//                               data: _currentLesson!.content,
-//                               styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-//                                 p: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//                                 h1: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColors.textColor, fontSize: AppConstants.largeTextSize + 4),
-//                                 h2: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.textColor, fontSize: AppConstants.largeTextSize),
-//                                 h3: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize + 2),
-//                                 strong: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                                 code: TextStyle(
-//                                     backgroundColor: AppColors.primaryColor.withOpacity(0.2),
-//                                     color: AppColors.accentColor,
-//                                     fontFamily: 'monospace',
-//                                     fontSize: AppConstants.smallTextSize),
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                         const SizedBox(height: AppConstants.padding * 2),
-//                         if (_questions.isNotEmpty) ...[
-//                           Text(
-//                             'Test Your Knowledge',
-//                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                                   color: AppColors.textColor,
-//                                   fontWeight: FontWeight.bold,
-//                                   fontSize: AppConstants.largeTextSize,
-//                                 ),
-//                           ),
-//                           const SizedBox(height: AppConstants.padding),
-//                           if (_currentQuestionIndex < _questions.length)
-//                             QuestionRenderer(
-//                               question: _questions[_currentQuestionIndex],
-//                               onAnswerSubmitted: _handleAnswer,
-//                             )
-//                           else
-//                             Column(
-//                               children: [
-//                                 Center(
-//                                   child: Text(
-//                                     'Lesson Completed!',
-//                                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.successColor),
-//                                   ),
-//                                 ),
-//                                 const SizedBox(height: AppConstants.padding),
-//                                 Text(
-//                                   'You answered $_correctAnswersInLesson out of ${_questions.length} questions correctly and earned $_xpEarnedInLesson XP!',
-//                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                                   textAlign: TextAlign.center,
-//                                 ),
-//                                 const SizedBox(height: AppConstants.padding),
-//                                 ElevatedButton.icon(
-//                                   onPressed: () async {
-//                                     if (hasNextLesson) {
-//                                       final nextLessonId = _currentLevel!.lessonIds[currentLessonOrder + 1];
-//                                       if (mounted) {
-//                                         Navigator.of(context).pushReplacementNamed(
-//                                           AppRouter.lessonRoute,
-//                                           arguments: {
-//                                             'courseId': widget.courseId,
-//                                             'levelId': widget.levelId,
-//                                             'lessonId': nextLessonId,
-//                                           },
-//                                         );
-//                                       }
-//                                     } else {
-//                                       if (isLastLevelOfCourse) {
-//                                         if (mounted) {
-//                                           Navigator.of(context).pushReplacementNamed(
-//                                             AppRouter.courseCompletionRoute,
-//                                             arguments: {
-//                                               'courseTitle': _currentCourse!.title,
-//                                               'totalXpEarnedInCourse': _userProgress!.totalXpEarned,
-//                                               'totalLevelsCompleted': _userProgress!.levelsCompleted.length,
-//                                               'totalLevelsInCourse': _currentCourse!.levelIds.length,
-//                                             },
-//                                           );
-//                                         }
-//                                       } else {
-//                                         if (mounted) {
-//                                           Navigator.of(context).pushReplacementNamed(
-//                                             AppRouter.levelCompletionRoute,
-//                                             arguments: {
-//                                               'courseId': widget.courseId,
-//                                               'levelId': widget.levelId,
-//                                               'totalXpEarned': _xpEarnedInLesson,
-//                                               'levelScore': (_questions.isEmpty ? 0 : (_correctAnswersInLesson / _questions.length * 100)).round(),
-//                                               'lessonsCompleted': (_userProgress?.lessonsProgress.values.where((p) => p.isCompleted).length ?? 0),
-//                                               'totalLessons': (_currentLevel?.lessonIds.length ?? 0),
-//                                             },
-//                                           );
-//                                         }
-//                                       }
-//                                     }
-//                                   },
-//                                   icon: const Icon(Icons.navigate_next),
-//                                   label: Text(hasNextLesson ? 'Continue to Next Lesson' : (isLastLevelOfCourse ? 'Complete Course' : 'Complete Level')),
-//                                   style: ElevatedButton.styleFrom(
-//                                     backgroundColor: AppColors.accentColor,
-//                                     foregroundColor: AppColors.cardColor,
-//                                     shape: RoundedRectangleBorder(
-//                                       borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                                     ),
-//                                     padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                                     textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: AppConstants.mediumTextSize), // Smaller text
-//                                   ),
-//                                 ),
-//                               ],
-//                             )
-//                         ] else
-//                           Center(
-//                             child: Text(
-//                               'No questions for this lesson yet.',
-//                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//                             ),
-//                           ),
-//                       ],
+//                       ),
 //                     ),
-//                   ),
-//                 ),
-//               ],
+//                   const SizedBox(height: AppConstants.spacing),
+//                   if (_questions.isNotEmpty)
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding),
+//                       child: QuestionRenderer(
+//                         question: _questions[_currentQuestionIndex],
+//                         onAnswerSubmitted: (answer) {
+//                           // This is for the generic submit, actual evaluation happens in onEvaluate
+//                         },
+//                         onEvaluate: _evaluateAnswer,
+//                         showFeedback: _showFeedback,
+//                         isCorrect: _isAnswerCorrect,
+//                         userAnswer: _lastUserAnswer,
+//                         isEnabled: !_showFeedback || (_showFeedback && !_isAnswerCorrect), // Allow re-attempt if incorrect
+//                       ),
+//                     ),
+//                   const SizedBox(height: AppConstants.padding),
+//                   if (_questions.isNotEmpty && _showFeedback)
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding),
+//                       child: CustomButton(
+//                         text: _isAnswerCorrect || _currentQuestionIndex == _questions.length - 1
+//                             ? 'Continue'
+//                             : 'Try Again',
+//                         onPressed: _moveToNextQuestionOrLesson,
+//                         backgroundColor: _isAnswerCorrect ? AppColors.successColor : AppColors.primaryColor,
+//                       ),
+//                     ),
+//                   const SizedBox(height: AppConstants.padding * 2),
+//                 ],
+//               ),
 //             ),
-//           ),
-//         );
-//       },
+//           ],
+//         ),
+//       ),
 //     );
 //   }
 // }
@@ -5207,6 +5454,7 @@
 // import 'package:gamifier/widgets/cards/current_lesson_card.dart';
 // import 'package:gamifier/widgets/common/custom_app_bar.dart';
 // import 'package:gamifier/widgets/common/xp_level_display.dart';
+// import 'package:gamifier/widgets/gamification/streak_display.dart'; // New import
 // import 'package:gamifier/utils/app_router.dart';
 // import 'package:gamifier/models/level.dart';
 // import 'package:provider/provider.dart';
@@ -5260,7 +5508,6 @@
 //                 Navigator.of(context).pushNamed(AppRouter.profileRoute);
 //               },
 //               child: CircleAvatar(
-//                 radius: 24, // Smaller radius for app bar
 //                 backgroundColor: AppColors.cardColor,
 //                 backgroundImage: AssetImage(userProfile.avatarAssetPath),
 //                 onBackgroundImageError: (exception, stackTrace) {
@@ -5282,39 +5529,12 @@
 //             final userProfile = snapshot.data!;
 //             return Row(
 //               children: [
-//                 // Streak Display
-//                 Container(
-//                   padding: const EdgeInsets.symmetric(
-//                     horizontal: AppConstants.spacing,
-//                     vertical: AppConstants.spacing / 2,
-//                   ),
-//                   decoration: BoxDecoration(
-//                     color: AppColors.cardColor.withOpacity(0.7),
-//                     borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                     border: Border.all(color: AppColors.borderColor, width: 1.0),
-//                   ),
-//                   child: Row(
-//                     mainAxisSize: MainAxisSize.min,
-//                     children: [
-//                       Icon(Icons.local_fire_department, color: AppColors.xpColor, size: AppConstants.iconSize * 0.8), // 🔥 icon, smaller
-//                       const SizedBox(width: AppConstants.spacing / 2),
-//                       Text(
-//                         '${userProfile.currentStreak} 🔥',
-//                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-//                               color: AppColors.xpColor,
-//                               fontWeight: FontWeight.bold,
-//                               fontSize: AppConstants.smallTextSize, // Smaller text
-//                             ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 const SizedBox(width: AppConstants.spacing),
 //                 XpLevelDisplay(
 //                   xp: userProfile.xp,
 //                   level: userProfile.level,
-//                   showLabel: false, // Don't show "XP:" and "Level:" in app bar
 //                 ),
+//                 const SizedBox(width: AppConstants.spacing),
+//                 StreakDisplay(currentStreak: userProfile.currentStreak),
 //               ],
 //             );
 //           },
@@ -5344,8 +5564,8 @@
 //               case 4:
 //                 Navigator.of(context).pushNamed(AppRouter.communityRoute);
 //                 break;
-//               case 5: // AI Chatbot
-//                 Navigator.of(context).pushNamed(AppRouter.aiChatRoute);
+//               case 5: // New case for Chat
+//                 Navigator.of(context).pushNamed(AppRouter.chatRoute);
 //                 break;
 //             }
 //           },
@@ -5372,8 +5592,8 @@
 //             case 4:
 //               Navigator.of(context).pushNamed(AppRouter.communityRoute);
 //               break;
-//             case 5: // AI Chatbot
-//               Navigator.of(context).pushNamed(AppRouter.aiChatRoute);
+//             case 5: // New case for Chat
+//               Navigator.of(context).pushNamed(AppRouter.chatRoute);
 //               break;
 //           }
 //         },
@@ -5405,12 +5625,11 @@
 //             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
 //                   color: AppColors.textColor,
 //                   fontWeight: FontWeight.bold,
-//                   fontSize: AppConstants.largeTextSize, // Adjusted text size
 //                 ),
 //           ),
 //           const SizedBox(height: AppConstants.spacing),
 //           StreamBuilder<UserProgress?>(
-//             stream: firebaseService.streamUserCourseProgress(currentUser.uid, 'placeholder_course_id'), // Placeholder course ID, actual will be determined
+//             stream: firebaseService.streamUserCourseProgress(currentUser.uid, 'placeholder_course_id'), // Needs adjustment to find actual current course
 //             builder: (context, progressSnapshot) {
 //               if (progressSnapshot.connectionState == ConnectionState.waiting) {
 //                 return const Center(
@@ -5424,10 +5643,22 @@
 //               }
 
 //               final userProgress = progressSnapshot.data;
-//               // Attempt to find the actual current course/lesson from userProgress
-//               // This is a simplified approach, ideally, currentLevelId and currentLessonId
-//               // would point to a valid ongoing activity.
-//               if (userProgress == null || userProgress.currentLevelId == null || userProgress.currentLessonId == null) {
+//               // Attempt to find the most recent ongoing lesson from all courses
+//               String? activeCourseId;
+//               String? activeLevelId;
+//               String? activeLessonId;
+
+//               if (userProgress != null) {
+//                 // Find the latest actively progressed course/lesson
+//                 // This logic might need to be more sophisticated if users can have multiple active courses
+//                 // For now, assuming userProgress holds the last active state for *a* course.
+//                 activeCourseId = userProgress.courseId;
+//                 activeLevelId = userProgress.currentLevelId;
+//                 activeLessonId = userProgress.currentLessonId;
+//               }
+
+
+//               if (activeCourseId == null || activeLevelId == null || activeLessonId == null) {
 //                 return Card(
 //                   color: AppColors.cardColor,
 //                   child: Padding(
@@ -5435,15 +5666,16 @@
 //                     child: Column(
 //                       children: [
 //                         Text(
-//                           'No ongoing lessons. Start a new course or create your own!',
-//                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-//                             color: AppColors.textColorSecondary,
-//                             fontSize: AppConstants.mediumTextSize, // Adjusted text size
-//                           ),
+//                           'No ongoing lessons. Start a new course!',
+//                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
 //                           textAlign: TextAlign.center,
 //                         ),
 //                         const SizedBox(height: AppConstants.spacing),
-//                         // Removed the duplicate "Create New Course" button here
+//                         ElevatedButton.icon(
+//                           onPressed: () => onItemTapped(1),
+//                           icon: const Icon(Icons.add_circle_outline),
+//                           label: const Text('Create New Course'),
+//                         ),
 //                       ],
 //                     ),
 //                   ),
@@ -5451,7 +5683,7 @@
 //               }
 
 //               return FutureBuilder<Lesson?>(
-//                 future: firebaseService.getLesson(userProgress.currentLevelId!, userProgress.currentLessonId!),
+//                 future: firebaseService.getLesson(activeLevelId, activeLessonId),
 //                 builder: (context, lessonSnapshot) {
 //                   if (lessonSnapshot.connectionState == ConnectionState.waiting) {
 //                     return const CurrentLessonCard(
@@ -5471,7 +5703,7 @@
 //                   }
 
 //                   final currentLesson = lessonSnapshot.data!;
-//                   final lessonProgressData = userProgress.lessonsProgress[currentLesson.id];
+//                   final lessonProgressData = userProgress!.lessonsProgress[currentLesson.id];
 //                   final double progress = (lessonProgressData != null && lessonProgressData.isCompleted) ? 1.0 : 0.0;
 
 //                   return CurrentLessonCard(
@@ -5482,8 +5714,8 @@
 //                       Navigator.of(context).pushNamed(
 //                         AppRouter.lessonRoute,
 //                         arguments: {
-//                           'courseId': userProgress.courseId,
-//                           'levelId': userProgress.currentLevelId!,
+//                           'courseId': activeCourseId!,
+//                           'levelId': activeLevelId!,
 //                           'lessonId': currentLesson.id,
 //                         },
 //                       );
@@ -5496,16 +5728,15 @@
 //           const SizedBox(height: AppConstants.padding * 2),
 
 //           Text(
-//             'My Courses',
+//             'All Courses',
 //             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
 //                   color: AppColors.textColor,
 //                   fontWeight: FontWeight.bold,
-//                   fontSize: AppConstants.largeTextSize, // Adjusted text size
 //                 ),
 //           ),
 //           const SizedBox(height: AppConstants.spacing),
 //           StreamBuilder<List<Course>>(
-//             stream: firebaseService.streamAllCoursesForUser(currentUser.uid), // Filter by creatorId
+//             stream: firebaseService.streamAllCourses(),
 //             builder: (context, snapshot) {
 //               if (snapshot.connectionState == ConnectionState.waiting) {
 //                 return const Center(
@@ -5521,15 +5752,16 @@
 //                 return Column(
 //                   children: [
 //                     Text(
-//                       'You haven\'t created any courses yet. Create one now!',
-//                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-//                         color: AppColors.textColorSecondary,
-//                         fontSize: AppConstants.mediumTextSize, // Adjusted text size
-//                       ),
+//                       'No courses available yet. Be the first to create one!',
+//                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
 //                       textAlign: TextAlign.center,
 //                     ),
 //                     const SizedBox(height: AppConstants.spacing),
-//                     // Removed the ElevatedButton here, as creation is via bottom nav bar now.
+//                     ElevatedButton.icon(
+//                       onPressed: () => onItemTapped(1),
+//                       icon: const Icon(Icons.add_circle_outline),
+//                       label: const Text('Create New Course'),
+//                     ),
 //                   ],
 //                 );
 //               }
@@ -5555,8 +5787,8 @@
 //                         final bool confirmDelete = await showDialog(
 //                           context: context,
 //                           builder: (context) => AlertDialog(
-//                             title: Text('Delete Course?', style: TextStyle(fontSize: AppConstants.largeTextSize)), // Text size
-//                             content: Text('Are you sure you want to delete this course and all its data? This cannot be undone.', style: TextStyle(fontSize: AppConstants.mediumTextSize)), // Text size
+//                             title: const Text('Delete Course?'),
+//                             content: const Text('Are you sure you want to delete this course and all its data? This cannot be undone.'),
 //                             actions: [
 //                               TextButton(
 //                                 onPressed: () => Navigator.of(context).pop(false),
@@ -5596,64 +5828,6 @@
 //               );
 //             },
 //           ),
-//           const SizedBox(height: AppConstants.padding * 2),
-//           Text(
-//             'Explore Public Courses',
-//             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                   color: AppColors.textColor,
-//                   fontWeight: FontWeight.bold,
-//                   fontSize: AppConstants.largeTextSize, // Adjusted text size
-//                 ),
-//           ),
-//           const SizedBox(height: AppConstants.spacing),
-//           StreamBuilder<List<Course>>(
-//             stream: firebaseService.streamPublicCourses(currentUser.uid), // Stream public courses (not created by current user)
-//             builder: (context, snapshot) {
-//               if (snapshot.connectionState == ConnectionState.waiting) {
-//                 return const Center(
-//                     child: CircularProgressIndicator(
-//                         valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor)));
-//               }
-//               if (snapshot.hasError) {
-//                 return Center(
-//                     child: Text('Error loading public courses: ${snapshot.error}',
-//                         style: const TextStyle(color: AppColors.errorColor)));
-//               }
-//               if (!snapshot.hasData || snapshot.data!.isEmpty) {
-//                 return Text(
-//                   'No public courses available yet. Be the first to create one!',
-//                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-//                     color: AppColors.textColorSecondary,
-//                     fontSize: AppConstants.mediumTextSize, // Adjusted text size
-//                   ),
-//                   textAlign: TextAlign.center,
-//                 );
-//               }
-
-//               final publicCourses = snapshot.data!;
-//               return ListView.builder(
-//                 shrinkWrap: true,
-//                 physics: const NeverScrollableScrollPhysics(),
-//                 itemCount: publicCourses.length,
-//                 itemBuilder: (context, index) {
-//                   final course = publicCourses[index];
-//                   return Padding(
-//                     padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
-//                     child: CourseCard(
-//                       course: course,
-//                       onTap: () {
-//                         Navigator.of(context).pushNamed(
-//                           AppRouter.levelSelectionRoute,
-//                           arguments: course,
-//                         );
-//                       },
-//                       onDelete: null, // Public courses cannot be deleted by others
-//                     ),
-//                   );
-//                 },
-//               );
-//             },
-//           ),
 //         ],
 //       ),
 //     );
@@ -5670,13 +5844,12 @@
 // import 'package:gamifier/models/level.dart';
 // import 'package:gamifier/models/lesson.dart';
 // import 'package:gamifier/models/question.dart';
+// import 'package:gamifier/models/user_profile.dart';
 // import 'package:gamifier/widgets/common/custom_app_bar.dart';
-// import 'package:gamifier/widgets/common/loading_indicator.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
+// import 'package:gamifier/widgets/common/custom_text_field.dart';
 // import 'package:gamifier/utils/validation_utils.dart';
-// import 'package:gamifier/utils/app_router.dart';
-// import 'package:gamifier/models/user_profile.dart'; // Import UserProfile
-// import 'package:file_picker/file_picker.dart'; // For picking PDF files
-// import 'dart:typed_data'; // For Uint8List
+// import 'package:gamifier/utils/file_picker_util.dart'; // Import FilePickerUtil
 
 // class CourseCreationScreen extends StatefulWidget {
 //   const CourseCreationScreen({super.key});
@@ -5688,38 +5861,44 @@
 // class _CourseCreationScreenState extends State<CourseCreationScreen> {
 //   final _formKey = GlobalKey<FormState>();
 //   final TextEditingController _topicController = TextEditingController();
-//   final TextEditingController _descriptionController = TextEditingController();
-//   final TextEditingController _sourceContentController = TextEditingController();
 //   final TextEditingController _youtubeUrlController = TextEditingController();
-
 //   String? _selectedDifficulty;
-//   String? _selectedGameGenre;
+//   String? _selectedDomain;
 //   String? _selectedEducationLevel;
-//   String? _specialty; // User's specialty, for contextual generation
-//   UserProfile? _userProfile; // To store user's profile for context
-
-//   String? _pdfFileName; // To display the name of the picked PDF
-//   Uint8List? _pdfFileBytes; // To store PDF bytes (if needed for direct analysis, though often sent as text)
+//   String? _selectedSpecialty;
+//   String? _sourceContent;
 
 //   bool _isLoading = false;
-//   String _loadingMessage = 'Generating course...';
+//   UserProfile? _currentUserProfile;
 
 //   @override
 //   void initState() {
 //     super.initState();
-//     _fetchUserProfile(); // Fetch user profile on init
+//     _loadUserProfile();
 //   }
 
 //   @override
 //   void dispose() {
 //     _topicController.dispose();
-//     _descriptionController.dispose();
-//     _sourceContentController.dispose();
 //     _youtubeUrlController.dispose();
 //     super.dispose();
 //   }
 
+//   Future<void> _loadUserProfile() async {
+//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//     final currentUser = firebaseService.currentUser;
+//     if (currentUser != null) {
+//       _currentUserProfile = await firebaseService.getUserProfile(currentUser.uid);
+//       if (_currentUserProfile != null) {
+//         _selectedEducationLevel = _currentUserProfile!.educationLevel;
+//         _selectedSpecialty = _currentUserProfile!.specialty;
+//       }
+//       setState(() {});
+//     }
+//   }
+
 //   void _showSnackBar(String message, {bool isError = false}) {
+//     if (!mounted) return;
 //     ScaffoldMessenger.of(context).showSnackBar(
 //       SnackBar(
 //         content: Text(message),
@@ -5729,225 +5908,195 @@
 //     );
 //   }
 
-//   Future<void> _fetchUserProfile() async {
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final currentUser = firebaseService.currentUser;
-//     if (currentUser != null) {
-//       _userProfile = await firebaseService.getUserProfile(currentUser.uid);
-//       setState(() {
-//         _selectedEducationLevel = _userProfile?.educationLevel;
-//         _specialty = _userProfile?.specialty;
-//       });
-//     }
-//   }
-
-//   Future<void> _pickPdfFile() async {
-//     try {
-//       FilePickerResult? result = await FilePicker.platform.pickFiles(
-//         type: FileType.custom,
-//         allowedExtensions: ['pdf'],
-//       );
-
-//       if (result != null && result.files.single.bytes != null) {
-//         setState(() {
-//           _pdfFileName = result.files.single.name;
-//           _pdfFileBytes = result.files.single.bytes;
-//         });
-//         _showSnackBar('PDF file selected: $_pdfFileName');
-//         // In a real scenario, you might want to extract text from PDF here
-//         // using a package like pdf_text or send bytes to a backend for processing.
-//         // For now, we'll simulate converting it to text.
-//         _sourceContentController.text = 'Content from $_pdfFileName (PDF parsing simulated).';
+//   Future<void> _pickFile() async {
+//     setState(() {
+//       _isLoading = true;
+//     });
+//     String? content = await FilePickerUtil.pickTextFile();
+//     setState(() {
+//       _sourceContent = content;
+//       _isLoading = false;
+//       if (content != null) {
+//         _showSnackBar('File loaded successfully!');
 //       } else {
-//         _showSnackBar('No PDF file selected.', isError: true);
+//         _showSnackBar('No file selected or failed to load.', isError: true);
 //       }
-//     } catch (e) {
-//       _showSnackBar('Error picking PDF: $e', isError: true);
-//       debugPrint('PDF picking error: $e');
-//     }
+//     });
 //   }
 
 //   Future<void> _generateCourse() async {
 //     if (!_formKey.currentState!.validate()) {
 //       return;
 //     }
-
-//     setState(() {
-//       _isLoading = true;
-//       _loadingMessage = 'Generating course structure...';
-//     });
-
-//     final geminiApiService = Provider.of<GeminiApiService>(context, listen: false);
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final currentUser = firebaseService.currentUser;
-
-//     if (currentUser == null) {
-//       _showSnackBar('User not logged in. Please log in to create a course.', isError: true);
-//       setState(() => _isLoading = false);
+//     if (_selectedDifficulty == null || _selectedDomain == null) {
+//       _showSnackBar('Please select difficulty and domain.', isError: true);
+//       return;
+//     }
+//     if (_currentUserProfile == null) {
+//       _showSnackBar('User profile not loaded. Please try again.', isError: true);
 //       return;
 //     }
 
-//     String? pdfContentAsText;
-//     if (_pdfFileBytes != null) {
-//       // Simulate PDF content extraction. In a real app, you'd use a PDF parsing library.
-//       // For now, we'll just pass a placeholder or the content from _sourceContentController if applicable.
-//       pdfContentAsText = 'Content extracted from $_pdfFileName for topic ${_topicController.text}.';
-//       // If a full PDF parsing library like 'pdf_text' was used:
-//       // final pdfDocument = await PdfDocument.openData(_pdfFileBytes!);
-//       // pdfContentAsText = await pdfDocument.extractFullText();
-//     }
+//     setState(() {
+//       _isLoading = true;
+//     });
 
 //     try {
-//       final aiGeneratedContent = await geminiApiService.generateCourseContent(
-//         topicName: _topicController.text,
-//         ageGroup: _selectedGameGenre, // Used game genre as age group for broad context for AI
-//         domain: _userProfile?.specialty, // Using specialty as domain
+//       final geminiApiService = Provider.of<GeminiApiService>(context, listen: false);
+//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+
+//       // Generate only the initial set of levels (e.g., 5 levels)
+//       final Map<String, dynamic> generatedContent =
+//           await geminiApiService.generateCourseContent(
+//         topicName: _topicController.text.trim(),
+//         ageGroup: 'college students',
+//         domain: _selectedDomain!,
 //         difficulty: _selectedDifficulty!,
-//         educationLevel: _userProfile?.educationLevel, // Pass user's education level
-//         specialty: _userProfile?.specialty,       // Pass user's specialty
-//         sourceContent: _sourceContentController.text.isNotEmpty ? _sourceContentController.text : null,
-//         youtubeUrl: _youtubeUrlController.text.isNotEmpty ? _youtubeUrlController.text : null,
-//         pdfContent: pdfContentAsText, // Pass simulated PDF content
+//         educationLevel: _selectedEducationLevel,
+//         specialty: _selectedSpecialty,
+//         sourceContent: _sourceContent,
+//         youtubeUrl: _youtubeUrlController.text.trim().isNotEmpty ? _youtubeUrlController.text.trim() : null,
+//         numberOfLevels: AppConstants.initialLevelsCount, // Request initial levels only
+//         startingLevelOrder: 1,
 //       );
 
-//       setState(() {
-//         _loadingMessage = 'Saving course to database...';
-//       });
-
-//       final courseId = firebaseService.generateNewDocId();
+//       final String courseId = firebaseService.generateNewDocId();
 //       final List<String> levelIds = [];
-//       final List<Level> courseLevels = [];
+//       final Map<String, List<Lesson>> lessonsPerLevel = {};
+//       final Map<String, Map<String, List<Question>>> questionsPerLessonPerLevel = {};
 
-//       int levelOrder = 1; // Start level order from 1
-//       for (var levelData in aiGeneratedContent['levels']) {
-//         final levelId = firebaseService.generateNewDocId();
-//         levelIds.add(levelId);
-//         final List<Lesson> levelLessons = [];
-//         final Map<String, List<Question>> questionsPerLesson = {};
 
-//         for (var lessonData in levelData['lessons']) {
-//           final lessonId = firebaseService.generateNewDocId();
-//           final List<Question> lessonQuestions = [];
-
-//           // Ensure 10-20 questions per level, distributing across lessons
-//           // This is a rough enforcement; actual AI generation quality might vary.
-//           int minQuestions = 10 ~/ (levelData['lessons'].length == 0 ? 1 : levelData['lessons'].length);
-//           int maxQuestions = 20 ~/ (levelData['lessons'].length == 0 ? 1 : levelData['lessons'].length);
-
-//           // Adjust min/max questions to ensure at least 1-2 questions per lesson
-//           minQuestions = minQuestions < 1 ? 1 : minQuestions;
-//           maxQuestions = maxQuestions < minQuestions ? minQuestions : maxQuestions;
-
-//           for (var questionData in lessonData['questions']) {
-//             final questionId = firebaseService.generateNewDocId();
-//             // Ensure correct mapping for each question type
-//             QuestionType type;
-//             dynamic correctAnswer;
-//             List<String> options = [];
-//             String? expectedAnswerKeywords;
-//             String? scenarioText;
-//             String? expectedOutcome;
-
-//             switch (questionData['type']) {
-//               case 'MCQ':
-//                 type = QuestionType.mcq;
-//                 options = List<String>.from(questionData['options'] ?? []);
-//                 correctAnswer = questionData['correctAnswer'];
-//                 break;
-//               case 'FillInBlank':
-//                 type = QuestionType.fillInBlank;
-//                 correctAnswer = questionData['correctAnswer'];
-//                 break;
-//               case 'ShortAnswer':
-//                 type = QuestionType.shortAnswer;
-//                 expectedAnswerKeywords = questionData['expectedAnswerKeywords'];
-//                 break;
-//               case 'Scenario':
-//                 type = QuestionType.scenario;
-//                 scenarioText = questionData['scenarioText'];
-//                 expectedOutcome = questionData['expectedOutcome'];
-//                 break;
-//               default:
-//                 type = QuestionType.shortAnswer; // Default to short answer
-//                 debugPrint('Unknown question type: ${questionData['type']}. Defaulting to ShortAnswer.');
-//                 correctAnswer = questionData['correctAnswer'] ?? 'N/A'; // Fallback
-//                 break;
-//             }
-
-//             lessonQuestions.add(
-//               Question(
-//                 id: questionId,
-//                 questionText: questionData['questionText'],
-//                 xpReward: questionData['xpReward'] ?? AppConstants.xpPerCorrectAnswer,
-//                 type: type,
-//                 options: options,
-//                 correctAnswer: correctAnswer,
-//                 expectedAnswerKeywords: expectedAnswerKeywords,
-//                 scenarioText: scenarioText,
-//                 expectedOutcome: expectedOutcome,
-//               ),
-//             );
-//             // Ensure we don't exceed maxQuestions per lesson if AI over-generates
-//             if (lessonQuestions.length >= maxQuestions) {
-//               break;
-//             }
-//           }
-//           // Ensure at least minQuestions per lesson
-//           while (lessonQuestions.length < minQuestions && lessonData['questions'].length > lessonQuestions.length) {
-//             // This loop is a fallback; ideally, AI generates enough.
-//             // For a robust app, you might generate dummy questions or flag an error.
-//             // For now, we'll skip if AI hasn't given enough.
-//             debugPrint('Warning: Not enough questions generated for lesson. Expected min $minQuestions, got ${lessonQuestions.length}');
-//             break; // Exit to avoid infinite loop if no more questions available from AI
-//           }
-
-//           levelLessons.add(
-//             Lesson(
-//               id: lessonId,
-//               title: lessonData['title'],
-//               content: lessonData['content'],
-//               questionIds: lessonQuestions.map((q) => q.id).toList(),
-//             ),
-//           );
-//           questionsPerLesson[lessonId] = lessonQuestions;
-//         }
-
-//         courseLevels.add(
-//           Level(
-//             id: levelId,
-//             courseId: courseId,
-//             title: levelData['title'],
-//             description: levelData['description'],
-//             difficulty: levelData['difficulty'],
-//             order: levelOrder++, // Assign and increment order
-//             lessonIds: levelLessons.map((l) => l.id).toList(),
-//             imageAssetPath: levelData['imageAssetPath'], // Save the generated asset path
-//           ),
-//         );
-
-//         // Save each level, its lessons, and questions
-//         await firebaseService.saveLevel(courseLevels.last, levelLessons, questionsPerLesson);
-//       }
-
-//       // Create the Course object with the generated level IDs
-//       final newCourse = Course(
+//       final Course newCourse = Course(
 //         id: courseId,
-//         creatorId: currentUser.uid, // Assign creator ID (makes it private by default)
-//         title: aiGeneratedContent['courseTitle'],
-//         description: _descriptionController.text, // Use user provided description
-//         difficulty: aiGeneratedContent['difficulty'],
-//         gameGenre: aiGeneratedContent['gameGenre'],
-//         levelIds: levelIds,
+//         title: generatedContent['courseTitle'] as String,
+//         description: generatedContent['levels']![0]['description'] as String, // Using first level's description for course overview
+//         gameGenre: generatedContent['gameGenre'] as String,
+//         difficulty: generatedContent['difficulty'] as String,
+//         creatorId: _currentUserProfile!.uid,
 //         createdAt: DateTime.now(),
 //       );
 
-//       await firebaseService.saveCourse(newCourse);
+//       // Populate levelIds, lessonsPerLevel, questionsPerLessonPerLevel for saving
+//       for (var levelData in generatedContent['levels']) {
+//         // Ensure to use new unique IDs for levels generated from AI response,
+//         // as the AI might generate generic IDs like "level_1" that conflict.
+//         final String newLevelId = firebaseService.generateNewDocId();
+//         levelIds.add(newLevelId);
 
-//       _showSnackBar('Course "${newCourse.title}" created successfully!');
-//       Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
+//         final Level newLevel = Level(
+//           id: newLevelId, // Use the newly generated ID
+//           title: levelData['title'] as String,
+//           description: levelData['description'] as String,
+//           courseId: courseId, // Link to the newly created course
+//           difficulty: levelData['difficulty'] as String,
+//           order: levelData['order'] as int,
+//           imageAssetPath: levelData['imageAssetPath'] as String?,
+//         );
+//         // Add newLevel to a list for batch saving if necessary, or save individually
+//         // For now, let's collect all levels to pass to saveLevels
+//         // This is important: The `saveLevels` method expects `List<Level>`
+//         // and maps for their children. So, we need to adapt the structure from Gemini.
+
+
+//         final List<Lesson> lessons = [];
+//         final Map<String, List<Question>> questionsForThisLevelLessons = {};
+
+//         for (var lessonData in levelData['lessons']) {
+//           final String newLessonId = firebaseService.generateNewDocId();
+//           final Lesson newLesson = Lesson(
+//             id: newLessonId, // Use the newly generated ID
+//             title: lessonData['title'] as String,
+//             content: lessonData['content'] as String,
+//             levelId: newLevelId, // Link to the new level ID
+//             order: lessons.length + 1,
+//           );
+//           lessons.add(newLesson);
+
+//           final List<Question> questions = [];
+//           for (var questionData in lessonData['questions']) {
+//             questions.add(Question.fromMap({
+//               ...questionData as Map<String, dynamic>,
+//               'id': firebaseService.generateNewDocId(), // Generate new ID for questions
+//             }));
+//           }
+//           questionsForThisLevelLessons[newLessonId] = questions;
+//         }
+//         lessonsPerLevel[newLevelId] = lessons;
+//         questionsPerLessonPerLevel[newLevelId] = questionsForThisLevelLessons;
+//       }
+      
+//       // Save the initial course first
+//       await firebaseService.saveCourse(newCourse);
+      
+//       // Then save all generated levels, lessons, and questions in a single batch
+//       // Re-map the generatedContent['levels'] into a List<Level> using the new IDs
+//       final List<Level> initialLevelsToSave = [];
+//       for (var levelData in generatedContent['levels']) {
+//         // Find the newId that was generated for this level in the levelIds list
+//         // This assumes levelData['id'] from Gemini matches the order for simplicity
+//         // A more robust way would be to create `Level` objects in the loop above
+//         // and then pass that list. Let's do that.
+//         final String originalLevelIdFromGemini = levelData['id'] as String;
+//         // Find the corresponding newly generated ID for this level.
+//         // This mapping needs to be more explicit if Gemini's IDs are not sequential.
+//         // For now, assuming direct order correlation to simplify.
+//         // A better approach is to build the `Level` objects directly where `newLevelId` is generated.
+//       }
+
+//       // Rebuilding the levels list with the new IDs as Level objects
+//       // This is a more robust way to handle the level IDs and data.
+//       final List<Level> levelsToSave = [];
+//       for (var levelData in generatedContent['levels']) {
+//         final String newLevelId = firebaseService.generateNewDocId(); // Generate a truly new ID here
+//         final Level level = Level(
+//           id: newLevelId,
+//           title: levelData['title'] as String,
+//           description: levelData['description'] as String,
+//           courseId: courseId,
+//           difficulty: levelData['difficulty'] as String,
+//           order: levelData['order'] as int,
+//           imageAssetPath: levelData['imageAssetPath'] as String?,
+//         );
+//         levelsToSave.add(level);
+
+//         // Update the maps to use the newLevelId
+//         lessonsPerLevel[newLevelId] = (levelData['lessons'] as List)
+//             .map((lessonData) => Lesson(
+//                   id: firebaseService.generateNewDocId(),
+//                   title: lessonData['title'] as String,
+//                   content: lessonData['content'] as String,
+//                   levelId: newLevelId,
+//                   order: (lessonData['order'] as int?) ?? 1, // Default to 1 if order is missing
+//                 ))
+//             .toList();
+
+//         questionsPerLessonPerLevel[newLevelId] = {};
+//         for (var lessonData in levelData['lessons']) {
+//           final String lessonId = lessonsPerLevel[newLevelId]!
+//               .firstWhere((element) => element.title == lessonData['title'])
+//               .id; // Find the newly created lesson ID
+//           questionsPerLessonPerLevel[newLevelId]![lessonId] = (lessonData['questions'] as List)
+//               .map((questionData) => Question.fromMap({
+//                     ...questionData as Map<String, dynamic>,
+//                     'id': firebaseService.generateNewDocId(),
+//                   }))
+//               .toList();
+//         }
+//       }
+
+//       // Update the course with the list of newly generated level IDs
+//       final List<String> finalLevelIds = levelsToSave.map((level) => level.id).toList();
+//       await firebaseService.updateCourse(courseId, {'levelIds': finalLevelIds});
+      
+//       // Save all levels, lessons, and questions
+//       await firebaseService.saveLevels(levelsToSave, lessonsPerLevel, questionsPerLessonPerLevel);
+
+
+//       _showSnackBar('Course "${newCourse.title}" generated and saved successfully with initial levels!');
+//       Navigator.of(context).pop();
 //     } catch (e) {
-//       _showSnackBar('Error creating course: $e', isError: true);
-//       debugPrint('Course creation error: $e');
+//       _showSnackBar('Failed to generate course: $e', isError: true);
+//       debugPrint('Course generation error: $e');
 //     } finally {
 //       setState(() {
 //         _isLoading = false;
@@ -5967,327 +6116,77 @@
 //       ),
 //       body: Container(
 //         decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-//         child: Stack(
-//           children: [
-//             SingleChildScrollView(
-//               padding: const EdgeInsets.all(AppConstants.padding),
-//               child: Form(
-//                 key: _formKey,
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       'Course Details',
-//                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                             color: AppColors.textColor,
-//                             fontWeight: FontWeight.bold,
-//                             fontSize: AppConstants.largeTextSize,
-//                           ),
-//                     ),
-//                     const SizedBox(height: AppConstants.padding),
-//                     TextFormField(
-//                       controller: _topicController,
-//                       style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                       decoration: InputDecoration(
-//                         labelText: 'Course Topic (e.g., Quantum Physics)',
-//                         labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                         filled: true,
-//                         fillColor: AppColors.cardColor.withOpacity(0.8),
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                           borderSide: BorderSide.none,
-//                         ),
-//                       ),
-//                       validator: (value) => ValidationUtils.validateNotEmpty(value, 'Course topic cannot be empty'),
-//                     ),
-//                     const SizedBox(height: AppConstants.spacing),
-//                     TextFormField(
-//                       controller: _descriptionController,
-//                       style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                       decoration: InputDecoration(
-//                         labelText: 'Course Description',
-//                         labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                         filled: true,
-//                         fillColor: AppColors.cardColor.withOpacity(0.8),
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                           borderSide: BorderSide.none,
-//                         ),
-//                       ),
-//                       maxLines: 3,
-//                       validator: (value) => ValidationUtils.validateNotEmpty(value, 'Course description cannot be empty'),
-//                     ),
-//                     const SizedBox(height: AppConstants.spacing),
-//                     DropdownButtonFormField<String>(
-//                       value: _selectedDifficulty,
-//                       decoration: InputDecoration(
-//                         labelText: 'Overall Difficulty',
-//                         labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                         filled: true,
-//                         fillColor: AppColors.cardColor.withOpacity(0.8),
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                           borderSide: BorderSide.none,
-//                         ),
-//                       ),
-//                       dropdownColor: AppColors.cardColor,
-//                       style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                       items: AppConstants.difficultyLevels.map((String level) {
-//                         return DropdownMenuItem<String>(
-//                           value: level,
-//                           child: Text(level),
-//                         );
-//                       }).toList(),
-//                       onChanged: (String? newValue) {
-//                         setState(() {
-//                           _selectedDifficulty = newValue;
-//                         });
-//                       },
-//                       validator: (value) => ValidationUtils.validateNotEmpty(value, 'Please select a difficulty level'),
-//                     ),
-//                     const SizedBox(height: AppConstants.spacing),
-//                     DropdownButtonFormField<String>(
-//                       value: _selectedGameGenre,
-//                       decoration: InputDecoration(
-//                         labelText: 'Game Genre',
-//                         labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                         filled: true,
-//                         fillColor: AppColors.cardColor.withOpacity(0.8),
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                           borderSide: BorderSide.none,
-//                         ),
-//                       ),
-//                       dropdownColor: AppColors.cardColor,
-//                       style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                       items: AppConstants.gameThemes.map((String genre) {
-//                         return DropdownMenuItem<String>(
-//                           value: genre,
-//                           child: Text(genre),
-//                         );
-//                       }).toList(),
-//                       onChanged: (String? newValue) {
-//                         setState(() {
-//                           _selectedGameGenre = newValue;
-//                         });
-//                       },
-//                       validator: (value) => ValidationUtils.validateNotEmpty(value, 'Please select a game genre'),
-//                     ),
-//                     const SizedBox(height: AppConstants.padding * 2),
-//                     Text(
-//                       'Optional: Provide Source Material',
-//                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                             color: AppColors.textColor,
-//                             fontWeight: FontWeight.bold,
-//                             fontSize: AppConstants.largeTextSize,
-//                           ),
-//                     ),
-//                     const SizedBox(height: AppConstants.spacing),
-//                     TextFormField(
-//                       controller: _sourceContentController,
-//                       style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                       decoration: InputDecoration(
-//                         labelText: 'Paste text content here (e.g., article, notes)',
-//                         labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                         filled: true,
-//                         fillColor: AppColors.cardColor.withOpacity(0.8),
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                           borderSide: BorderSide.none,
-//                         ),
-//                       ),
-//                       maxLines: 5,
-//                     ),
-//                     const SizedBox(height: AppConstants.spacing),
-//                     Row(
-//                       children: [
-//                         Expanded(
-//                           child: Text(
-//                             'OR',
-//                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//                             textAlign: TextAlign.center,
-//                           ),
-//                         ),
-//                         const SizedBox(width: AppConstants.padding),
-//                         Expanded(
-//                           child: ElevatedButton.icon(
-//                             onPressed: _pickPdfFile,
-//                             icon: const Icon(Icons.picture_as_pdf),
-//                             label: Text(_pdfFileName ?? 'Upload PDF', style: TextStyle(fontSize: AppConstants.mediumTextSize)),
-//                             style: ElevatedButton.styleFrom(
-//                               backgroundColor: AppColors.primaryColor,
-//                               foregroundColor: AppColors.textColor,
-//                               shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                               ),
-//                               padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacing, vertical: AppConstants.padding),
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                     if (_pdfFileName != null)
-//                       Padding(
-//                         padding: const EdgeInsets.only(top: AppConstants.spacing),
-//                         child: Text(
-//                           'Selected PDF: $_pdfFileName',
-//                           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                         ),
-//                       ),
-//                     const SizedBox(height: AppConstants.spacing),
-//                     TextFormField(
-//                       controller: _youtubeUrlController,
-//                       style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                       decoration: InputDecoration(
-//                         labelText: 'YouTube Video URL (e.g., https://youtu.be/dQw4w9WgXcQ)',
-//                         labelStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize),
-//                         filled: true,
-//                         fillColor: AppColors.cardColor.withOpacity(0.8),
-//                         border: OutlineInputBorder(
-//                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                           borderSide: BorderSide.none,
-//                         ),
-//                       ),
-//                       validator: (value) {
-//                         if (_sourceContentController.text.isEmpty && (_pdfFileName == null || _pdfFileName!.isEmpty) && value!.isEmpty) {
-//                           return null; // All three can be empty, but only if no source is provided
-//                         }
-//                         return ValidationUtils.validateYoutubeUrl(value);
-//                       },
-//                     ),
-//                     const SizedBox(height: AppConstants.padding * 2),
-//                     Center(
-//                       child: ElevatedButton.icon(
-//                         onPressed: _isLoading ? null : _generateCourse,
-//                         icon: const Icon(Icons.auto_awesome),
-//                         label: Text(_isLoading ? 'Generating...' : 'Generate Course'),
-//                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: AppColors.accentColor,
-//                           foregroundColor: AppColors.cardColor,
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                           ),
-//                           padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                           textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: AppConstants.largeTextSize),
-//                         ),
-//                       ),
-//                     ),
-//                     const SizedBox(height: AppConstants.padding),
-//                   ],
+//         child: SingleChildScrollView(
+//           padding: const EdgeInsets.all(AppConstants.padding * 2),
+//           child: Form(
+//             key: _formKey,
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.stretch,
+//               children: [
+//                 CustomTextField(
+//                   controller: _topicController,
+//                   labelText: 'Course Topic',
+//                   hintText: 'e.g., Introduction to Quantum Physics',
+//                   validator: (value) => ValidationUtils.validateField(value, 'Course Topic'),
 //                 ),
-//               ),
-//             ),
-//             if (_isLoading)
-//               LoadingIndicator(message: _loadingMessage),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-// // lib/screens/course_completion_screen.dart
-// import 'package:flutter/material.dart';
-// import 'package:gamifier/constants/app_colors.dart';
-// import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/utils/app_router.dart';
-// import 'package:gamifier/widgets/common/custom_app_bar.dart';
-
-// class CourseCompletionScreen extends StatelessWidget {
-//   final String courseTitle;
-//   final int totalXpEarnedInCourse;
-//   final int totalLevelsCompleted;
-//   final int totalLevelsInCourse;
-
-//   const CourseCompletionScreen({
-//     super.key,
-//     required this.courseTitle,
-//     required this.totalXpEarnedInCourse,
-//     required this.totalLevelsCompleted,
-//     required this.totalLevelsInCourse,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: CustomAppBar(
-//         title: 'Course Completed!',
-//         leadingWidget: IconButton(
-//           icon: const Icon(Icons.close, color: AppColors.textColor),
-//           onPressed: () => Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute),
-//         ),
-//       ),
-//       body: Container(
-//         decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-//         padding: const EdgeInsets.all(AppConstants.padding),
-//         child: Center(
-//           child: Card(
-//             color: AppColors.cardColor.withOpacity(0.95),
-//             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2)),
-//             elevation: 10,
-//             child: Padding(
-//               padding: const EdgeInsets.all(AppConstants.padding * 2),
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   const Icon(
-//                     Icons.emoji_events,
-//                     color: AppColors.xpColor,
-//                     size: 80,
-//                   ),
-//                   const SizedBox(height: AppConstants.padding),
-//                   Text(
-//                     'Course Completed!',
-//                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-//                           color: AppColors.successColor,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: AppConstants.spacing),
-//                   Text(
-//                     'You have successfully conquered the "${courseTitle}" course!',
-//                     style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor, fontSize: AppConstants.largeTextSize),
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: AppConstants.padding),
-//                   _buildStatRow(context, 'Total XP:', '$totalXpEarnedInCourse XP', Icons.star, AppColors.xpColor),
-//                   _buildStatRow(context, 'Levels Mastered:', '$totalLevelsCompleted / $totalLevelsInCourse', Icons.menu_book, AppColors.primaryColor),
-//                   const SizedBox(height: AppConstants.padding * 2),
-//                   ElevatedButton.icon(
-//                     onPressed: () {
-//                       Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
-//                     },
-//                     icon: const Icon(Icons.home),
-//                     label: const Text('Back to Home'),
-//                     style: ElevatedButton.styleFrom(
-//                       backgroundColor: AppColors.accentColor,
-//                       foregroundColor: AppColors.cardColor,
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                       ),
-//                       padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                       textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: AppConstants.mediumTextSize),
+//                 const SizedBox(height: AppConstants.padding),
+//                 CustomTextField(
+//                   controller: _youtubeUrlController,
+//                   labelText: 'YouTube Video URL (Optional)',
+//                   hintText: 'e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+//                 ),
+//                 const SizedBox(height: AppConstants.padding),
+//                 CustomButton(
+//                   text: _sourceContent == null ? 'Upload Text File (Optional)' : 'File Loaded: ${_sourceContent!.length} chars',
+//                   onPressed: _pickFile,
+//                   backgroundColor: _sourceContent == null ? AppColors.infoColor : AppColors.successColor.withOpacity(0.8),
+//                   foregroundColor: AppColors.textColor,
+//                   icon: _sourceContent == null ? Icons.upload_file : Icons.check_circle_outline,
+//                   isLoading: _isLoading,
+//                 ),
+//                 if (_sourceContent != null)
+//                   Padding(
+//                     padding: const EdgeInsets.only(top: AppConstants.spacing),
+//                     child: Text(
+//                       'Content will be generated from the uploaded file.',
+//                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textColorSecondary),
 //                     ),
 //                   ),
-//                   const SizedBox(height: AppConstants.spacing),
-//                   ElevatedButton.icon(
-//                     onPressed: () {
-//                       Navigator.of(context).pushReplacementNamed(AppRouter.courseCreationRoute);
-//                     },
-//                     icon: const Icon(Icons.add_box),
-//                     label: const Text('Create New Course'),
-//                     style: ElevatedButton.styleFrom(
-//                       backgroundColor: AppColors.secondaryColor,
-//                       foregroundColor: AppColors.textColor,
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                       ),
-//                       padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                       textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: AppConstants.mediumTextSize),
-//                     ),
-//                   ),
-//                 ],
-//               ),
+//                 const SizedBox(height: AppConstants.padding),
+//                 _buildDropdownField(
+//                   context,
+//                   label: 'Domain',
+//                   value: _selectedDomain,
+//                   items: ['Science', 'Technology', 'Engineering', 'Math', 'Arts', 'Humanities', 'Business', 'Other'],
+//                   onChanged: (value) {
+//                     setState(() {
+//                       _selectedDomain = value;
+//                     });
+//                   },
+//                   validator: (value) => ValidationUtils.validateField(value, 'Domain'),
+//                 ),
+//                 const SizedBox(height: AppConstants.padding),
+//                 _buildDropdownField(
+//                   context,
+//                   label: 'Difficulty',
+//                   value: _selectedDifficulty,
+//                   items: AppConstants.difficultyLevels,
+//                   onChanged: (value) {
+//                     setState(() {
+//                       _selectedDifficulty = value;
+//                     });
+//                   },
+//                   validator: (value) => ValidationUtils.validateField(value, 'Difficulty'),
+//                 ),
+//                 const SizedBox(height: AppConstants.padding * 2),
+//                 CustomButton(
+//                   text: 'Generate Course',
+//                   onPressed: _generateCourse,
+//                   isLoading: _isLoading,
+//                   icon: Icons.auto_awesome,
+//                   backgroundColor: AppColors.primaryColor,
+//                 ),
+//               ],
 //             ),
 //           ),
 //         ),
@@ -6295,32 +6194,44 @@
 //     );
 //   }
 
-//   Widget _buildStatRow(BuildContext context, String label, String value, IconData icon, Color iconColor) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         children: [
-//           Row(
-//             children: [
-//               Icon(icon, color: iconColor, size: AppConstants.iconSize),
-//               const SizedBox(width: AppConstants.spacing),
-//               Text(
-//                 label,
-//                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//               ),
-//             ],
-//           ),
-//           Text(
-//             value,
-//             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                   color: AppColors.textColor,
-//                   fontWeight: FontWeight.bold,
-//                   fontSize: AppConstants.mediumTextSize,
-//                 ),
-//           ),
-//         ],
+//   Widget _buildDropdownField(BuildContext context, {
+//     required String label,
+//     required String? value,
+//     required List<String> items,
+//     required ValueChanged<String?> onChanged,
+//     String? Function(String?)? validator,
+//   }) {
+//     return DropdownButtonFormField<String>(
+//       value: value,
+//       decoration: InputDecoration(
+//         labelText: label,
+//         labelStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.8)),
+//         filled: true,
+//         fillColor: AppColors.cardColor.withOpacity(0.7),
+//         border: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//           borderSide: BorderSide.none,
+//         ),
+//         focusedBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//           borderSide: const BorderSide(color: AppColors.accentColor, width: 2.0),
+//         ),
+//         enabledBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+//           borderSide: const BorderSide(color: AppColors.borderColor, width: 1.0),
+//         ),
 //       ),
+//       dropdownColor: AppColors.cardColor.withOpacity(0.95),
+//       style: const TextStyle(color: AppColors.textColor),
+//       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textColorSecondary),
+//       items: items.map((item) {
+//         return DropdownMenuItem(
+//           value: item,
+//           child: Text(item, style: const TextStyle(color: AppColors.textColor)),
+//         );
+//       }).toList(),
+//       onChanged: onChanged,
+//       validator: validator,
 //     );
 //   }
 // }
@@ -6330,12 +6241,12 @@
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/services/firebase_service.dart';
-// import 'package:gamifier/models/user_profile.dart';
 // import 'package:gamifier/models/community_post.dart';
+// import 'package:gamifier/models/user_profile.dart';
 // import 'package:gamifier/widgets/common/custom_app_bar.dart';
-// import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
-// import 'package:gamifier/utils/app_router.dart';
-// import 'package:timeago/timeago.dart' as timeago; // For displaying time in a friendly format
+// import 'package:gamifier/widgets/common/custom_button.dart';
+// import 'package:gamifier/widgets/common/custom_text_field.dart';
+// import 'package:gamifier/widgets/community/post_card.dart';
 
 // class CommunityScreen extends StatefulWidget {
 //   const CommunityScreen({super.key});
@@ -6346,7 +6257,30 @@
 
 // class _CommunityScreenState extends State<CommunityScreen> {
 //   final TextEditingController _postController = TextEditingController();
-//   int _selectedIndex = 4; // Set the current index for Community screen
+//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+//   UserProfile? _currentUserProfile;
+//   bool _isPosting = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _fetchUserProfile();
+//   }
+
+//   @override
+//   void dispose() {
+//     _postController.dispose();
+//     super.dispose();
+//   }
+
+//   Future<void> _fetchUserProfile() async {
+//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//     final currentUser = firebaseService.currentUser;
+//     if (currentUser != null) {
+//       _currentUserProfile = await firebaseService.getUserProfile(currentUser.uid);
+//       setState(() {});
+//     }
+//   }
 
 //   void _showSnackBar(String message, {bool isError = false}) {
 //     if (!mounted) return;
@@ -6360,107 +6294,66 @@
 //   }
 
 //   Future<void> _createPost() async {
-//     final text = _postController.text.trim();
-//     if (text.isEmpty) {
-//       _showSnackBar('Post cannot be empty!', isError: true);
+//     if (!_formKey.currentState!.validate() || _currentUserProfile == null || _isPosting) {
 //       return;
 //     }
+
+//     setState(() {
+//       _isPosting = true;
+//     });
 
 //     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final currentUser = firebaseService.currentUser;
-//     final userProfile = await firebaseService.getUserProfile(currentUser!.uid);
-
-//     if (currentUser == null || userProfile == null) {
-//       _showSnackBar('User not logged in or profile not found.', isError: true);
-//       return;
-//     }
+//     final newPost = CommunityPost(
+//       id: firebaseService.generateNewDocId(),
+//       authorId: _currentUserProfile!.uid,
+//       authorUsername: _currentUserProfile!.username,
+//       authorAvatarUrl: _currentUserProfile!.avatarAssetPath,
+//       content: _postController.text.trim(),
+//       timestamp: DateTime.now(),
+//       likedBy: [],
+//       comments: [],
+//     );
 
 //     try {
-//       final postId = firebaseService.generateNewDocId();
-//       final newPost = CommunityPost(
-//         id: postId,
-//         userId: currentUser.uid,
-//         username: userProfile.username,
-//         avatarAssetPath: userProfile.avatarAssetPath,
-//         content: text,
-//         timestamp: DateTime.now(),
-//         likedBy: [],
-//         comments: [],
-//       );
 //       await firebaseService.createCommunityPost(newPost);
 //       _postController.clear();
 //       _showSnackBar('Post created successfully!');
 //     } catch (e) {
 //       _showSnackBar('Error creating post: $e', isError: true);
+//     } finally {
+//       setState(() {
+//         _isPosting = false;
+//       });
 //     }
 //   }
 
-//   Future<void> _toggleLike(String postId, List<String> likedBy) async {
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final currentUser = firebaseService.currentUser;
-//     if (currentUser == null) {
-//       _showSnackBar('Please log in to like posts.', isError: true);
-//       return;
-//     }
-//     try {
-//       await firebaseService.toggleLikeOnPost(postId, currentUser.uid);
-//     } catch (e) {
-//       _showSnackBar('Error toggling like: $e', isError: true);
-//     }
-//   }
-
-//   Future<void> _addComment(String postId) async {
-//     String? commentText;
-//     await showDialog(
+//   Future<void> _deletePost(String postId) async {
+//     final bool confirmDelete = await showDialog(
 //       context: context,
-//       builder: (context) {
-//         final commentController = TextEditingController();
-//         return AlertDialog(
-//           title: const Text('Add a Comment'),
-//           content: TextField(
-//             controller: commentController,
-//             decoration: const InputDecoration(hintText: 'Write your comment here...'),
-//             maxLines: 3,
+//       builder: (context) => AlertDialog(
+//         title: const Text('Delete Post?'),
+//         content: const Text('Are you sure you want to delete this post? This cannot be undone.'),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.of(context).pop(false),
+//             child: const Text('Cancel'),
 //           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () => Navigator.of(context).pop(),
-//               child: const Text('Cancel'),
-//             ),
-//             ElevatedButton(
-//               onPressed: () {
-//                 commentText = commentController.text.trim();
-//                 Navigator.of(context).pop();
-//               },
-//               child: const Text('Post Comment'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
+//           ElevatedButton(
+//             onPressed: () => Navigator.of(context).pop(true),
+//             style: ElevatedButton.styleFrom(backgroundColor: AppColors.errorColor),
+//             child: const Text('Delete'),
+//           ),
+//         ],
+//       ),
+//     ) ?? false;
 
-//     if (commentText != null && commentText!.isNotEmpty) {
-//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//       final currentUser = firebaseService.currentUser;
-//       final userProfile = await firebaseService.getUserProfile(currentUser!.uid);
-
-//       if (currentUser == null || userProfile == null) {
-//         _showSnackBar('User not logged in or profile not found.', isError: true);
-//         return;
-//       }
-
+//     if (confirmDelete) {
 //       try {
-//         final newComment = Comment(
-//           userId: currentUser.uid,
-//           username: userProfile.username,
-//           avatarAssetPath: userProfile.avatarAssetPath,
-//           content: commentText!,
-//           timestamp: DateTime.now(),
-//         );
-//         await firebaseService.addCommentToPost(postId, newComment);
-//         _showSnackBar('Comment added!');
+//         final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//         await firebaseService.getFirestore().collection(AppConstants.communityPostsCollection).doc(postId).delete();
+//         _showSnackBar('Post deleted successfully!');
 //       } catch (e) {
-//         _showSnackBar('Error adding comment: $e', isError: true);
+//         _showSnackBar('Error deleting post: $e', isError: true);
 //       }
 //     }
 //   }
@@ -6470,7 +6363,7 @@
 //     final firebaseService = Provider.of<FirebaseService>(context);
 //     final currentUser = firebaseService.currentUser;
 
-//     if (currentUser == null) {
+//     if (currentUser == null || _currentUserProfile == null) {
 //       return const Scaffold(
 //         body: Center(
 //           child: CircularProgressIndicator(
@@ -6482,7 +6375,7 @@
 
 //     return Scaffold(
 //       appBar: CustomAppBar(
-//         title: 'Community Feed',
+//         title: 'Community Forum',
 //         leadingWidget: IconButton(
 //           icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
 //           onPressed: () => Navigator.of(context).pop(),
@@ -6494,45 +6387,27 @@
 //           children: [
 //             Padding(
 //               padding: const EdgeInsets.all(AppConstants.padding),
-//               child: Card(
-//                 color: AppColors.cardColor.withOpacity(0.9),
-//                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                 elevation: 4,
-//                 child: Padding(
-//                   padding: const EdgeInsets.all(AppConstants.padding),
-//                   child: Column(
-//                     children: [
-//                       TextField(
-//                         controller: _postController,
-//                         style: const TextStyle(color: AppColors.textColor),
-//                         decoration: InputDecoration(
-//                           hintText: 'Share your thoughts or achievements...',
-//                           hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7)),
-//                           filled: true,
-//                           fillColor: AppColors.primaryColor.withOpacity(0.1),
-//                           border: OutlineInputBorder(
-//                             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                             borderSide: BorderSide.none,
-//                           ),
-//                         ),
-//                         maxLines: 3,
-//                       ),
-//                       const SizedBox(height: AppConstants.spacing),
-//                       Align(
-//                         alignment: Alignment.bottomRight,
-//                         child: ElevatedButton.icon(
-//                           onPressed: _createPost,
-//                           icon: const Icon(Icons.send),
-//                           label: const Text('Post'),
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor: AppColors.accentColor,
-//                             foregroundColor: AppColors.cardColor,
-//                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
+//               child: Form(
+//                 key: _formKey,
+//                 child: Column(
+//                   children: [
+//                     CustomTextField(
+//                       controller: _postController,
+//                       labelText: 'Share your thoughts...',
+//                       hintText: 'What\'s on your mind?',
+//                       maxLines: 3,
+//                       validator: (value) =>
+//                           value == null || value.trim().isEmpty ? 'Post content cannot be empty.' : null,
+//                     ),
+//                     const SizedBox(height: AppConstants.spacing),
+//                     CustomButton(
+//                       text: 'Create Post',
+//                       onPressed: _createPost,
+//                       isLoading: _isPosting,
+//                       icon: Icons.send,
+//                       width: double.infinity,
+//                     ),
+//                   ],
 //                 ),
 //               ),
 //             ),
@@ -6552,142 +6427,27 @@
 //                   }
 //                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
 //                     return Center(
-//                         child: Text(
-//                       'No posts yet. Be the first to share something!',
-//                       style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary),
-//                       textAlign: TextAlign.center,
-//                     ));
+//                       child: Text(
+//                         'No posts yet. Be the first to share something!',
+//                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
+//                         textAlign: TextAlign.center,
+//                       ),
+//                     );
 //                   }
 
 //                   final posts = snapshot.data!;
+//                   // Ensure posts are sorted by timestamp for consistent display, newest first
+//                   posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
 //                   return ListView.builder(
 //                     padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding),
 //                     itemCount: posts.length,
 //                     itemBuilder: (context, index) {
 //                       final post = posts[index];
-//                       final bool isLikedByMe = post.likedBy.contains(currentUser.uid);
-
-//                       return Card(
-//                         margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
-//                         color: AppColors.cardColor.withOpacity(0.9),
-//                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                         elevation: 4,
-//                         child: Padding(
-//                           padding: const EdgeInsets.all(AppConstants.padding),
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Row(
-//                                 children: [
-//                                   CircleAvatar(
-//                                     radius: 20,
-//                                     backgroundImage: AssetImage(post.avatarAssetPath),
-//                                     onBackgroundImageError: (exception, stackTrace) {
-//                                       debugPrint('Error loading post avatar: $exception');
-//                                     },
-//                                   ),
-//                                   const SizedBox(width: AppConstants.spacing),
-//                                   Expanded(
-//                                     child: Column(
-//                                       crossAxisAlignment: CrossAxisAlignment.start,
-//                                       children: [
-//                                         Text(
-//                                           post.username,
-//                                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                                                 color: AppColors.textColor,
-//                                                 fontWeight: FontWeight.bold,
-//                                               ),
-//                                         ),
-//                                         Text(
-//                                           timeago.format(post.timestamp),
-//                                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-//                                                 color: AppColors.textColorSecondary,
-//                                               ),
-//                                         ),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                               const SizedBox(height: AppConstants.spacing),
-//                               Text(
-//                                 post.content,
-//                                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColor),
-//                               ),
-//                               const SizedBox(height: AppConstants.spacing),
-//                               Row(
-//                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                                 children: [
-//                                   Row(
-//                                     children: [
-//                                       IconButton(
-//                                         icon: Icon(
-//                                           isLikedByMe ? Icons.favorite : Icons.favorite_border,
-//                                           color: isLikedByMe ? AppColors.errorColor : AppColors.textColorSecondary,
-//                                         ),
-//                                         onPressed: () => _toggleLike(post.id, post.likedBy),
-//                                       ),
-//                                       Text(
-//                                         '${post.likedBy.length}',
-//                                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-//                                       ),
-//                                       const SizedBox(width: AppConstants.spacing),
-//                                       IconButton(
-//                                         icon: const Icon(Icons.comment_outlined, color: AppColors.textColorSecondary),
-//                                         onPressed: () => _addComment(post.id),
-//                                       ),
-//                                       Text(
-//                                         '${post.comments.length}',
-//                                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-//                                       ),
-//                                     ],
-//                                   ),
-//                                 ],
-//                               ),
-//                               // Display comments
-//                               if (post.comments.isNotEmpty)
-//                                 Column(
-//                                   crossAxisAlignment: CrossAxisAlignment.start,
-//                                   children: post.comments.map((comment) {
-//                                     return Padding(
-//                                       padding: const EdgeInsets.only(left: AppConstants.padding, top: AppConstants.spacing / 2),
-//                                       child: Row(
-//                                         crossAxisAlignment: CrossAxisAlignment.start,
-//                                         children: [
-//                                           CircleAvatar(
-//                                             radius: 12,
-//                                             backgroundImage: AssetImage(comment.avatarAssetPath),
-//                                             onBackgroundImageError: (exception, stackTrace) {
-//                                               debugPrint('Error loading comment avatar: $exception');
-//                                             },
-//                                           ),
-//                                           const SizedBox(width: AppConstants.spacing / 2),
-//                                           Expanded(
-//                                             child: Column(
-//                                               crossAxisAlignment: CrossAxisAlignment.start,
-//                                               children: [
-//                                                 Text(
-//                                                   '${comment.username} • ${timeago.format(comment.timestamp)}',
-//                                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-//                                                         color: AppColors.textColorSecondary.withOpacity(0.8),
-//                                                         fontWeight: FontWeight.bold,
-//                                                       ),
-//                                                 ),
-//                                                 Text(
-//                                                   comment.content,
-//                                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-//                                                 ),
-//                                               ],
-//                                             ),
-//                                           ),
-//                                         ],
-//                                       ),
-//                                     );
-//                                   }).toList(),
-//                                 ),
-//                             ],
-//                           ),
-//                         ),
+//                       return PostCard(
+//                         post: post,
+//                         currentUserId: currentUser.uid,
+//                         onDelete: post.authorId == currentUser.uid ? _deletePost : null, // Pass delete function only if current user is author
 //                       );
 //                     },
 //                   );
@@ -6697,543 +6457,53 @@
 //           ],
 //         ),
 //       ),
-//       bottomNavigationBar: BottomNavBar(
-//         selectedIndex: _selectedIndex,
-//         onItemTapped: (index) {
-//           setState(() {
-//             _selectedIndex = index;
-//           });
-//           switch (index) {
-//             case 0:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
-//               break;
-//             case 1:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.courseCreationRoute);
-//               break;
-//             case 2:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.progressRoute);
-//               break;
-//             case 3:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.profileRoute);
-//               break;
-//             case 4:
-//             // Already on community screen
-//               break;
-//             case 5:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.aiChatRoute);
-//               break;
-//           }
-//         },
-//       ),
 //     );
 //   }
 // }
-// // lib/screens/avatar_customizer_screen.dart
+// // lib/screens/chat_screen.dart
 // import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 // import 'package:gamifier/constants/app_colors.dart';
 // import 'package:gamifier/constants/app_constants.dart';
 // import 'package:gamifier/services/firebase_service.dart';
+// import 'package:gamifier/services/gemini_api_service.dart';
+// import 'package:gamifier/models/chat_message.dart';
 // import 'package:gamifier/models/user_profile.dart';
-// import 'package:gamifier/models/avatar_asset.dart';
 // import 'package:gamifier/widgets/common/custom_app_bar.dart';
 
-// class AvatarCustomizerScreen extends StatefulWidget {
-//   const AvatarCustomizerScreen({super.key});
+// class ChatScreen extends StatefulWidget {
+//   const ChatScreen({super.key});
 
 //   @override
-//   State<AvatarCustomizerScreen> createState() => _AvatarCustomizerScreenState();
+//   State<ChatScreen> createState() => _ChatScreenState();
 // }
 
-// class _AvatarCustomizerScreenState extends State<AvatarCustomizerScreen> {
-//   String? _selectedAvatarPath;
-//   UserProfile? _currentUserProfile;
+// class _ChatScreenState extends State<ChatScreen> {
+//   final TextEditingController _messageController = TextEditingController();
+//   final ScrollController _scrollController = ScrollController();
+//   UserProfile? _userProfile;
+//   bool _isSendingMessage = false;
 
 //   @override
 //   void initState() {
 //     super.initState();
-//     _loadUserProfile();
+//     _fetchUserProfile();
 //   }
-
-//   Future<void> _loadUserProfile() async {
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final user = firebaseService.currentUser;
-//     if (user != null) {
-//       final profile = await firebaseService.getUserProfile(user.uid);
-//       if (profile != null) {
-//         setState(() {
-//           _currentUserProfile = profile;
-//           _selectedAvatarPath = profile.avatarAssetPath;
-//         });
-//       }
-//     }
-//   }
-
-//   Future<void> _updateAvatar() async {
-//     if (_selectedAvatarPath == null || _currentUserProfile == null) return;
-
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     final user = firebaseService.currentUser;
-
-//     if (user != null) {
-//       try {
-//         await firebaseService.updateUserProfile(user.uid, {
-//           'avatarAssetPath': _selectedAvatarPath,
-//         });
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(
-//             content: Text('Avatar updated successfully!'),
-//             backgroundColor: AppColors.successColor,
-//           ),
-//         );
-//       } catch (e) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(
-//             content: Text('Error updating avatar: $e'),
-//             backgroundColor: AppColors.errorColor,
-//           ),
-//         );
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: CustomAppBar(
-//         title: 'Customize Avatar',
-//         leadingWidget: IconButton(
-//           icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
-//           onPressed: () => Navigator.of(context).pop(),
-//         ),
-//         trailingWidget: IconButton(
-//           icon: const Icon(Icons.save, color: AppColors.textColor),
-//           onPressed: _updateAvatar,
-//           tooltip: 'Save Avatar',
-//         ),
-//       ),
-//       body: Container(
-//         decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-//         child: Column(
-//           children: [
-//             Padding(
-//               padding: const EdgeInsets.all(AppConstants.padding),
-//               child: Center(
-//                 child: CircleAvatar(
-//                   radius: AppConstants.avatarSize * 1.5,
-//                   backgroundColor: AppColors.cardColor,
-//                   backgroundImage: _selectedAvatarPath != null
-//                       ? AssetImage(_selectedAvatarPath!)
-//                       : (_currentUserProfile != null
-//                           ? AssetImage(_currentUserProfile!.avatarAssetPath)
-//                           : null),
-//                   onBackgroundImageError: (exception, stackTrace) {
-//                     debugPrint('Error loading selected avatar image: $exception');
-//                   },
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(height: AppConstants.padding),
-//             Text(
-//               'Choose your avatar:',
-//               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                     color: AppColors.textColor,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//             ),
-//             const SizedBox(height: AppConstants.padding),
-//             Expanded(
-//               child: GridView.builder(
-//                 padding: const EdgeInsets.all(AppConstants.padding),
-//                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//                   crossAxisCount: 3,
-//                   crossAxisSpacing: AppConstants.spacing,
-//                   mainAxisSpacing: AppConstants.spacing,
-//                   childAspectRatio: 0.8,
-//                 ),
-//                 itemCount: AppConstants.defaultAvatarAssets.length,
-//                 itemBuilder: (context, index) {
-//                   final avatarAsset = AppConstants.defaultAvatarAssets[index];
-//                   final isSelected = _selectedAvatarPath == avatarAsset.assetPath;
-//                   return GestureDetector(
-//                     onTap: () {
-//                       setState(() {
-//                         _selectedAvatarPath = avatarAsset.assetPath;
-//                       });
-//                     },
-//                     child: Card(
-//                       color: isSelected ? AppColors.accentColor.withOpacity(0.8) : AppColors.cardColor.withOpacity(0.8),
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-//                         side: BorderSide(
-//                           color: isSelected ? AppColors.successColor : Colors.transparent,
-//                           width: 3,
-//                         ),
-//                       ),
-//                       elevation: isSelected ? 8 : 4,
-//                       child: Column(
-//                         mainAxisAlignment: MainAxisAlignment.center,
-//                         children: [
-//                           Image.asset(
-//                             avatarAsset.assetPath,
-//                             width: AppConstants.avatarSize,
-//                             height: AppConstants.avatarSize,
-//                             fit: BoxFit.cover,
-//                             errorBuilder: (context, error, stackTrace) {
-//                               return Icon(Icons.person, size: AppConstants.avatarSize, color: AppColors.errorColor);
-//                             },
-//                           ),
-//                           const SizedBox(height: AppConstants.spacing / 2),
-//                           Text(
-//                             avatarAsset.name,
-//                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-//                                   color: isSelected ? AppColors.cardColor : AppColors.textColor,
-//                                   fontWeight: FontWeight.bold,
-//                                 ),
-//                             textAlign: TextAlign.center,
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-// // lib/screens/auth_screen.dart
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:gamifier/constants/app_colors.dart';
-// import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/services/firebase_service.dart';
-// import 'package:gamifier/utils/app_router.dart';
-// import 'package:gamifier/utils/validation_utils.dart'; // Import for validation
-
-// class AuthScreen extends StatefulWidget {
-//   const AuthScreen({super.key});
-
-//   @override
-//   State<AuthScreen> createState() => _AuthScreenState();
-// }
-
-// class _AuthScreenState extends State<AuthScreen> {
-//   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
-//   final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
-//   final TextEditingController _emailController = TextEditingController();
-//   final TextEditingController _passwordController = TextEditingController();
-//   final TextEditingController _confirmPasswordController = TextEditingController();
-//   final TextEditingController _usernameController = TextEditingController();
-
-//   bool _isLogin = true;
-//   bool _isLoading = false;
-
-//   @override
-//   void dispose() {
-//     _emailController.dispose();
-//     _passwordController.dispose();
-//     _confirmPasswordController.dispose();
-//     _usernameController.dispose();
-//     super.dispose();
-//   }
-
-//   void _showSnackBar(String message, {bool isError = false}) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: Text(message),
-//         backgroundColor: isError ? AppColors.errorColor : AppColors.successColor,
-//         duration: const Duration(seconds: 3),
-//       ),
-//     );
-//   }
-
-//   Future<void> _submitAuthForm() async {
-//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-//     setState(() {
-//       _isLoading = true;
-//     });
-
-//     try {
-//       if (_isLogin) {
-//         if (!_loginFormKey.currentState!.validate()) {
-//           setState(() {
-//             _isLoading = false;
-//           });
-//           return;
-//         }
-//         await firebaseService.signInWithEmailAndPassword(
-//           _emailController.text.trim(),
-//           _passwordController.text.trim(),
-//         );
-//         _showSnackBar('Logged in successfully!');
-//         // Check if onboarding is needed
-//         final userProfile = await firebaseService.getUserProfile(firebaseService.currentUser!.uid);
-//         if (userProfile == null || userProfile.educationLevel == null || userProfile.specialty == null) {
-//           Navigator.of(context).pushReplacementNamed(AppRouter.onboardingRoute);
-//         } else {
-//           Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
-//         }
-//       } else {
-//         if (!_registerFormKey.currentState!.validate()) {
-//           setState(() {
-//             _isLoading = false;
-//           });
-//           return;
-//         }
-//         await firebaseService.registerWithEmailAndPassword(
-//           _emailController.text.trim(),
-//           _passwordController.text.trim(),
-//           _usernameController.text.trim(),
-//         );
-//         _showSnackBar('Registered successfully! Please complete your profile.');
-//         Navigator.of(context).pushReplacementNamed(AppRouter.onboardingRoute);
-//       }
-//     } on FirebaseAuthException catch (e) {
-//       _showSnackBar(e.message ?? 'An authentication error occurred.', isError: true);
-//     } catch (e) {
-//       _showSnackBar('An unexpected error occurred: $e', isError: true);
-//     } finally {
-//       if (mounted) {
-//         setState(() {
-//           _isLoading = false;
-//         });
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Container(
-//         decoration: BoxDecoration(
-//           gradient: AppColors.backgroundGradient(),
-//         ),
-//         child: Center(
-//           child: SingleChildScrollView(
-//             padding: const EdgeInsets.all(AppConstants.padding * 2),
-//             child: Card(
-//               color: AppColors.cardColor.withOpacity(0.95),
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2),
-//               ),
-//               elevation: 12,
-//               child: Padding(
-//                 padding: const EdgeInsets.all(AppConstants.padding * 2),
-//                 child: Form(
-//                   key: _isLogin ? _loginFormKey : _registerFormKey,
-//                   child: Column(
-//                     mainAxisSize: MainAxisSize.min,
-//                     children: [
-//                       Text(
-//                         _isLogin ? 'Welcome Back!' : 'Join Gamifier',
-//                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-//                               color: AppColors.accentColor,
-//                               fontWeight: FontWeight.bold,
-//                               // Replace neonTextStyle with a standard style
-//                               shadows: [
-//                                 Shadow(
-//                                   blurRadius: 10.0,
-//                                   color: AppColors.accentColor.withOpacity(0.5),
-//                                   offset: const Offset(0, 0),
-//                                 ),
-//                               ],
-//                             ),
-//                       ),
-//                       const SizedBox(height: AppConstants.padding * 1.5),
-//                       TextFormField(
-//                         controller: _emailController,
-//                         keyboardType: TextInputType.emailAddress,
-//                         decoration: const InputDecoration(
-//                           labelText: 'Email',
-//                           prefixIcon: Icon(Icons.email, color: AppColors.textColorSecondary),
-//                         ),
-//                         style: const TextStyle(color: AppColors.textColor),
-//                         validator: ValidationUtils.validateEmail,
-//                       ),
-//                       const SizedBox(height: AppConstants.spacing),
-//                       TextFormField(
-//                         controller: _passwordController,
-//                         obscureText: true,
-//                         decoration: const InputDecoration(
-//                           labelText: 'Password',
-//                           prefixIcon: Icon(Icons.lock, color: AppColors.textColorSecondary),
-//                         ),
-//                         style: const TextStyle(color: AppColors.textColor),
-//                         validator: (value) => ValidationUtils.validatePassword(value, minLength: AppConstants.minPasswordLength),
-//                       ),
-//                       if (!_isLogin) ...[
-//                         const SizedBox(height: AppConstants.spacing),
-//                         TextFormField(
-//                           controller: _confirmPasswordController,
-//                           obscureText: true,
-//                           decoration: const InputDecoration(
-//                             labelText: 'Confirm Password',
-//                             prefixIcon: Icon(Icons.lock_reset, color: AppColors.textColorSecondary),
-//                           ),
-//                           style: const TextStyle(color: AppColors.textColor),
-//                           validator: (value) => ValidationUtils.validateConfirmPassword(_passwordController.text, value),
-//                         ),
-//                         const SizedBox(height: AppConstants.spacing),
-//                         TextFormField(
-//                           controller: _usernameController,
-//                           decoration: const InputDecoration(
-//                             labelText: 'Username',
-//                             prefixIcon: Icon(Icons.person, color: AppColors.textColorSecondary),
-//                           ),
-//                           style: const TextStyle(color: AppColors.textColor),
-//                           validator: (value) => ValidationUtils.validateNotEmpty(value, 'Username cannot be empty'),
-//                         ),
-//                       ],
-//                       const SizedBox(height: AppConstants.padding * 1.5),
-//                       _isLoading
-//                           ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor))
-//                           : ElevatedButton(
-//                               onPressed: _submitAuthForm,
-//                               style: ElevatedButton.styleFrom(
-//                                 backgroundColor: AppColors.accentColor,
-//                                 foregroundColor: AppColors.cardColor,
-//                                 padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding * 2, vertical: AppConstants.padding),
-//                                 textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-//                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
-//                                 elevation: 8,
-//                               ),
-//                               child: Text(_isLogin ? 'Sign In' : 'Register'),
-//                             ),
-//                       const SizedBox(height: AppConstants.padding),
-//                       TextButton(
-//                         onPressed: () {
-//                           setState(() {
-//                             _isLogin = !_isLogin;
-//                             _emailController.clear();
-//                             _passwordController.clear();
-//                             _confirmPasswordController.clear();
-//                             _usernameController.clear();
-//                           });
-//                         },
-//                         child: Text(
-//                           _isLogin ? 'Need an account? Register' : 'Already have an account? Sign In',
-//                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-//                                 color: AppColors.textColorSecondary,
-//                               ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-// // lib/widgets/navigation/bottom_nav_bar.dart
-// import 'package:flutter/material.dart';
-// import 'package:gamifier/constants/app_colors.dart';
-// import 'package:gamifier/constants/app_constants.dart';
-
-// class BottomNavBar extends StatelessWidget {
-//   final int selectedIndex;
-//   final Function(int) onItemTapped;
-
-//   const BottomNavBar({
-//     super.key,
-//     required this.selectedIndex,
-//     required this.onItemTapped,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         color: AppColors.cardColor,
-//         boxShadow: [
-//           BoxShadow(
-//             color: AppColors.cardColor.withOpacity(0.5),
-//             blurRadius: 10,
-//             spreadRadius: 2,
-//             offset: const Offset(0, -2),
-//           ),
-//         ],
-//         borderRadius: const BorderRadius.vertical(top: Radius.circular(AppConstants.borderRadius)),
-//       ),
-//       child: BottomNavigationBar(
-//         currentIndex: selectedIndex,
-//         onTap: onItemTapped,
-//         backgroundColor: Colors.transparent,
-//         selectedItemColor: AppColors.accentColor,
-//         unselectedItemColor: AppColors.textColorSecondary,
-//         type: BottomNavigationBarType.fixed,
-//         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-//         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-//         showUnselectedLabels: true,
-//         elevation: 0,
-//         items: const <BottomNavigationBarItem>[
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.home),
-//             label: 'Home',
-//           ),
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.add_box),
-//             label: 'Create',
-//           ),
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.leaderboard),
-//             label: 'Progress',
-//           ),
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.person),
-//             label: 'Profile',
-//           ),
-//           BottomNavigationBarItem(
-//             icon: Icon(Icons.people), // New icon for Community
-//             label: 'Community',
-//           ),
-//           BottomNavigationBarItem( // New AI Chatbot entry
-//             icon: Icon(Icons.auto_awesome),
-//             label: 'AI Tutor',
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// // lib/screens/ai_chat_screen.dart
-// import 'package:flutter/material.dart';
-// import 'package:flutter_markdown/flutter_markdown.dart'; // No alias, directly import
-// import 'package:provider/provider.dart';
-// import 'package:gamifier/constants/app_colors.dart';
-// import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/services/gemini_api_service.dart';
-// import 'package:gamifier/widgets/common/custom_app_bar.dart';
-// import 'package:gamifier/widgets/common/loading_indicator.dart';
-// import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
-// import 'package:gamifier/utils/app_router.dart';
-
-// class AIChatScreen extends StatefulWidget {
-//   const AIChatScreen({super.key});
-
-//   @override
-//   State<AIChatScreen> createState() => _AIChatScreenState();
-// }
-
-// class _AIChatScreenState extends State<AIChatScreen> {
-//   final TextEditingController _messageController = TextEditingController();
-//   final List<Map<String, String>> _chatHistory = [];
-//   bool _isLoading = false;
-//   int _selectedIndex = 5; // Set the current index for AI Chat screen
 
 //   @override
 //   void dispose() {
 //     _messageController.dispose();
+//     _scrollController.dispose();
 //     super.dispose();
+//   }
+
+//   Future<void> _fetchUserProfile() async {
+//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//     final currentUser = firebaseService.currentUser;
+//     if (currentUser != null) {
+//       _userProfile = await firebaseService.getUserProfile(currentUser.uid);
+//       setState(() {});
+//     }
 //   }
 
 //   void _showSnackBar(String message, {bool isError = false}) {
@@ -7248,45 +6518,84 @@
 //   }
 
 //   Future<void> _sendMessage() async {
-//     final message = _messageController.text.trim();
-//     if (message.isEmpty) {
-//       _showSnackBar('Message cannot be empty!', isError: true);
+//     final text = _messageController.text.trim();
+//     if (text.isEmpty || _userProfile == null || _isSendingMessage) {
 //       return;
 //     }
 
 //     setState(() {
-//       _chatHistory.add({'role': 'user', 'text': message});
-//       _messageController.clear();
-//       _isLoading = true;
+//       _isSendingMessage = true;
 //     });
 
+//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
 //     final geminiApiService = Provider.of<GeminiApiService>(context, listen: false);
 
+//     final userMessage = ChatMessage(
+//       id: firebaseService.generateNewDocId(),
+//       senderId: _userProfile!.uid,
+//       senderUsername: _userProfile!.username,
+//       senderAvatarUrl: _userProfile!.avatarAssetPath,
+//       text: text,
+//       timestamp: DateTime.now(),
+//       isUser: true,
+//     );
+
+//     _messageController.clear();
+//     await firebaseService.sendChatMessage(userMessage);
+
+//     // Get chat history for AI
+//     final chatHistory = await firebaseService.streamChatMessages().first;
+
 //     try {
-//       final response = await geminiApiService.generateAIChatResponse(_chatHistory);
-//       setState(() {
-//         _chatHistory.add({'role': 'model', 'text': response});
-//       });
+//       final aiResponseText = await geminiApiService.generateChatResponse(chatHistory);
+//       final aiMessage = ChatMessage(
+//         id: firebaseService.generateNewDocId(),
+//         senderId: 'ai_tutor',
+//         senderUsername: 'AI Tutor 🤖',
+//         senderAvatarUrl: 'assets/app_icon.png', // Or a specific AI avatar
+//         text: aiResponseText,
+//         timestamp: DateTime.now(),
+//         isUser: false,
+//       );
+//       await firebaseService.sendChatMessage(aiMessage);
 //     } catch (e) {
-//       _showSnackBar('Error generating response: $e', isError: true);
-//       debugPrint('AI Chat Error: $e');
-//       setState(() {
-//         _chatHistory.add({'role': 'model', 'text': 'Error: Could not get a response.'});
-//       });
+//       _showSnackBar('Error getting AI response: $e', isError: true);
 //     } finally {
-//       if (mounted) {
-//         setState(() {
-//           _isLoading = false;
-//         });
-//       }
+//       setState(() {
+//         _isSendingMessage = false;
+//       });
+//       _scrollToBottom();
+//     }
+//   }
+
+//   void _scrollToBottom() {
+//     if (_scrollController.hasClients) {
+//       _scrollController.animateTo(
+//         _scrollController.position.maxScrollExtent,
+//         duration: AppConstants.defaultAnimationDuration,
+//         curve: Curves.easeOut,
+//       );
 //     }
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
+//     final firebaseService = Provider.of<FirebaseService>(context);
+//     final currentUser = firebaseService.currentUser;
+
+//     if (currentUser == null || _userProfile == null) {
+//       return const Scaffold(
+//         body: Center(
+//           child: CircularProgressIndicator(
+//             valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor),
+//           ),
+//         ),
+//       );
+//     }
+
 //     return Scaffold(
 //       appBar: CustomAppBar(
-//         title: 'AI Tutor Chat',
+//         title: 'AI Chat Tutor',
 //         leadingWidget: IconButton(
 //           icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
 //           onPressed: () => Navigator.of(context).pop(),
@@ -7297,82 +6606,90 @@
 //         child: Column(
 //           children: [
 //             Expanded(
-//               child: ListView.builder(
-//                 padding: const EdgeInsets.all(AppConstants.padding),
-//                 reverse: false, // Messages flow from top to bottom
-//                 itemCount: _chatHistory.length,
-//                 itemBuilder: (context, index) {
-//                   final message = _chatHistory[index];
-//                   final isUser = message['role'] == 'user';
-//                   return Align(
-//                     alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-//                     child: Container(
-//                       margin: EdgeInsets.only(
-//                         bottom: AppConstants.spacing,
-//                         left: isUser ? AppConstants.padding * 4 : 0, // Less padding on user side for compactness
-//                         right: isUser ? 0 : AppConstants.padding * 4, // Less padding on AI side for compactness
+//               child: StreamBuilder<List<ChatMessage>>(
+//                 stream: firebaseService.streamChatMessages(),
+//                 builder: (context, snapshot) {
+//                   if (snapshot.connectionState == ConnectionState.waiting) {
+//                     return const Center(
+//                         child: CircularProgressIndicator(
+//                             valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor)));
+//                   }
+//                   if (snapshot.hasError) {
+//                     return Center(
+//                         child: Text('Error loading chat: ${snapshot.error}',
+//                             style: const TextStyle(color: AppColors.errorColor)));
+//                   }
+//                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
+//                     return Center(
+//                       child: Text(
+//                         'Start a conversation with your AI tutor!',
+//                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textColorSecondary),
+//                         textAlign: TextAlign.center,
 //                       ),
-//                       padding: const EdgeInsets.all(AppConstants.spacing * 1.5),
-//                       decoration: BoxDecoration(
-//                         color: isUser ? AppColors.accentColor.withOpacity(0.9) : AppColors.cardColor.withOpacity(0.9),
-//                         borderRadius: BorderRadius.only(
-//                           topLeft: Radius.circular(AppConstants.borderRadius),
-//                           topRight: Radius.circular(AppConstants.borderRadius),
-//                           bottomLeft: Radius.circular(isUser ? AppConstants.borderRadius : 0),
-//                           bottomRight: Radius.circular(isUser ? 0 : AppConstants.borderRadius),
-//                         ),
-//                       ),
-//                       child: isUser
-//                           ? Text(
-//                               message['text']!,
-//                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-//                                     color: isUser ? AppColors.cardColor : AppColors.textColor,
-//                                     fontSize: AppConstants.mediumTextSize, // Small text size
-//                                   ),
-//                             )
-//                           : MarkdownBody( // Directly use MarkdownBody
-//                               data: message['text']!,
-//                               styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith( // Directly use MarkdownStyleSheet
-//                                 p: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                                 strong: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
-//                                 em: Theme.of(context).textTheme.bodyMedium?.copyWith(fontStyle: FontStyle.italic, color: AppColors.textColorSecondary, fontSize: AppConstants.mediumTextSize),
-//                                 code: TextStyle(
-//                                   backgroundColor: AppColors.primaryColor.withOpacity(0.2),
-//                                   color: AppColors.accentColor,
-//                                   fontFamily: 'monospace',
-//                                   fontSize: AppConstants.smallTextSize,
-//                                 ),
-//                                 codeblockDecoration: BoxDecoration(
-//                                   color: AppColors.primaryColor.withOpacity(0.2),
-//                                   borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
-//                                   border: Border.all(color: AppColors.borderColor, width: 1),
-//                                 ),
-//                                 blockquoteDecoration: BoxDecoration(
-//                                   color: AppColors.cardColor.withOpacity(0.5),
-//                                   border: Border(left: BorderSide(color: AppColors.borderColor, width: 4)),
-//                                   borderRadius: BorderRadius.circular(AppConstants.borderRadius / 2),
+//                     );
+//                   }
+
+//                   final messages = snapshot.data!;
+//                   WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+
+//                   return ListView.builder(
+//                     controller: _scrollController,
+//                     padding: const EdgeInsets.all(AppConstants.padding),
+//                     itemCount: messages.length,
+//                     itemBuilder: (context, index) {
+//                       final message = messages[index];
+//                       final isUser = message.senderId == currentUser.uid;
+
+//                       return Align(
+//                         alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+//                         child: Container(
+//                           margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing / 2),
+//                           padding: const EdgeInsets.all(AppConstants.padding),
+//                           decoration: BoxDecoration(
+//                             color: isUser ? AppColors.primaryColor.withOpacity(0.8) : AppColors.cardColor.withOpacity(0.9),
+//                             borderRadius: BorderRadius.only(
+//                               topLeft: Radius.circular(AppConstants.borderRadius),
+//                               topRight: Radius.circular(AppConstants.borderRadius),
+//                               bottomLeft: isUser ? Radius.circular(AppConstants.borderRadius) : Radius.circular(0),
+//                               bottomRight: isUser ? Radius.circular(0) : Radius.circular(AppConstants.borderRadius),
+//                             ),
+//                           ),
+//                           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+//                           child: Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Text(
+//                                 isUser ? message.senderUsername : message.senderUsername,
+//                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                                       color: AppColors.textColorSecondary,
+//                                       fontWeight: FontWeight.bold,
+//                                     ),
+//                               ),
+//                               const SizedBox(height: AppConstants.spacing / 4),
+//                               Text(
+//                                 message.text,
+//                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColor),
+//                               ),
+//                               const SizedBox(height: AppConstants.spacing / 4),
+//                               Align(
+//                                 alignment: Alignment.bottomRight,
+//                                 child: Text(
+//                                   '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
+//                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                                         color: AppColors.textColorSecondary.withOpacity(0.7),
+//                                         fontSize: 10,
+//                                       ),
 //                                 ),
 //                               ),
-                              
-//                               styleSheetTheme: MarkdownStyleSheetBaseTheme.material, // Directly use MarkdownStyleSheetBaseTheme
-//                             ),
-//                     ),
+//                             ],
+//                           ),
+//                         ),
+//                       );
+//                     },
 //                   );
 //                 },
 //               ),
 //             ),
-//             if (_isLoading)
-//               const Padding(
-//                 padding: EdgeInsets.all(AppConstants.padding),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor), strokeWidth: 2),
-//                     SizedBox(width: AppConstants.spacing),
-//                     Text('AI is typing...', style: TextStyle(color: AppColors.textColorSecondary, fontSize: AppConstants.smallTextSize)),
-//                   ],
-//                 ),
-//               ),
 //             Padding(
 //               padding: const EdgeInsets.all(AppConstants.padding),
 //               child: Row(
@@ -7380,12 +6697,12 @@
 //                   Expanded(
 //                     child: TextField(
 //                       controller: _messageController,
-//                       style: const TextStyle(color: AppColors.textColor, fontSize: AppConstants.mediumTextSize),
+//                       style: const TextStyle(color: AppColors.textColor),
 //                       decoration: InputDecoration(
-//                         hintText: 'Ask your AI tutor...',
-//                         hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7), fontSize: AppConstants.mediumTextSize),
+//                         hintText: 'Ask your AI tutor anything...',
+//                         hintStyle: TextStyle(color: AppColors.textColorSecondary.withOpacity(0.7)),
 //                         filled: true,
-//                         fillColor: AppColors.cardColor.withOpacity(0.9),
+//                         fillColor: AppColors.cardColor.withOpacity(0.8),
 //                         border: OutlineInputBorder(
 //                           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
 //                           borderSide: BorderSide.none,
@@ -7396,57 +6713,332 @@
 //                     ),
 //                   ),
 //                   const SizedBox(width: AppConstants.spacing),
-//                   FloatingActionButton(
-//                     onPressed: _isLoading ? null : _sendMessage,
-//                     backgroundColor: AppColors.accentColor,
-//                     foregroundColor: AppColors.cardColor,
-//                     mini: true,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(AppConstants.borderRadius), // Apply rounded corners
-//                     ),
-//                     child: _isLoading
-//                         ? const SizedBox(
-//                             width: AppConstants.iconSize * 0.8,
-//                             height: AppConstants.iconSize * 0.8,
-//                             child: CircularProgressIndicator(
-//                               strokeWidth: 2,
-//                               valueColor: AlwaysStoppedAnimation<Color>(AppColors.cardColor),
-//                             ),
-//                           )
-//                         : const Icon(Icons.send),
-//                   ),
+//                   _isSendingMessage
+//                       ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor))
+//                       : FloatingActionButton(
+//                           onPressed: _sendMessage,
+//                           backgroundColor: AppColors.accentColor,
+//                           foregroundColor: AppColors.cardColor,
+//                           mini: true,
+//                           child: const Icon(Icons.send),
+//                         ),
 //                 ],
 //               ),
 //             ),
 //           ],
 //         ),
 //       ),
-//       bottomNavigationBar: BottomNavBar(
-//         selectedIndex: _selectedIndex,
-//         onItemTapped: (index) {
-//           setState(() {
-//             _selectedIndex = index;
-//           });
-//           switch (index) {
-//             case 0:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
-//               break;
-//             case 1:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.courseCreationRoute);
-//               break;
-//             case 2:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.progressRoute);
-//               break;
-//             case 3:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.profileRoute);
-//               break;
-//             case 4:
-//               Navigator.of(context).pushReplacementNamed(AppRouter.communityRoute);
-//               break;
-//             case 5:
-//               break;
-//           }
-//         },
+//     );
+//   }
+// }
+// // lib/screens/avatar_customizer_screen.dart
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/services/firebase_service.dart';
+// import 'package:gamifier/models/user_profile.dart';
+// import 'package:gamifier/widgets/common/custom_app_bar.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
+// import 'package:gamifier/widgets/gamification/avatar_customizer.dart';
+
+// class AvatarCustomizerScreen extends StatefulWidget {
+//   const AvatarCustomizerScreen({super.key});
+
+//   @override
+//   State<AvatarCustomizerScreen> createState() => _AvatarCustomizerScreenState();
+// }
+
+// class _AvatarCustomizerScreenState extends State<AvatarCustomizerScreen> {
+//   String? _selectedAvatarPath;
+//   UserProfile? _userProfile;
+//   bool _isLoading = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadUserProfile();
+//   }
+
+//   Future<void> _loadUserProfile() async {
+//     setState(() {
+//       _isLoading = true;
+//     });
+//     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//     final currentUser = firebaseService.currentUser;
+//     if (currentUser != null) {
+//       _userProfile = await firebaseService.getUserProfile(currentUser.uid);
+//       _selectedAvatarPath = _userProfile?.avatarAssetPath;
+//     }
+//     setState(() {
+//       _isLoading = false;
+//     });
+//   }
+
+//   void _showSnackBar(String message, {bool isError = false}) {
+//     if (!mounted) return;
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Text(message),
+//         backgroundColor: isError ? AppColors.errorColor : AppColors.successColor,
+//         duration: const Duration(seconds: 3),
+//       ),
+//     );
+//   }
+
+//   Future<void> _saveAvatar() async {
+//     if (_userProfile == null || _selectedAvatarPath == null) {
+//       _showSnackBar('No avatar selected or user not logged in.', isError: true);
+//       return;
+//     }
+
+//     setState(() {
+//       _isLoading = true;
+//     });
+
+//     try {
+//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//       await firebaseService.updateUserProfile(
+//         _userProfile!.uid,
+//         {'avatarAssetPath': _selectedAvatarPath},
+//       );
+//       _showSnackBar('Avatar updated successfully!');
+//       Navigator.of(context).pop();
+//     } catch (e) {
+//       _showSnackBar('Failed to save avatar: $e', isError: true);
+//     } finally {
+//       setState(() {
+//         _isLoading = false;
+//       });
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     if (_isLoading || _userProfile == null || _selectedAvatarPath == null) {
+//       return const Scaffold(
+//         body: Center(
+//           child: CircularProgressIndicator(
+//             valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentColor),
+//           ),
+//         ),
+//       );
+//     }
+
+//     return Scaffold(
+//       appBar: CustomAppBar(
+//         title: 'Customize Avatar',
+//         leadingWidget: IconButton(
+//           icon: const Icon(Icons.arrow_back, color: AppColors.textColor),
+//           onPressed: () => Navigator.of(context).pop(),
+//         ),
+//       ),
+//       body: Container(
+//         decoration: BoxDecoration(
+//           gradient: AppColors.backgroundGradient(),
+//         ),
+//         child: SingleChildScrollView(
+//           padding: const EdgeInsets.all(AppConstants.padding * 2),
+//           child: Column(
+//             children: [
+//               AvatarCustomizer(
+//                 currentAvatarPath: _selectedAvatarPath!,
+//                 availableAvatars: AppConstants.defaultAvatarAssets,
+//                 onAvatarSelected: (path) {
+//                   setState(() {
+//                     _selectedAvatarPath = path;
+//                   });
+//                 },
+//               ),
+//               const SizedBox(height: AppConstants.padding * 2),
+//               CustomButton(
+//                 text: 'Save Avatar',
+//                 onPressed: _saveAvatar,
+//                 isLoading: _isLoading,
+//                 backgroundColor: AppColors.accentColor,
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+// // lib/screens/auth_screen.dart
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/services/firebase_service.dart';
+// import 'package:gamifier/utils/app_router.dart';
+// import 'package:gamifier/utils/validation_utils.dart';
+// import 'package:gamifier/widgets/common/custom_button.dart';
+// import 'package:gamifier/widgets/common/custom_text_field.dart';
+
+// class AuthScreen extends StatefulWidget {
+//   const AuthScreen({super.key});
+
+//   @override
+//   State<AuthScreen> createState() => _AuthScreenState();
+// }
+
+// class _AuthScreenState extends State<AuthScreen> {
+//   final _formKey = GlobalKey<FormState>();
+//   final TextEditingController _emailController = TextEditingController();
+//   final TextEditingController _passwordController = TextEditingController();
+//   final TextEditingController _usernameController = TextEditingController();
+//   bool _isLogin = true;
+//   bool _isLoading = false;
+//   bool _obscurePassword = true;
+
+//   @override
+//   void dispose() {
+//     _emailController.dispose();
+//     _passwordController.dispose();
+//     _usernameController.dispose();
+//     super.dispose();
+//   }
+
+//   void _showSnackBar(String message, {bool isError = false}) {
+//     if (!mounted) return;
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Text(message),
+//         backgroundColor: isError ? AppColors.errorColor : AppColors.successColor,
+//         duration: const Duration(seconds: 3),
+//       ),
+//     );
+//   }
+
+//   Future<void> _submitForm() async {
+//     if (!_formKey.currentState!.validate()) {
+//       return;
+//     }
+
+//     setState(() {
+//       _isLoading = true;
+//     });
+
+//     try {
+//       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+//       if (_isLogin) {
+//         await firebaseService.signInWithEmailAndPassword(
+//           _emailController.text,
+//           _passwordController.text,
+//         );
+//         _showSnackBar('Login successful!');
+//         Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
+//       } else {
+//         await firebaseService.registerWithEmailAndPassword(
+//           _emailController.text,
+//           _passwordController.text,
+//           _usernameController.text,
+//         );
+//         _showSnackBar('Registration successful! Please complete your profile.');
+//         Navigator.of(context).pushReplacementNamed(AppRouter.onboardingRoute);
+//       }
+//     } on Exception catch (e) {
+//       _showSnackBar('Authentication failed: ${e.toString().replaceAll('Exception: ', '')}', isError: true);
+//     } finally {
+//       setState(() {
+//         _isLoading = false;
+//       });
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Container(
+//         decoration: BoxDecoration(
+//           gradient: AppColors.backgroundGradient(),
+//         ),
+//         child: Center(
+//           child: SingleChildScrollView(
+//             padding: const EdgeInsets.all(AppConstants.padding * 2),
+//             child: Form(
+//               key: _formKey,
+//               child: Column(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   Icon(
+//                     Icons.games,
+//                     size: 80,
+//                     color: AppColors.accentColor,
+//                   ),
+//                   const SizedBox(height: AppConstants.padding),
+//                   Text(
+//                     _isLogin ? 'Welcome Back!' : 'Join Gamifier',
+//                     style: AppColors.neonTextStyle(fontSize: 32),
+//                   ),
+//                   Text(
+//                     _isLogin ? 'Sign in to continue your journey' : 'Create an account to start playing',
+//                     style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColorSecondary),
+//                   ),
+//                   const SizedBox(height: AppConstants.padding * 2),
+//                   CustomTextField(
+//                     controller: _emailController,
+//                     labelText: 'Email',
+//                     hintText: 'your@email.com',
+//                     keyboardType: TextInputType.emailAddress,
+//                     validator: ValidationUtils.validateEmail,
+//                   ),
+//                   const SizedBox(height: AppConstants.padding),
+//                   if (!_isLogin)
+//                     CustomTextField(
+//                       controller: _usernameController,
+//                       labelText: 'Username',
+//                       hintText: 'Choose a unique username',
+//                       validator: ValidationUtils.validateUsername,
+//                     ),
+//                   if (!_isLogin) const SizedBox(height: AppConstants.padding),
+//                   CustomTextField(
+//                     controller: _passwordController,
+//                     labelText: 'Password',
+//                     hintText: 'Enter your password',
+//                     obscureText: _obscurePassword,
+//                     suffixIcon: IconButton(
+//                       icon: Icon(
+//                         _obscurePassword ? Icons.visibility_off : Icons.visibility,
+//                         color: AppColors.textColorSecondary,
+//                       ),
+//                       onPressed: () {
+//                         setState(() {
+//                           _obscurePassword = !_obscurePassword;
+//                         });
+//                       },
+//                     ),
+//                     validator: ValidationUtils.validatePassword,
+//                   ),
+//                   const SizedBox(height: AppConstants.padding * 1.5),
+//                   CustomButton(
+//                     text: _isLogin ? 'Sign In' : 'Register',
+//                     onPressed: _submitForm,
+//                     isLoading: _isLoading,
+//                   ),
+//                   const SizedBox(height: AppConstants.padding),
+//                   TextButton(
+//                     onPressed: () {
+//                       setState(() {
+//                         _isLogin = !_isLogin;
+//                       });
+//                       _formKey.currentState?.reset();
+//                       _emailController.clear();
+//                       _passwordController.clear();
+//                       _usernameController.clear();
+//                     },
+//                     child: Text(
+//                       _isLogin
+//                           ? 'Don\'t have an account? Register Now'
+//                           : 'Already have an account? Sign In',
+//                       style: const TextStyle(color: AppColors.accentColor),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
 //       ),
 //     );
 //   }
@@ -7456,96 +7048,24 @@
 // import 'package:flutter/foundation.dart';
 
 // @immutable
-// class LessonProgress {
-//   final String lessonId;
-//   final List<String> completedQuestions; // IDs of questions answered correctly
-//   final Map<String, int> attempts; // <QuestionId, numAttempts>
-//   bool isCompleted; // Whether all questions in this lesson are completed
-
-//   LessonProgress({
-//     required this.lessonId,
-//     this.completedQuestions = const [],
-//     Map<String, int>? attempts,
-//     this.isCompleted = false,
-//   }) : attempts = attempts ?? {};
-
-//   factory LessonProgress.fromMap(Map<String, dynamic> map) {
-//     return LessonProgress(
-//       lessonId: map['lessonId'] as String,
-//       completedQuestions: List<String>.from(map['completedQuestions'] ?? []),
-//       attempts: Map<String, int>.from(
-//           (map['attempts'] as Map<String, dynamic>?)?.map((key, value) => MapEntry(key, value as int)) ?? {}),
-//       isCompleted: map['isCompleted'] as bool? ?? false,
-//     );
-//   }
-
-//   Map<String, dynamic> toMap() {
-//     return {
-//       'lessonId': lessonId,
-//       'completedQuestions': completedQuestions,
-//       'attempts': attempts,
-//       'isCompleted': isCompleted,
-//     };
-//   }
-
-//   LessonProgress copyWith({
-//     String? lessonId,
-//     List<String>? completedQuestions,
-//     Map<String, int>? attempts,
-//     bool? isCompleted,
-//   }) {
-//     return LessonProgress(
-//       lessonId: lessonId ?? this.lessonId,
-//       completedQuestions: completedQuestions ?? this.completedQuestions,
-//       attempts: attempts ?? this.attempts,
-//       isCompleted: isCompleted ?? this.isCompleted,
-//     );
-//   }
-
-//   @override
-//   String toString() {
-//     return 'LessonProgress(lessonId: $lessonId, completedQuestions: $completedQuestions, attempts: $attempts, isCompleted: $isCompleted)';
-//   }
-
-//   @override
-//   bool operator ==(Object other) =>
-//       identical(this, other) ||
-//       other is LessonProgress &&
-//           runtimeType == other.runtimeType &&
-//           lessonId == other.lessonId &&
-//           listEquals(completedQuestions, other.completedQuestions) &&
-//           mapEquals(attempts, other.attempts) &&
-//           isCompleted == other.isCompleted;
-
-//   @override
-//   int get hashCode =>
-//       lessonId.hashCode ^
-//       listEquals(completedQuestions, completedQuestions).hashCode ^
-//       mapEquals(attempts, attempts).hashCode ^
-//       isCompleted.hashCode;
-// }
-
-// @immutable
 // class UserProgress {
 //   final String id; // userId_courseId
 //   final String userId;
 //   final String courseId;
-//   String? currentLevelId; // The ID of the current level the user is on
-//   String? currentLessonId; // The ID of the current lesson the user is on
-//   final List<String> levelsCompleted; // IDs of levels completed in this course
-//   final Map<String, LessonProgress> lessonsProgress; // <LessonId, LessonProgress>
-//   final int totalXpEarned; // New: Total XP earned specifically for this course
+//   final String? currentLevelId;
+//   final String? currentLessonId;
+//   final Map<String, LevelProgress> levelsProgress; // Map<levelId, LevelProgress>
+//   final Map<String, LessonProgress> lessonsProgress; // Map<lessonId, LessonProgress>
 
-//   UserProgress({
+//   const UserProgress({
 //     required this.id,
 //     required this.userId,
 //     required this.courseId,
 //     this.currentLevelId,
 //     this.currentLessonId,
-//     this.levelsCompleted = const [],
-//     Map<String, LessonProgress>? lessonsProgress,
-//     this.totalXpEarned = 0, // Initialize totalXpEarned
-//   }) : lessonsProgress = lessonsProgress ?? const {};
+//     this.levelsProgress = const {},
+//     this.lessonsProgress = const {},
+//   });
 
 //   factory UserProgress.fromMap(Map<String, dynamic> map) {
 //     return UserProgress(
@@ -7554,11 +7074,12 @@
 //       courseId: map['courseId'] as String,
 //       currentLevelId: map['currentLevelId'] as String?,
 //       currentLessonId: map['currentLessonId'] as String?,
-//       levelsCompleted: List<String>.from(map['levelsCompleted'] ?? []),
+//       levelsProgress: (map['levelsProgress'] as Map<String, dynamic>?)
+//               ?.map((key, value) => MapEntry(key, LevelProgress.fromMap(value as Map<String, dynamic>))) ??
+//           {},
 //       lessonsProgress: (map['lessonsProgress'] as Map<String, dynamic>?)
 //               ?.map((key, value) => MapEntry(key, LessonProgress.fromMap(value as Map<String, dynamic>))) ??
 //           {},
-//       totalXpEarned: map['totalXpEarned'] as int? ?? 0, // Read from map
 //     );
 //   }
 
@@ -7569,9 +7090,8 @@
 //       'courseId': courseId,
 //       'currentLevelId': currentLevelId,
 //       'currentLessonId': currentLessonId,
-//       'levelsCompleted': levelsCompleted,
+//       'levelsProgress': levelsProgress.map((key, value) => MapEntry(key, value.toMap())),
 //       'lessonsProgress': lessonsProgress.map((key, value) => MapEntry(key, value.toMap())),
-//       'totalXpEarned': totalXpEarned, // Write to map
 //     };
 //   }
 
@@ -7581,9 +7101,8 @@
 //     String? courseId,
 //     String? currentLevelId,
 //     String? currentLessonId,
-//     List<String>? levelsCompleted,
+//     Map<String, LevelProgress>? levelsProgress,
 //     Map<String, LessonProgress>? lessonsProgress,
-//     int? totalXpEarned, // Add to copyWith
 //   }) {
 //     return UserProgress(
 //       id: id ?? this.id,
@@ -7591,15 +7110,14 @@
 //       courseId: courseId ?? this.courseId,
 //       currentLevelId: currentLevelId ?? this.currentLevelId,
 //       currentLessonId: currentLessonId ?? this.currentLessonId,
-//       levelsCompleted: levelsCompleted ?? this.levelsCompleted,
+//       levelsProgress: levelsProgress ?? this.levelsProgress,
 //       lessonsProgress: lessonsProgress ?? this.lessonsProgress,
-//       totalXpEarned: totalXpEarned ?? this.totalXpEarned, // Assign in copyWith
 //     );
 //   }
 
 //   @override
 //   String toString() {
-//     return 'UserProgress(id: $id, userId: $userId, courseId: $courseId, currentLevelId: $currentLevelId, currentLessonId: $currentLessonId, levelsCompleted: $levelsCompleted, lessonsProgress: $lessonsProgress, totalXpEarned: $totalXpEarned)';
+//     return 'UserProgress(id: $id, userId: $userId, courseId: $courseId, currentLevelId: $currentLevelId, currentLessonId: $currentLessonId, levelsProgress: $levelsProgress, lessonsProgress: $lessonsProgress)';
 //   }
 
 //   @override
@@ -7612,246 +7130,383 @@
 //           courseId == other.courseId &&
 //           currentLevelId == other.currentLevelId &&
 //           currentLessonId == other.currentLessonId &&
-//           listEquals(levelsCompleted, other.levelsCompleted) &&
-//           mapEquals(lessonsProgress, other.lessonsProgress) &&
-//           totalXpEarned == other.totalXpEarned;
+//           mapEquals(levelsProgress, other.levelsProgress) &&
+//           mapEquals(lessonsProgress, other.lessonsProgress);
 
 //   @override
 //   int get hashCode =>
 //       id.hashCode ^
 //       userId.hashCode ^
 //       courseId.hashCode ^
-//       (currentLevelId?.hashCode ?? 0) ^
-//       (currentLessonId?.hashCode ?? 0) ^
-//       listEquals(levelsCompleted, levelsCompleted).hashCode ^
-//       mapEquals(lessonsProgress, lessonsProgress).hashCode ^
-//       totalXpEarned.hashCode;
+//       currentLevelId.hashCode ^
+//       currentLessonId.hashCode ^
+//       mapEquals(levelsProgress, levelsProgress).hashCode ^
+//       mapEquals(lessonsProgress, lessonsProgress).hashCode;
 // }
-// // lib/models/user_profile.dart
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/foundation.dart';
-// import 'package:gamifier/constants/app_constants.dart';
-// import 'package:gamifier/models/avatar_asset.dart';
 
 // @immutable
-// class UserProfile {
-//   final String uid;
-//   final String username;
-//   final int xp;
-//   final int level;
-//   final String avatarAssetPath;
-//   final List<String> earnedBadges;
-//   final DateTime createdAt;
-//   final String? educationLevel;
-//   final String? specialty;
-//   final List<String> friends; // New: List of friend UIDs
-//   final int currentStreak; // New: Number of consecutive days logged in/lesson completed
-//   final DateTime? lastStreakUpdate; // New: Last time streak was updated
+// class LevelProgress {
+//   final bool isCompleted;
+//   final int xpEarned;
+//   final int score;
+//   final DateTime? completedAt;
 
-//   UserProfile({
-//     required this.uid,
-//     required this.username,
-//     this.xp = AppConstants.initialXp,
-//     this.level = 1,
-//     String? avatarAssetPath,
-//     this.earnedBadges = const [],
-//     required this.createdAt,
-//     this.educationLevel,
-//     this.specialty,
-//     this.friends = const [],
-//     this.currentStreak = AppConstants.initialStreak, // Initialize with new constant
-//     this.lastStreakUpdate,
-//   }) : this.avatarAssetPath = avatarAssetPath ??
-//             (AppConstants.defaultAvatarAssets.isNotEmpty
-//                 ? AppConstants.defaultAvatarAssets.first.assetPath
-//                 : 'assets/avatars/default.png');
+//   const LevelProgress({
+//     this.isCompleted = false,
+//     this.xpEarned = 0,
+//     this.score = 0,
+//     this.completedAt,
+//   });
 
-//   factory UserProfile.fromMap(Map<String, dynamic> map) {
-//     return UserProfile(
-//       uid: map['uid'] as String,
-//       username: map['username'] as String,
-//       xp: (map['xp'] ?? AppConstants.initialXp) as int,
-//       level: (map['level'] ?? 1) as int,
-//       avatarAssetPath: (map['avatarAssetPath'] ??
-//           (AppConstants.defaultAvatarAssets.isNotEmpty
-//               ? AppConstants.defaultAvatarAssets.first.assetPath
-//               : 'assets/avatars/default.png')) as String,
-//       earnedBadges: List<String>.from(map['earnedBadges'] ?? []),
-//       createdAt: (map['createdAt'] as Timestamp).toDate(),
-//       educationLevel: map['educationLevel'] as String?,
-//       specialty: map['specialty'] as String?,
-//       friends: List<String>.from(map['friends'] ?? []),
-//       currentStreak: (map['currentStreak'] ?? AppConstants.initialStreak) as int,
-//       lastStreakUpdate: (map['lastStreakUpdate'] as Timestamp?)?.toDate(),
+//   factory LevelProgress.fromMap(Map<String, dynamic> map) {
+//     return LevelProgress(
+//       isCompleted: map['isCompleted'] as bool,
+//       xpEarned: map['xpEarned'] as int,
+//       score: map['score'] as int,
+//       completedAt: map['completedAt'] != null ? (map['completedAt'] as Timestamp).toDate() : null,
 //     );
 //   }
 
 //   Map<String, dynamic> toMap() {
 //     return {
-//       'uid': uid,
-//       'username': username,
-//       'xp': xp,
-//       'level': level,
-//       'avatarAssetPath': avatarAssetPath,
-//       'earnedBadges': earnedBadges,
-//       'createdAt': Timestamp.fromDate(createdAt),
-//       'educationLevel': educationLevel,
-//       'specialty': specialty,
-//       'friends': friends,
-//       'currentStreak': currentStreak,
-//       'lastStreakUpdate': lastStreakUpdate != null ? Timestamp.fromDate(lastStreakUpdate!) : null,
+//       'isCompleted': isCompleted,
+//       'xpEarned': xpEarned,
+//       'score': score,
+//       'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
 //     };
 //   }
 
-//   UserProfile copyWith({
-//     String? uid,
-//     String? username,
-//     int? xp,
-//     int? level,
-//     String? avatarAssetPath,
-//     List<String>? earnedBadges,
-//     DateTime? createdAt,
-//     String? educationLevel,
-//     String? specialty,
-//     List<String>? friends,
-//     int? currentStreak,
-//     DateTime? lastStreakUpdate,
+//   LevelProgress copyWith({
+//     bool? isCompleted,
+//     int? xpEarned,
+//     int? score,
+//     DateTime? completedAt,
 //   }) {
-//     return UserProfile(
-//       uid: uid ?? this.uid,
-//       username: username ?? this.username,
-//       xp: xp ?? this.xp,
-//       level: level ?? this.level,
-//       avatarAssetPath: avatarAssetPath ?? this.avatarAssetPath,
-//       earnedBadges: earnedBadges ?? this.earnedBadges,
-//       createdAt: createdAt ?? this.createdAt,
-//       educationLevel: educationLevel ?? this.educationLevel,
-//       specialty: specialty ?? this.specialty,
-//       friends: friends ?? this.friends,
-//       currentStreak: currentStreak ?? this.currentStreak,
-//       lastStreakUpdate: lastStreakUpdate ?? this.lastStreakUpdate,
+//     return LevelProgress(
+//       isCompleted: isCompleted ?? this.isCompleted,
+//       xpEarned: xpEarned ?? this.xpEarned,
+//       score: score ?? this.score,
+//       completedAt: completedAt ?? this.completedAt,
 //     );
 //   }
 
 //   @override
 //   String toString() {
-//     return 'UserProfile(uid: $uid, username: $username, xp: $xp, level: $level, avatarAssetPath: $avatarAssetPath, earnedBadges: $earnedBadges, createdAt: $createdAt, educationLevel: $educationLevel, specialty: $specialty, friends: $friends, currentStreak: $currentStreak, lastStreakUpdate: $lastStreakUpdate)';
+//     return 'LevelProgress(isCompleted: $isCompleted, xpEarned: $xpEarned, score: $score, completedAt: $completedAt)';
 //   }
 
 //   @override
 //   bool operator ==(Object other) =>
 //       identical(this, other) ||
-//       other is UserProfile &&
+//       other is LevelProgress &&
 //           runtimeType == other.runtimeType &&
-//           uid == other.uid &&
-//           username == other.username &&
-//           xp == other.xp &&
-//           level == other.level &&
-//           avatarAssetPath == other.avatarAssetPath &&
-//           listEquals(earnedBadges, other.earnedBadges) &&
-//           createdAt == other.createdAt &&
-//           educationLevel == other.educationLevel &&
-//           specialty == other.specialty &&
-//           listEquals(friends, other.friends) &&
-//           currentStreak == other.currentStreak &&
-//           lastStreakUpdate == other.lastStreakUpdate;
+//           isCompleted == other.isCompleted &&
+//           xpEarned == other.xpEarned &&
+//           score == other.score &&
+//           completedAt == other.completedAt;
 
 //   @override
 //   int get hashCode =>
-//       uid.hashCode ^
-//       username.hashCode ^
-//       xp.hashCode ^
-//       level.hashCode ^
-//       avatarAssetPath.hashCode ^
-//       listEquals(earnedBadges, earnedBadges).hashCode ^
-//       createdAt.hashCode ^
-//       educationLevel.hashCode ^
-//       specialty.hashCode ^
-//       listEquals(friends, friends).hashCode ^
-//       currentStreak.hashCode ^
-//       lastStreakUpdate.hashCode;
-// }
-// // lib/models/question.dart
-// import 'package:flutter/foundation.dart';
-
-// enum QuestionType {
-//   mcq,
-//   fillInBlank,
-//   shortAnswer,
-//   scenario,
+//       isCompleted.hashCode ^ xpEarned.hashCode ^ score.hashCode ^ completedAt.hashCode;
 // }
 
 // @immutable
+// class LessonProgress {
+//   final bool isCompleted;
+//   final int xpEarned;
+//   final Map<String, QuestionAttempt> questionAttempts; // Map<questionId, QuestionAttempt>
+//   final DateTime? completedAt;
+
+//   const LessonProgress({
+//     this.isCompleted = false,
+//     this.xpEarned = 0,
+//     this.questionAttempts = const {},
+//     this.completedAt,
+//   });
+
+//   factory LessonProgress.fromMap(Map<String, dynamic> map) {
+//     return LessonProgress(
+//       isCompleted: map['isCompleted'] as bool,
+//       xpEarned: map['xpEarned'] as int,
+//       questionAttempts: (map['questionAttempts'] as Map<String, dynamic>?)
+//               ?.map((key, value) => MapEntry(key, QuestionAttempt.fromMap(value as Map<String, dynamic>))) ??
+//           {},
+//       completedAt: map['completedAt'] != null ? (map['completedAt'] as Timestamp).toDate() : null,
+//     );
+//   }
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'isCompleted': isCompleted,
+//       'xpEarned': xpEarned,
+//       'questionAttempts': questionAttempts.map((key, value) => MapEntry(key, value.toMap())),
+//       'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
+//     };
+//   }
+
+//   LessonProgress copyWith({
+//     bool? isCompleted,
+//     int? xpEarned,
+//     Map<String, QuestionAttempt>? questionAttempts,
+//     DateTime? completedAt,
+//   }) {
+//     return LessonProgress(
+//       isCompleted: isCompleted ?? this.isCompleted,
+//       xpEarned: xpEarned ?? this.xpEarned,
+//       questionAttempts: questionAttempts ?? this.questionAttempts,
+//       completedAt: completedAt ?? this.completedAt,
+//     );
+//   }
+
+//   @override
+//   String toString() {
+//     return 'LessonProgress(isCompleted: $isCompleted, xpEarned: $xpEarned, questionAttempts: $questionAttempts, completedAt: $completedAt)';
+//   }
+
+//   @override
+//   bool operator ==(Object other) =>
+//       identical(this, other) ||
+//       other is LessonProgress &&
+//           runtimeType == other.runtimeType &&
+//           isCompleted == other.isCompleted &&
+//           xpEarned == other.xpEarned &&
+//           mapEquals(questionAttempts, other.questionAttempts) &&
+//           completedAt == other.completedAt;
+
+//   @override
+//   int get hashCode =>
+//       isCompleted.hashCode ^ xpEarned.hashCode ^ mapEquals(questionAttempts, questionAttempts).hashCode ^ completedAt.hashCode;
+// }
+
+// @immutable
+// class QuestionAttempt {
+//   final String userAnswer;
+//   final bool isCorrect;
+//   final DateTime attemptedAt;
+//   final int xpAwarded;
+
+//   const QuestionAttempt({
+//     required this.userAnswer,
+//     required this.isCorrect,
+//     required this.attemptedAt,
+//     this.xpAwarded = 0,
+//   });
+
+//   factory QuestionAttempt.fromMap(Map<String, dynamic> map) {
+//     return QuestionAttempt(
+//       userAnswer: map['userAnswer'] as String,
+//       isCorrect: map['isCorrect'] as bool,
+//       attemptedAt: (map['attemptedAt'] as Timestamp).toDate(),
+//       xpAwarded: map['xpAwarded'] as int,
+//     );
+//   }
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'userAnswer': userAnswer,
+//       'isCorrect': isCorrect,
+//       'attemptedAt': Timestamp.fromDate(attemptedAt),
+//       'xpAwarded': xpAwarded,
+//     };
+//   }
+
+//   QuestionAttempt copyWith({
+//     String? userAnswer,
+//     bool? isCorrect,
+//     DateTime? attemptedAt,
+//     int? xpAwarded,
+//   }) {
+//     return QuestionAttempt(
+//       userAnswer: userAnswer ?? this.userAnswer,
+//       isCorrect: isCorrect ?? this.isCorrect,
+//       attemptedAt: attemptedAt ?? this.attemptedAt,
+//       xpAwarded: xpAwarded ?? this.xpAwarded,
+//     );
+//   }
+
+//   @override
+//   String toString() {
+//     return 'QuestionAttempt(userAnswer: $userAnswer, isCorrect: $isCorrect, attemptedAt: $attemptedAt, xpAwarded: $xpAwarded)';
+//   }
+
+//   @override
+//   bool operator ==(Object other) =>
+//       identical(this, other) ||
+//       other is QuestionAttempt &&
+//           runtimeType == other.runtimeType &&
+//           userAnswer == other.userAnswer &&
+//           isCorrect == other.isCorrect &&
+//           attemptedAt == other.attemptedAt &&
+//           xpAwarded == other.xpAwarded;
+
+//   @override
+//   int get hashCode =>
+//       userAnswer.hashCode ^ isCorrect.hashCode ^ attemptedAt.hashCode ^ xpAwarded.hashCode;
+// }
+// // lib/models/user_profile.dart
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:gamifier/constants/app_constants.dart'; // Import AppConstants
+
+// class UserProfile {
+//   final String uid;
+//   final String username;
+//   final String email;
+//   final String avatarAssetPath;
+//   final int xp;
+//   final int level;
+//   final int currentStreak;
+//   final DateTime lastLoginDate;
+//   final DateTime createdAt;
+//   final String? educationLevel;
+//   final String? specialty;
+//   final List<String> earnedBadges;
+//   final List<String> friends; // Added for social features
+
+//   UserProfile({
+//     required this.uid,
+//     required this.username,
+//     this.email = '', // Default empty string
+//     this.avatarAssetPath = 'assets/avatars/avatar1.png',
+//     this.xp = AppConstants.initialXp, // Use constant for initial XP
+//     this.level = 1,
+//     this.currentStreak = 0,
+//     required this.lastLoginDate,
+//     required this.createdAt,
+//     this.educationLevel,
+//     this.specialty,
+//     this.earnedBadges = const [],
+//     this.friends = const [],
+//   });
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'uid': uid,
+//       'username': username,
+//       'email': email,
+//       'avatarAssetPath': avatarAssetPath,
+//       'xp': xp,
+//       'level': level,
+//       'currentStreak': currentStreak,
+//       'lastLoginDate': Timestamp.fromDate(lastLoginDate),
+//       'createdAt': Timestamp.fromDate(createdAt),
+//       'educationLevel': educationLevel,
+//       'specialty': specialty,
+//       'earnedBadges': earnedBadges,
+//       'friends': friends,
+//     };
+//   }
+
+//   factory UserProfile.fromMap(Map<String, dynamic> map) {
+//     return UserProfile(
+//       uid: map['uid'] as String,
+//       username: map['username'] as String,
+//       email: map['email'] as String? ?? '',
+//       avatarAssetPath: map['avatarAssetPath'] as String? ?? 'assets/avatars/avatar1.png',
+//       xp: map['xp'] as int? ?? AppConstants.initialXp, // Use constant for initial XP
+//       level: map['level'] as int? ?? 1,
+//       currentStreak: map['currentStreak'] as int? ?? 0,
+//       lastLoginDate: (map['lastLoginDate'] as Timestamp).toDate(),
+//       createdAt: (map['createdAt'] as Timestamp).toDate(),
+//       educationLevel: map['educationLevel'] as String?,
+//       specialty: map['specialty'] as String?,
+//       earnedBadges: List<String>.from(map['earnedBadges'] as List? ?? []),
+//       friends: List<String>.from(map['friends'] as List? ?? []),
+//     );
+//   }
+
+//   UserProfile copyWith({
+//     String? uid,
+//     String? username,
+//     String? email,
+//     String? avatarAssetPath,
+//     int? xp,
+//     int? level,
+//     int? currentStreak,
+//     DateTime? lastLoginDate,
+//     DateTime? createdAt,
+//     String? educationLevel,
+//     String? specialty,
+//     List<String>? earnedBadges,
+//     List<String>? friends,
+//   }) {
+//     return UserProfile(
+//       uid: uid ?? this.uid,
+//       username: username ?? this.username,
+//       email: email ?? this.email,
+//       avatarAssetPath: avatarAssetPath ?? this.avatarAssetPath,
+//       xp: xp ?? this.xp,
+//       level: level ?? this.level,
+//       currentStreak: currentStreak ?? this.currentStreak,
+//       lastLoginDate: lastLoginDate ?? this.lastLoginDate,
+//       createdAt: createdAt ?? this.createdAt,
+//       educationLevel: educationLevel ?? this.educationLevel,
+//       specialty: specialty ?? this.specialty,
+//       earnedBadges: earnedBadges ?? this.earnedBadges,
+//       friends: friends ?? this.friends,
+//     );
+//   }
+// }
+// // lib/models/question.dart
 // class Question {
 //   final String id;
 //   final String questionText;
+//   final String type; // e.g., 'MCQ', 'FillInBlank', 'ShortAnswer', 'Scenario'
 //   final int xpReward;
-//   final QuestionType type;
-//   final List<String> options; // For MCQ
-//   final dynamic correctAnswer; // For MCQ and FillInBlank, can be String or other types
-//   final String? expectedAnswerKeywords; // For ShortAnswer, comma-separated
+
+//   // Specific fields for different question types (optional)
+//   final List<String>? options; // For MCQ
+//   final String? correctAnswer; // For MCQ, FillInBlank
+//   final String? expectedAnswerKeywords; // For ShortAnswer (comma-separated)
 //   final String? scenarioText; // For Scenario
 //   final String? expectedOutcome; // For Scenario
 
-//   const Question({
+//   Question({
 //     required this.id,
 //     required this.questionText,
-//     required this.xpReward,
 //     required this.type,
-//     this.options = const [],
+//     required this.xpReward,
+//     this.options,
 //     this.correctAnswer,
 //     this.expectedAnswerKeywords,
 //     this.scenarioText,
 //     this.expectedOutcome,
 //   });
 
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'id': id,
+//       'questionText': questionText,
+//       'type': type,
+//       'xpReward': xpReward,
+//       if (options != null) 'options': options,
+//       if (correctAnswer != null) 'correctAnswer': correctAnswer,
+//       if (expectedAnswerKeywords != null) 'expectedAnswerKeywords': expectedAnswerKeywords,
+//       if (scenarioText != null) 'scenarioText': scenarioText,
+//       if (expectedOutcome != null) 'expectedOutcome': expectedOutcome,
+//     };
+//   }
+
 //   factory Question.fromMap(Map<String, dynamic> map) {
 //     return Question(
 //       id: map['id'] as String,
 //       questionText: map['questionText'] as String,
+//       type: map['type'] as String,
 //       xpReward: map['xpReward'] as int,
-//       type: QuestionType.values.firstWhere(
-//             (e) => e.toString().split('.').last == map['type'],
-//         orElse: () => QuestionType.shortAnswer, // Default or handle error
-//       ),
-//       options: List<String>.from(map['options'] ?? []),
-//       correctAnswer: map['correctAnswer'], // Assign directly, it's dynamic
+//       options: (map['options'] as List?)?.map((e) => e as String).toList(),
+//       correctAnswer: map['correctAnswer'] as String?,
 //       expectedAnswerKeywords: map['expectedAnswerKeywords'] as String?,
 //       scenarioText: map['scenarioText'] as String?,
 //       expectedOutcome: map['expectedOutcome'] as String?,
 //     );
 //   }
 
-//   Map<String, dynamic> toMap() {
-//     final map = <String, dynamic>{ // Explicitly type the map as <String, dynamic>
-//       'id': id,
-//       'questionText': questionText,
-//       'xpReward': xpReward,
-//       'type': type.toString().split('.').last, // Convert enum to string
-//     };
-
-//     // Add type-specific fields
-//     if (type == QuestionType.mcq) {
-//       map['options'] = options;
-//       map['correctAnswer'] = correctAnswer;
-//     } else if (type == QuestionType.fillInBlank) {
-//       map['correctAnswer'] = correctAnswer;
-//     } else if (type == QuestionType.shortAnswer) {
-//       map['expectedAnswerKeywords'] = expectedAnswerKeywords;
-//     } else if (type == QuestionType.scenario) {
-//       map['scenarioText'] = scenarioText;
-//       map['expectedOutcome'] = expectedOutcome;
-//     }
-//     return map;
-//   }
-
 //   Question copyWith({
 //     String? id,
 //     String? questionText,
+//     String? type,
 //     int? xpReward,
-//     QuestionType? type,
 //     List<String>? options,
-//     dynamic correctAnswer,
+//     String? correctAnswer,
 //     String? expectedAnswerKeywords,
 //     String? scenarioText,
 //     String? expectedOutcome,
@@ -7859,8 +7514,8 @@
 //     return Question(
 //       id: id ?? this.id,
 //       questionText: questionText ?? this.questionText,
-//       xpReward: xpReward ?? this.xpReward,
 //       type: type ?? this.type,
+//       xpReward: xpReward ?? this.xpReward,
 //       options: options ?? this.options,
 //       correctAnswer: correctAnswer ?? this.correctAnswer,
 //       expectedAnswerKeywords: expectedAnswerKeywords ?? this.expectedAnswerKeywords,
@@ -7868,292 +7523,226 @@
 //       expectedOutcome: expectedOutcome ?? this.expectedOutcome,
 //     );
 //   }
-
-//   @override
-//   String toString() {
-//     return 'Question(id: $id, questionText: $questionText, xpReward: $xpReward, type: $type, options: $options, correctAnswer: $correctAnswer, expectedAnswerKeywords: $expectedAnswerKeywords, scenarioText: $scenarioText, expectedOutcome: $expectedOutcome)';
-//   }
-
-//   @override
-//   bool operator ==(Object other) =>
-//       identical(this, other) ||
-//       other is Question &&
-//           runtimeType == other.runtimeType &&
-//           id == other.id &&
-//           questionText == other.questionText &&
-//           xpReward == other.xpReward &&
-//           type == other.type &&
-//           listEquals(options, other.options) &&
-//           correctAnswer == other.correctAnswer &&
-//           expectedAnswerKeywords == other.expectedAnswerKeywords &&
-//           scenarioText == other.scenarioText &&
-//           expectedOutcome == other.expectedOutcome;
-
-//   @override
-//   int get hashCode =>
-//       id.hashCode ^
-//       questionText.hashCode ^
-//       xpReward.hashCode ^
-//       type.hashCode ^
-//       listEquals(options, options).hashCode ^
-//       (correctAnswer?.hashCode ?? 0) ^ // Handle dynamic/nullable correctAnswer
-//       (expectedAnswerKeywords?.hashCode ?? 0) ^
-//       (scenarioText?.hashCode ?? 0) ^
-//       (expectedOutcome?.hashCode ?? 0);
 // }
 // // lib/models/level.dart
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/foundation.dart';
-// import 'package:gamifier/models/lesson.dart'; // Import Lesson if you embed it directly, otherwise not needed.
+// import 'package:flutter/material.dart'; // Required for IconData
 
-// @immutable
 // class Level {
 //   final String id;
-//   final String courseId;
 //   final String title;
 //   final String description;
+//   String courseId; // Made non-final to allow setting after creation
 //   final String difficulty;
-//   final int order; // To define the sequence of levels in a course
-//   final List<String> lessonIds; // List of lesson IDs belonging to this level
-//   final String? imageAssetPath; // Path to a local asset image for this level's icon/visual
+//   final int order;
+//   final String? imageAssetPath; // Path to a local asset image
 
-//   const Level({
+//   Level({
 //     required this.id,
-//     required this.courseId,
 //     required this.title,
 //     required this.description,
+//     required this.courseId,
 //     required this.difficulty,
 //     required this.order,
-//     this.lessonIds = const [],
-//     this.imageAssetPath, // New field
+//     this.imageAssetPath,
 //   });
-
-//   factory Level.fromMap(Map<String, dynamic> map) {
-//     return Level(
-//       id: map['id'] as String,
-//       courseId: map['courseId'] as String,
-//       title: map['title'] as String,
-//       description: map['description'] as String,
-//       difficulty: map['difficulty'] as String,
-//       order: map['order'] as int,
-//       lessonIds: List<String>.from(map['lessonIds'] ?? []),
-//       imageAssetPath: map['imageAssetPath'] as String?, // Read new field
-//     );
-//   }
 
 //   Map<String, dynamic> toMap() {
 //     return {
 //       'id': id,
-//       'courseId': courseId,
 //       'title': title,
 //       'description': description,
+//       'courseId': courseId,
 //       'difficulty': difficulty,
 //       'order': order,
-//       'lessonIds': lessonIds,
-//       'imageAssetPath': imageAssetPath, // Write new field
+//       'imageAssetPath': imageAssetPath,
 //     };
+//   }
+
+//   factory Level.fromMap(Map<String, dynamic> map) {
+//     return Level(
+//       id: map['id'] as String,
+//       title: map['title'] as String,
+//       description: map['description'] as String,
+//       courseId: map['courseId'] as String? ?? '', // Provide a default or handle null
+//       difficulty: map['difficulty'] as String,
+//       order: map['order'] as int,
+//       imageAssetPath: map['imageAssetPath'] as String?,
+//     );
 //   }
 
 //   Level copyWith({
 //     String? id,
-//     String? courseId,
 //     String? title,
 //     String? description,
+//     String? courseId,
 //     String? difficulty,
 //     int? order,
-//     List<String>? lessonIds,
 //     String? imageAssetPath,
 //   }) {
 //     return Level(
 //       id: id ?? this.id,
-//       courseId: courseId ?? this.courseId,
 //       title: title ?? this.title,
 //       description: description ?? this.description,
+//       courseId: courseId ?? this.courseId,
 //       difficulty: difficulty ?? this.difficulty,
 //       order: order ?? this.order,
-//       lessonIds: lessonIds ?? this.lessonIds,
 //       imageAssetPath: imageAssetPath ?? this.imageAssetPath,
 //     );
 //   }
-
-//   @override
-//   String toString() {
-//     return 'Level(id: $id, courseId: $courseId, title: $title, description: $description, difficulty: $difficulty, order: $order, lessonIds: $lessonIds, imageAssetPath: $imageAssetPath)';
-//   }
-
-//   @override
-//   bool operator ==(Object other) =>
-//       identical(this, other) ||
-//       other is Level &&
-//           runtimeType == other.runtimeType &&
-//           id == other.id &&
-//           courseId == other.courseId &&
-//           title == other.title &&
-//           description == other.description &&
-//           difficulty == other.difficulty &&
-//           order == other.order &&
-//           listEquals(lessonIds, other.lessonIds) &&
-//           imageAssetPath == other.imageAssetPath;
-
-//   @override
-//   int get hashCode =>
-//       id.hashCode ^
-//       courseId.hashCode ^
-//       title.hashCode ^
-//       description.hashCode ^
-//       difficulty.hashCode ^
-//       order.hashCode ^
-//       listEquals(lessonIds, lessonIds).hashCode ^
-//       imageAssetPath.hashCode;
 // }
 // // lib/models/lesson.dart
-// import 'package:flutter/foundation.dart';
+// import 'package:gamifier/models/question.dart'; // Import Question model
 
-// @immutable
 // class Lesson {
 //   final String id;
 //   final String title;
-//   final String content; // Markdown formatted content
-//   final List<String> questionIds; // IDs of questions in this lesson
+//   final String content;
+//   String levelId; // Made non-final to allow setting after creation
+//   final int order;
+//   final List<Question> questions; // Added questions directly to Lesson model for easier parsing from Gemini API
 
-//   const Lesson({
+//   Lesson({
 //     required this.id,
 //     required this.title,
 //     required this.content,
-//     this.questionIds = const [],
+//     required this.levelId,
+//     required this.order,
+//     this.questions = const [], // Initialize as empty list
 //   });
-
-//   factory Lesson.fromMap(Map<String, dynamic> map) {
-//     return Lesson(
-//       id: map['id'] as String,
-//       title: map['title'] as String,
-//       content: map['content'] as String,
-//       questionIds: List<String>.from(map['questionIds'] ?? []),
-//     );
-//   }
 
 //   Map<String, dynamic> toMap() {
 //     return {
 //       'id': id,
 //       'title': title,
 //       'content': content,
-//       'questionIds': questionIds,
+//       'levelId': levelId,
+//       'order': order,
+//       'questions': questions.map((q) => q.toMap()).toList(), // Convert questions to map
 //     };
+//   }
+
+//   factory Lesson.fromMap(Map<String, dynamic> map) {
+//     return Lesson(
+//       id: map['id'] as String,
+//       title: map['title'] as String,
+//       content: map['content'] as String,
+//       levelId: map['levelId'] as String? ?? '', // Provide a default or handle null
+//       order: map['order'] as int,
+//       questions: (map['questions'] as List?)
+//               ?.map((q) => Question.fromMap(q as Map<String, dynamic>))
+//               .toList() ??
+//           const [],
+//     );
 //   }
 
 //   Lesson copyWith({
 //     String? id,
 //     String? title,
 //     String? content,
-//     List<String>? questionIds,
+//     String? levelId,
+//     int? order,
+//     List<Question>? questions,
 //   }) {
 //     return Lesson(
 //       id: id ?? this.id,
 //       title: title ?? this.title,
 //       content: content ?? this.content,
-//       questionIds: questionIds ?? this.questionIds,
+//       levelId: levelId ?? this.levelId,
+//       order: order ?? this.order,
+//       questions: questions ?? this.questions,
 //     );
 //   }
-
-//   @override
-//   String toString() {
-//     return 'Lesson(id: $id, title: $title, content: $content, questionIds: $questionIds)';
-//   }
-
-//   @override
-//   bool operator ==(Object other) =>
-//       identical(this, other) ||
-//       other is Lesson &&
-//           runtimeType == other.runtimeType &&
-//           id == other.id &&
-//           title == other.title &&
-//           content == other.content &&
-//           listEquals(questionIds, other.questionIds);
-
-//   @override
-//   int get hashCode =>
-//       id.hashCode ^
-//       title.hashCode ^
-//       content.hashCode ^
-//       listEquals(questionIds, questionIds).hashCode;
 // }
 // // lib/models/course.dart
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter/foundation.dart';
+// import 'package:gamifier/constants/app_constants.dart';
 
 // @immutable
 // class Course {
 //   final String id;
-//   final String creatorId; // New: ID of the user who created this course
 //   final String title;
 //   final String description;
-//   final String difficulty;
 //   final String gameGenre;
-//   final List<String> levelIds;
+//   final String difficulty;
+//   final String creatorId;
 //   final DateTime createdAt;
+//   final List<String> levelIds;
+//   final String? educationLevel; // Optional
+//   final String? specialty; // Optional
 
 //   const Course({
 //     required this.id,
-//     required this.creatorId, // Add to constructor
 //     required this.title,
 //     required this.description,
-//     required this.difficulty,
 //     required this.gameGenre,
-//     this.levelIds = const [],
+//     required this.difficulty,
+//     required this.creatorId,
 //     required this.createdAt,
+//     this.levelIds = const [],
+//     this.educationLevel,
+//     this.specialty,
 //   });
 
 //   factory Course.fromMap(Map<String, dynamic> map) {
 //     return Course(
 //       id: map['id'] as String,
-//       creatorId: map['creatorId'] as String, // Read from map
 //       title: map['title'] as String,
 //       description: map['description'] as String,
-//       difficulty: map['difficulty'] as String,
 //       gameGenre: map['gameGenre'] as String,
-//       levelIds: List<String>.from(map['levelIds'] ?? []),
+//       difficulty: map['difficulty'] as String,
+//       creatorId: map['creatorId'] as String,
 //       createdAt: (map['createdAt'] as Timestamp).toDate(),
+//       levelIds: List<String>.from(map['levelIds'] ?? []),
+//       educationLevel: map['educationLevel'] as String?,
+//       specialty: map['specialty'] as String?,
 //     );
 //   }
 
 //   Map<String, dynamic> toMap() {
 //     return {
 //       'id': id,
-//       'creatorId': creatorId, // Write to map
 //       'title': title,
 //       'description': description,
-//       'difficulty': difficulty,
 //       'gameGenre': gameGenre,
-//       'levelIds': levelIds,
+//       'difficulty': difficulty,
+//       'creatorId': creatorId,
 //       'createdAt': Timestamp.fromDate(createdAt),
+//       'levelIds': levelIds,
+//       'educationLevel': educationLevel,
+//       'specialty': specialty,
 //     };
 //   }
 
 //   Course copyWith({
 //     String? id,
-//     String? creatorId,
 //     String? title,
 //     String? description,
-//     String? difficulty,
 //     String? gameGenre,
-//     List<String>? levelIds,
+//     String? difficulty,
+//     String? creatorId,
 //     DateTime? createdAt,
+//     List<String>? levelIds,
+//     String? educationLevel,
+//     String? specialty,
 //   }) {
 //     return Course(
 //       id: id ?? this.id,
-//       creatorId: creatorId ?? this.creatorId,
 //       title: title ?? this.title,
 //       description: description ?? this.description,
-//       difficulty: difficulty ?? this.difficulty,
 //       gameGenre: gameGenre ?? this.gameGenre,
-//       levelIds: levelIds ?? this.levelIds,
+//       difficulty: difficulty ?? this.difficulty,
+//       creatorId: creatorId ?? this.creatorId,
 //       createdAt: createdAt ?? this.createdAt,
+//       levelIds: levelIds ?? this.levelIds,
+//       educationLevel: educationLevel ?? this.educationLevel,
+//       specialty: specialty ?? this.specialty,
 //     );
 //   }
 
 //   @override
 //   String toString() {
-//     return 'Course(id: $id, creatorId: $creatorId, title: $title, description: $description, difficulty: $difficulty, gameGenre: $gameGenre, levelIds: $levelIds, createdAt: $createdAt)';
+//     return 'Course(id: $id, title: $title, description: $description, gameGenre: $gameGenre, difficulty: $difficulty, creatorId: $creatorId, createdAt: $createdAt, levelIds: $levelIds, educationLevel: $educationLevel, specialty: $specialty)';
 //   }
 
 //   @override
@@ -8162,107 +7751,52 @@
 //       other is Course &&
 //           runtimeType == other.runtimeType &&
 //           id == other.id &&
-//           creatorId == other.creatorId &&
 //           title == other.title &&
 //           description == other.description &&
-//           difficulty == other.difficulty &&
 //           gameGenre == other.gameGenre &&
+//           difficulty == other.difficulty &&
+//           creatorId == other.creatorId &&
+//           createdAt == other.createdAt &&
 //           listEquals(levelIds, other.levelIds) &&
-//           createdAt == other.createdAt;
+//           educationLevel == other.educationLevel &&
+//           specialty == other.specialty;
 
 //   @override
 //   int get hashCode =>
 //       id.hashCode ^
-//       creatorId.hashCode ^
 //       title.hashCode ^
 //       description.hashCode ^
-//       difficulty.hashCode ^
 //       gameGenre.hashCode ^
+//       difficulty.hashCode ^
+//       creatorId.hashCode ^
+//       createdAt.hashCode ^
 //       listEquals(levelIds, levelIds).hashCode ^
-//       createdAt.hashCode;
+//       educationLevel.hashCode ^
+//       specialty.hashCode;
 // }
 // // lib/models/community_post.dart
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter/foundation.dart';
 
 // @immutable
-// class Comment {
-//   final String userId;
-//   final String username;
-//   final String avatarAssetPath;
-//   final String content;
-//   final DateTime timestamp;
-
-//   const Comment({
-//     required this.userId,
-//     required this.username,
-//     required this.avatarAssetPath,
-//     required this.content,
-//     required this.timestamp,
-//   });
-
-//   factory Comment.fromMap(Map<String, dynamic> map) {
-//     return Comment(
-//       userId: map['userId'] as String,
-//       username: map['username'] as String,
-//       avatarAssetPath: map['avatarAssetPath'] as String,
-//       content: map['content'] as String,
-//       timestamp: (map['timestamp'] as Timestamp).toDate(),
-//     );
-//   }
-
-//   Map<String, dynamic> toMap() {
-//     return {
-//       'userId': userId,
-//       'username': username,
-//       'avatarAssetPath': avatarAssetPath,
-//       'content': content,
-//       'timestamp': Timestamp.fromDate(timestamp),
-//     };
-//   }
-
-//   @override
-//   String toString() {
-//     return 'Comment(userId: $userId, username: $username, avatarAssetPath: $avatarAssetPath, content: $content, timestamp: $timestamp)';
-//   }
-
-//   @override
-//   bool operator ==(Object other) =>
-//       identical(this, other) ||
-//       other is Comment &&
-//           runtimeType == other.runtimeType &&
-//           userId == other.userId &&
-//           username == other.username &&
-//           avatarAssetPath == other.avatarAssetPath &&
-//           content == other.content &&
-//           timestamp == other.timestamp;
-
-//   @override
-//   int get hashCode =>
-//       userId.hashCode ^
-//       username.hashCode ^
-//       avatarAssetPath.hashCode ^
-//       content.hashCode ^
-//       timestamp.hashCode;
-// }
-
-// @immutable
 // class CommunityPost {
 //   final String id;
-//   final String userId;
-//   final String username;
-//   final String avatarAssetPath;
+//   final String authorId;
+//   final String authorUsername;
+//   final String authorAvatarUrl;
 //   final String content;
+//   final String? imageUrl;
 //   final DateTime timestamp;
-//   final List<String> likedBy; // List of user UIDs who liked the post
+//   final List<String> likedBy;
 //   final List<Comment> comments;
 
 //   const CommunityPost({
 //     required this.id,
-//     required this.userId,
-//     required this.username,
-//     required this.avatarAssetPath,
+//     required this.authorId,
+//     required this.authorUsername,
+//     required this.authorAvatarUrl,
 //     required this.content,
+//     this.imageUrl,
 //     required this.timestamp,
 //     this.likedBy = const [],
 //     this.comments = const [],
@@ -8271,14 +7805,15 @@
 //   factory CommunityPost.fromMap(Map<String, dynamic> map) {
 //     return CommunityPost(
 //       id: map['id'] as String,
-//       userId: map['userId'] as String,
-//       username: map['username'] as String,
-//       avatarAssetPath: map['avatarAssetPath'] as String,
+//       authorId: map['authorId'] as String,
+//       authorUsername: map['authorUsername'] as String,
+//       authorAvatarUrl: map['authorAvatarUrl'] as String,
 //       content: map['content'] as String,
+//       imageUrl: map['imageUrl'] as String?,
 //       timestamp: (map['timestamp'] as Timestamp).toDate(),
 //       likedBy: List<String>.from(map['likedBy'] ?? []),
 //       comments: (map['comments'] as List<dynamic>?)
-//               ?.map((e) => Comment.fromMap(e as Map<String, dynamic>))
+//               ?.map((c) => Comment.fromMap(c as Map<String, dynamic>))
 //               .toList() ??
 //           [],
 //     );
@@ -8287,32 +7822,35 @@
 //   Map<String, dynamic> toMap() {
 //     return {
 //       'id': id,
-//       'userId': userId,
-//       'username': username,
-//       'avatarAssetPath': avatarAssetPath,
+//       'authorId': authorId,
+//       'authorUsername': authorUsername,
+//       'authorAvatarUrl': authorAvatarUrl,
 //       'content': content,
+//       'imageUrl': imageUrl,
 //       'timestamp': Timestamp.fromDate(timestamp),
 //       'likedBy': likedBy,
-//       'comments': comments.map((e) => e.toMap()).toList(),
+//       'comments': comments.map((c) => c.toMap()).toList(),
 //     };
 //   }
 
 //   CommunityPost copyWith({
 //     String? id,
-//     String? userId,
-//     String? username,
-//     String? avatarAssetPath,
+//     String? authorId,
+//     String? authorUsername,
+//     String? authorAvatarUrl,
 //     String? content,
+//     String? imageUrl,
 //     DateTime? timestamp,
 //     List<String>? likedBy,
 //     List<Comment>? comments,
 //   }) {
 //     return CommunityPost(
 //       id: id ?? this.id,
-//       userId: userId ?? this.userId,
-//       username: username ?? this.username,
-//       avatarAssetPath: avatarAssetPath ?? this.avatarAssetPath,
+//       authorId: authorId ?? this.authorId,
+//       authorUsername: authorUsername ?? this.authorUsername,
+//       authorAvatarUrl: authorAvatarUrl ?? this.authorAvatarUrl,
 //       content: content ?? this.content,
+//       imageUrl: imageUrl ?? this.imageUrl,
 //       timestamp: timestamp ?? this.timestamp,
 //       likedBy: likedBy ?? this.likedBy,
 //       comments: comments ?? this.comments,
@@ -8321,7 +7859,7 @@
 
 //   @override
 //   String toString() {
-//     return 'CommunityPost(id: $id, userId: $userId, username: $username, avatarAssetPath: $avatarAssetPath, content: $content, timestamp: $timestamp, likedBy: $likedBy, comments: $comments)';
+//     return 'CommunityPost(id: $id, authorId: $authorId, authorUsername: $authorUsername, content: $content, imageUrl: $imageUrl, timestamp: $timestamp, likedBy: $likedBy, comments: $comments)';
 //   }
 
 //   @override
@@ -8330,10 +7868,11 @@
 //       other is CommunityPost &&
 //           runtimeType == other.runtimeType &&
 //           id == other.id &&
-//           userId == other.userId &&
-//           username == other.username &&
-//           avatarAssetPath == other.avatarAssetPath &&
+//           authorId == other.authorId &&
+//           authorUsername == other.authorUsername &&
+//           authorAvatarUrl == other.authorAvatarUrl &&
 //           content == other.content &&
+//           imageUrl == other.imageUrl &&
 //           timestamp == other.timestamp &&
 //           listEquals(likedBy, other.likedBy) &&
 //           listEquals(comments, other.comments);
@@ -8341,15 +7880,155 @@
 //   @override
 //   int get hashCode =>
 //       id.hashCode ^
-//       userId.hashCode ^
-//       username.hashCode ^
-//       avatarAssetPath.hashCode ^
+//       authorId.hashCode ^
+//       authorUsername.hashCode ^
+//       authorAvatarUrl.hashCode ^
 //       content.hashCode ^
+//       imageUrl.hashCode ^
 //       timestamp.hashCode ^
 //       listEquals(likedBy, likedBy).hashCode ^
 //       listEquals(comments, comments).hashCode;
 // }
+
+// @immutable
+// class Comment {
+//   final String id;
+//   final String userId;
+//   final String username;
+//   final String avatarUrl;
+//   final String text;
+//   final DateTime timestamp;
+
+//   const Comment({
+//     required this.id,
+//     required this.userId,
+//     required this.username,
+//     required this.avatarUrl,
+//     required this.text,
+//     required this.timestamp,
+//   });
+
+//   factory Comment.fromMap(Map<String, dynamic> map) {
+//     return Comment(
+//       id: map['id'] as String,
+//       userId: map['userId'] as String,
+//       username: map['username'] as String,
+//       avatarUrl: map['avatarUrl'] as String,
+//       text: map['text'] as String,
+//       timestamp: (map['timestamp'] as Timestamp).toDate(),
+//     );
+//   }
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'id': id,
+//       'userId': userId,
+//       'username': username,
+//       'avatarUrl': avatarUrl,
+//       'text': text,
+//       'timestamp': Timestamp.fromDate(timestamp),
+//     };
+//   }
+
+//   @override
+//   String toString() {
+//     return 'Comment(id: $id, userId: $userId, username: $username, text: $text, timestamp: $timestamp)';
+//   }
+
+//   @override
+//   bool operator ==(Object other) =>
+//       identical(this, other) ||
+//       other is Comment &&
+//           runtimeType == other.runtimeType &&
+//           id == other.id &&
+//           userId == other.userId &&
+//           username == other.username &&
+//           avatarUrl == other.avatarUrl &&
+//           text == other.text &&
+//           timestamp == other.timestamp;
+
+//   @override
+//   int get hashCode =>
+//       id.hashCode ^ userId.hashCode ^ username.hashCode ^ avatarUrl.hashCode ^ text.hashCode ^ timestamp.hashCode;
+// }
+// // lib/models/chat_message.dart
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:flutter/foundation.dart';
+
+// @immutable
+// class ChatMessage {
+//   final String id;
+//   final String senderId;
+//   final String senderUsername;
+//   final String senderAvatarUrl;
+//   final String text;
+//   final DateTime timestamp;
+//   final bool isUser;
+
+//   const ChatMessage({
+//     required this.id,
+//     required this.senderId,
+//     required this.senderUsername,
+//     required this.senderAvatarUrl,
+//     required this.text,
+//     required this.timestamp,
+//     required this.isUser,
+//   });
+
+//   factory ChatMessage.fromMap(Map<String, dynamic> map) {
+//     return ChatMessage(
+//       id: map['id'] as String,
+//       senderId: map['senderId'] as String,
+//       senderUsername: map['senderUsername'] as String,
+//       senderAvatarUrl: map['senderAvatarUrl'] as String,
+//       text: map['text'] as String,
+//       timestamp: (map['timestamp'] as Timestamp).toDate(),
+//       isUser: map['isUser'] as bool,
+//     );
+//   }
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'id': id,
+//       'senderId': senderId,
+//       'senderUsername': senderUsername,
+//       'senderAvatarUrl': senderAvatarUrl,
+//       'text': text,
+//       'timestamp': Timestamp.fromDate(timestamp),
+//       'isUser': isUser,
+//     };
+//   }
+
+//   @override
+//   String toString() {
+//     return 'ChatMessage(id: $id, senderId: $senderId, senderUsername: $senderUsername, text: $text, timestamp: $timestamp, isUser: $isUser)';
+//   }
+
+//   @override
+//   bool operator ==(Object other) =>
+//       identical(this, other) ||
+//       other is ChatMessage &&
+//           runtimeType == other.runtimeType &&
+//           id == other.id &&
+//           senderId == other.senderId &&
+//           senderUsername == other.senderUsername &&
+//           senderAvatarUrl == other.senderAvatarUrl &&
+//           text == other.text &&
+//           timestamp == other.timestamp &&
+//           isUser == other.isUser;
+
+//   @override
+//   int get hashCode =>
+//       id.hashCode ^
+//       senderId.hashCode ^
+//       senderUsername.hashCode ^
+//       senderAvatarUrl.hashCode ^
+//       text.hashCode ^
+//       timestamp.hashCode ^
+//       isUser.hashCode;
+// }
 // // lib/models/badge.dart
+// import 'package:flutter/material.dart';
 // import 'package:flutter/foundation.dart';
 
 // @immutable
@@ -8357,13 +8036,15 @@
 //   final String id;
 //   final String name;
 //   final String description;
-//   final String imageUrl; // Path to the badge image asset or URL
+//   final IconData icon; // Storing IconData directly (requires Flutter import)
+//   final String imageUrl; // Optional, for network images if needed
 
 //   const Badge({
 //     required this.id,
 //     required this.name,
 //     required this.description,
-//     required this.imageUrl,
+//     required this.icon,
+//     this.imageUrl = '',
 //   });
 
 //   factory Badge.fromMap(Map<String, dynamic> map) {
@@ -8371,7 +8052,8 @@
 //       id: map['id'] as String,
 //       name: map['name'] as String,
 //       description: map['description'] as String,
-//       imageUrl: map['imageUrl'] as String,
+//       icon: IconData(map['iconCodePoint'] as int, fontFamily: map['iconFontFamily'] as String),
+//       imageUrl: map['imageUrl'] as String? ?? '',
 //     );
 //   }
 
@@ -8380,13 +8062,15 @@
 //       'id': id,
 //       'name': name,
 //       'description': description,
+//       'iconCodePoint': icon.codePoint,
+//       'iconFontFamily': icon.fontFamily,
 //       'imageUrl': imageUrl,
 //     };
 //   }
 
 //   @override
 //   String toString() {
-//     return 'Badge(id: $id, name: $name, description: $description, imageUrl: $imageUrl)';
+//     return 'Badge(id: $id, name: $name, description: $description, icon: $icon, imageUrl: $imageUrl)';
 //   }
 
 //   @override
@@ -8397,10 +8081,12 @@
 //           id == other.id &&
 //           name == other.name &&
 //           description == other.description &&
+//           icon == other.icon &&
 //           imageUrl == other.imageUrl;
 
 //   @override
-//   int get hashCode => id.hashCode ^ name.hashCode ^ description.hashCode ^ imageUrl.hashCode;
+//   int get hashCode =>
+//       id.hashCode ^ name.hashCode ^ description.hashCode ^ icon.hashCode ^ imageUrl.hashCode;
 // }
 // // lib/models/avatar_asset.dart
 // import 'package:flutter/foundation.dart';
@@ -8416,6 +8102,22 @@
 //     required this.name,
 //     required this.assetPath,
 //   });
+
+//   factory AvatarAsset.fromMap(Map<String, dynamic> map) {
+//     return AvatarAsset(
+//       id: map['id'] as String,
+//       name: map['name'] as String,
+//       assetPath: map['assetPath'] as String,
+//     );
+//   }
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'id': id,
+//       'name': name,
+//       'assetPath': assetPath,
+//     };
+//   }
 
 //   @override
 //   String toString() {
@@ -8438,100 +8140,105 @@
 // import 'package:flutter/material.dart';
 
 // class AppColors {
-//   // Core Palette
-//   static const Color primaryColor = Color(0xFF1A1A2E); // Dark Blue/Purple
-//   static const Color accentColor = Color(0xFFE94560); // Vibrant Pink/Red
-//   static const Color secondaryColor = Color(0xFF0F3460); // Muted Blue
-//   static const Color textColor = Color(0xFFFFFFFF); // White
-//   static const Color textColorSecondary = Color(0xFFAAAAAA); // Light Gray
+//   static const Color primaryColor = Color(0xFF6A1B9A);
+//   static const Color primaryColorDark = Color(0xFF4A148C);
+//   static const Color accentColor = Color(0xFF00E5FF);
+//   static const Color secondaryColor = Color(0xFFE040FB);
+//   static const Color textColor = Color(0xFFE0E0E0);
+//   static const Color textColorSecondary = Color(0xFFB0BEC5);
+//   static const Color cardColor = Color(0xFF2C2C2C);
+//   static const Color backgroundColor = Color(0xFF121212);
+//   static const Color borderColor = Color(0xFF424242);
+//   static const Color successColor = Color(0xFF00C853);
+//   static const Color errorColor = Color(0xFFD50000);
+//   static const Color warningColor = Color(0xFFFFC400);
+//   static const Color infoColor = Color(0xFF2196F3);
+//   static const Color xpColor = Color(0xFFFDD835);
+//   static const Color levelColor = Color(0xFF8BC34A);
+//   static const Color streakColor = Color(0xFFFD8C00); // New streak color
+//   static const Color progressTrackColor = Color(0xFF37474F);
 
-//   // Gamification Colors
-//   static const Color xpColor = Color(0xFFFDCB6E); // Gold for XP
-//   static const Color levelColor = Color(0xFF00B894); // Green for Level
-//   static const Color streakColor = Color(0xFFEB2F96); // Pink for Streaks (can be same as accent or distinct)
-
-//   // Status Colors
-//   static const Color successColor = Color(0xFF28A745); // Green for success
-//   static const Color errorColor = Color(0xFFDC3545); // Red for errors
-//   static const Color warningColor = Color(0xFFFFC107); // Yellow for warnings
-//   static const Color infoColor = Color(0xFF17A2B8); // Cyan for info
-
-//   // UI Element Colors
-//   static const Color cardColor = Color(0xFF2E2E4A); // Slightly lighter than primary for cards
-//   static const Color borderColor = Color(0xFF3F3F60); // Border color for elements
-//   static const Color transparent = Colors.transparent;
-
-//   // Gradients
 //   static LinearGradient backgroundGradient() {
 //     return const LinearGradient(
+//       colors: [
+//         backgroundColor,
+//         Color(0xFF1A237E),
+//         primaryColorDark,
+//       ],
 //       begin: Alignment.topLeft,
 //       end: Alignment.bottomRight,
-//       colors: [
-//         primaryColor,
-//         secondaryColor,
-//       ],
 //     );
 //   }
 
-//   static LinearGradient buttonGradient() {
-//     return const LinearGradient(
-//       begin: Alignment.topLeft,
-//       end: Alignment.bottomRight,
-//       colors: [
-//         accentColor,
-//         Color(0xFFCE203A), // Slightly darker accent
+//   static TextStyle neonTextStyle({
+//     double fontSize = 24,
+//     FontWeight fontWeight = FontWeight.bold,
+//     Color color = accentColor,
+//     double blurRadius = 15.0,
+//     double spreadRadius = 0.0,
+//   }) {
+//     return TextStyle(
+//       fontSize: fontSize,
+//       fontWeight: fontWeight,
+//       color: color,
+//       shadows: [
+//         Shadow(
+//           color: color.withOpacity(0.8),
+//           blurRadius: blurRadius,
+//         ),
+//         Shadow(
+//           color: color.withOpacity(0.4),
+//           blurRadius: blurRadius * 2,
+//         ),
 //       ],
 //     );
 //   }
 // }
 // // lib/constants/app_constants.dart
+// import 'package:flutter/material.dart';
 // import 'package:gamifier/models/avatar_asset.dart';
 
 // class AppConstants {
-//   static const String geminiApiKey = 'AIzaSyDZ6yDuQgQWxzc5Qq24Dpf_BkvcOjx_SP8';
+//   static const String appName = 'Gamifier';
 
+//   // API Keys
+//   static const String geminiApiKey = 'AIzaSyDZ6yDuQgQWxzc5Qq24Dpf_BkvcOjx_SP8'; // Replace with your actual Gemini API Key
+//   static const String appTagline = 'Learn. Play. Conquer.';
+//   // Firestore Collection Names
 //   static const String usersCollection = 'users';
 //   static const String coursesCollection = 'courses';
-//   static const String lessonsCollection = 'lessons';
-//   static const String userProgressCollection = 'user_progress';
-//   static const String badgesCollection = 'badges';
-//   static const String leaderboardsCollection = 'leaderboard';
 //   static const String levelsCollection = 'levels';
-//   static const String communityPostsCollection = 'community_posts';
+//   static const String lessonsCollection = 'lessons'; // Subcollection under levels
+//   static const String questionsCollection = 'questions'; // Subcollection under lessons
+//   static const String userProgressCollection = 'userProgress';
+//   static const String badgesCollection = 'badges';
+//   static const String communityPostsCollection = 'communityPosts';
+//   static const String chatMessagesCollection = 'chatMessages';
 
-//   static const int maxUsernameLength = 20;
-//   static const int minPasswordLength = 6;
-//   static const int initialXp = 0;
-//   static const int xpPerLevel = 100;
-//   static const int xpPerCorrectAnswer = 10;
-//   static const int leaderboardLimit = 10;
-
-//   // New constants for streaks
-//   static const int initialStreak = 0;
-//   static const int streakBonusXp = 5; // XP awarded for maintaining a streak
-//   static const int levelXpDeductionOnReattempt = 20; // XP deducted for reattempting a level
-
-//   static const Duration defaultAnimationDuration = Duration(milliseconds: 300);
-//   static const Duration longAnimationDuration = Duration(milliseconds: 600);
-//   static const Duration shimmerAnimationDuration = Duration(milliseconds: 1500);
-
-//   static const double borderRadius = 16.0;
+//   // App theming and UI
 //   static const double padding = 16.0;
 //   static const double spacing = 8.0;
+//   static const double borderRadius = 12.0;
 //   static const double iconSize = 24.0;
-//   static const double avatarSize = 64.0;
-//   static const double badgeSize = 48.0;
+//   static const double avatarSize = 60.0;
+//   static const double badgeSize = 80.0;
+//   static const Duration defaultAnimationDuration = Duration(milliseconds: 300);
 
-//   // Text sizes for consistency and smaller text
-//   static const double largeTextSize = 22.0;
-//   static const double mediumTextSize = 16.0;
-//   static const double smallTextSize = 14.0;
-//   static const double extraSmallTextSize = 12.0;
+//   // Gamification Constants
+//    // Gamification Constants
+//   static const int initialXp = 0; // Added: Initial XP for a new user profile
+//   static const int xpPerLevel = 100;
+//   static const int leaderboardLimit = 10; // Number of users to show on leaderboard
+//   static const int minStreakDaysForBonus = 3;
+//   static const int streakBonusXp = 20;
 
+//   // Course Generation Constants
+//   static const int initialLevelsCount = 5; // Generate first 5 levels
+//   static const int subsequentLevelsBatchSize = 5; // Generate 5 more levels at a time
+//   static const int maxLevelsPerCourse = 15; // Max total levels
 
-//   static const String appName = 'Gamifier';
-//   static const String appTagline = 'Learn. Play. Conquer.';
-//   static const String defaultFontFamily = 'Inter';
+//   // Default Content for Placeholders/Initial Data
+//   static String defaultFontFamily = 'Inter';
 
 //   static const double geminiTemperature = 0.7;
 //   static const int geminiMaxOutputTokens = 2000;
@@ -8543,9 +8250,8 @@
 //     AvatarAsset(id: 'avatar4', name: 'Knight', assetPath: 'assets/avatars/avatar4.png'),
 //   ];
 
-//   static const String correctSoundPath = 'assets/audios/correct.mp3';
-//   static const String levelUpSoundPath = 'assets/audios/level_up.mp3';
-//   static const String incorrectSoundPath = 'assets/audios/incorrect.mp3'; // Added for incorrect answers
+//   static const String correctSoundPath = 'audios/correct.mp3';
+//   static const String levelUpSoundPath = 'audios/level_up.mp3';
 
 //   static const List<String> gameThemes = [
 //     'Fantasy',
@@ -8573,15 +8279,26 @@
 //     'Associate Degree',
 //     'Bachelor\'s Degree',
 //     'Master\'s Degree',
-//     'PhD',
-//     'Other',
+//     'Doctorate',
+//     'Self-Taught',
 //   ];
 
 //   static const List<String> defaultCourseTopics = [
-//     'Introduction to Python',
-//     'Fundamentals of Web Development',
-//     'Basic Algebra',
-//     'History of Ancient Civilizations',
-//     'Understanding Climate Change',
+//     'Artificial Intelligence',
+//     'Machine Learning',
+//     'Web Development (Frontend)',
+//     'Web Development (Backend)',
+//     'Mobile App Development (Flutter)',
+//     'Data Science',
+//     'Cybersecurity',
+//     'Cloud Computing',
+//     'Game Development',
+//     'Database Management',
+//     'Network Engineering',
+//     'DevOps',
+//     'UI/UX Design',
+//     'Digital Marketing',
+//     'Business Analytics',
+//     'Project Management',
 //   ];
 // }

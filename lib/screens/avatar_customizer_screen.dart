@@ -1,161 +1,148 @@
 // lib/screens/avatar_customizer_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/avatar_asset.dart';
-import 'package:gamifier/models/user_profile.dart';
 import 'package:gamifier/services/firebase_service.dart';
+import 'package:gamifier/models/user_profile.dart';
 import 'package:gamifier/widgets/common/custom_app_bar.dart';
+import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/gamification/avatar_customizer.dart';
-import 'package:provider/provider.dart';
 
 class AvatarCustomizerScreen extends StatefulWidget {
-  final UserProfile userProfile;
-
-  const AvatarCustomizerScreen({super.key, required this.userProfile});
+  const AvatarCustomizerScreen({super.key});
 
   @override
   State<AvatarCustomizerScreen> createState() => _AvatarCustomizerScreenState();
 }
 
 class _AvatarCustomizerScreenState extends State<AvatarCustomizerScreen> {
-  late String _selectedAvatarPath;
+  String? _selectedAvatarPath;
+  UserProfile? _userProfile;
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _selectedAvatarPath = widget.userProfile.avatarAssetPath;
+    _loadUserProfile();
   }
 
-  void _saveAvatar() async {
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-    final updatedProfile = widget.userProfile.copyWith(avatarAssetPath: _selectedAvatarPath);
-    await firebaseService.updateUserProfile(updatedProfile);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Avatar saved successfully!')),
-    );
-    Navigator.of(context).pop();
+  Future<void> _loadUserProfile() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final currentUser = firebaseService.currentUser;
+      if (currentUser != null) {
+        final profile = await firebaseService.getUserProfile(currentUser.uid);
+        setState(() {
+          _userProfile = profile;
+          _selectedAvatarPath = profile?.avatarAssetPath;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'User not logged in.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load user profile: ${e.toString()}';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _onAvatarSelected(AvatarAsset avatar) {
+    setState(() {
+      _selectedAvatarPath = avatar.assetPath;
+    });
+  }
+
+  Future<void> _saveAvatar() async {
+    if (_userProfile == null || _selectedAvatarPath == null) {
+      setState(() {
+        _errorMessage = 'No avatar selected or user profile not loaded.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      await firebaseService.updateUserProfile(
+        _userProfile!.uid,
+        {'avatarAssetPath': _selectedAvatarPath},
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Avatar updated successfully!')),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to save avatar: ${e.toString()}';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-      child: Scaffold(
-        backgroundColor: AppColors.transparent,
-        appBar: CustomAppBar(
-          title: 'Customize Avatar',
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.save, color: AppColors.textColor),
-              onPressed: _saveAvatar,
-              tooltip: 'Save Avatar',
-            ),
-          ],
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: const CustomAppBar(title: 'Customize Avatar'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppConstants.padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Card(
-                color: AppColors.cardColor,
-                margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppConstants.padding),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Your Current Avatar',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-                      ),
-                      const SizedBox(height: AppConstants.padding),
-                      AvatarCustomizer(
-                        selectedAvatarPath: _selectedAvatarPath,
-                        onAvatarSelected: (path) {
-                          setState(() {
-                            _selectedAvatarPath = path;
-                          });
-                        },
-                        showSelector: false,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Card(
-                color: AppColors.cardColor,
-                child: Padding(
-                  padding: const EdgeInsets.all(AppConstants.padding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Select a New Avatar',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-                      ),
-                      const SizedBox(height: AppConstants.padding),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: AppConstants.padding,
-                          mainAxisSpacing: AppConstants.padding,
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))
+              : _errorMessage != null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppConstants.padding),
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: AppColors.errorColor),
+                          textAlign: TextAlign.center,
                         ),
-                        itemCount: AppConstants.defaultAvatarAssets.length,
-                        itemBuilder: (context, index) {
-                          final avatar = AppConstants.defaultAvatarAssets[index];
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedAvatarPath = avatar.assetPath;
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: AppConstants.defaultAnimationDuration,
-                              decoration: BoxDecoration(
-                                color: AppColors.secondaryColor.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                                border: _selectedAvatarPath == avatar.assetPath
-                                    ? Border.all(color: AppColors.accentColor, width: 3)
-                                    : null,
-                                boxShadow: [
-                                  if (_selectedAvatarPath == avatar.assetPath)
-                                    BoxShadow(
-                                      color: AppColors.accentColor.withOpacity(0.5),
-                                      blurRadius: 10,
-                                      spreadRadius: 2,
-                                    ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    avatar.assetPath,
-                                    width: AppConstants.avatarSize,
-                                    height: AppConstants.avatarSize,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  const SizedBox(height: AppConstants.spacing),
-                                  Text(
-                                    avatar.name,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textColor),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+                    )
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: AvatarCustomizer(
+                            selectedAvatarPath: _selectedAvatarPath,
+                            onAvatarSelected: _onAvatarSelected,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(AppConstants.padding),
+                          child: CustomButton(
+                            onPressed: _saveAvatar,
+                            text: 'Save Avatar',
+                            icon: Icons.save,
+                            isLoading: _isLoading,
+                          ),
+                        ),
+                      ],
+                    ),
         ),
       ),
     );

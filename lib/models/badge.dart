@@ -1,4 +1,5 @@
 // lib/models/badge.dart
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -6,13 +7,15 @@ class Badge {
   final String id;
   final String name;
   final String description;
+  final IconData icon;
   final String imageUrl;
 
   const Badge({
     required this.id,
     required this.name,
     required this.description,
-    required this.imageUrl,
+    required this.icon,
+    this.imageUrl = '',
   });
 
   factory Badge.fromMap(Map<String, dynamic> map) {
@@ -20,7 +23,8 @@ class Badge {
       id: map['id'] as String,
       name: map['name'] as String,
       description: map['description'] as String,
-      imageUrl: map['imageUrl'] as String,
+      icon: IconData(map['iconCodePoint'] as int, fontFamily: map['iconFontFamily'] as String),
+      imageUrl: map['imageUrl'] as String? ?? '',
     );
   }
 
@@ -29,13 +33,15 @@ class Badge {
       'id': id,
       'name': name,
       'description': description,
+      'iconCodePoint': icon.codePoint,
+      'iconFontFamily': icon.fontFamily,
       'imageUrl': imageUrl,
     };
   }
 
   @override
   String toString() {
-    return 'Badge(id: $id, name: $name, description: $description, imageUrl: $imageUrl)';
+    return 'Badge(id: $id, name: $name, description: $description, icon: $icon, imageUrl: $imageUrl)';
   }
 
   @override
@@ -46,8 +52,10 @@ class Badge {
           id == other.id &&
           name == other.name &&
           description == other.description &&
+          icon == other.icon &&
           imageUrl == other.imageUrl;
 
   @override
-  int get hashCode => id.hashCode ^ name.hashCode ^ description.hashCode ^ imageUrl.hashCode;
+  int get hashCode =>
+      id.hashCode ^ name.hashCode ^ description.hashCode ^ icon.hashCode ^ imageUrl.hashCode;
 }

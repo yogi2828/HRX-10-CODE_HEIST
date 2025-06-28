@@ -1,18 +1,19 @@
-// lib/screens/progress_screen.dart
 import 'package:flutter/material.dart';
-import 'package:gamifier/utils/app_router.dart';
+import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
-import 'package:gamifier/models/user_profile.dart';
-import 'package:gamifier/models/user_progress.dart'; // New: for user progress details
-import 'package:gamifier/models/course.dart'; // New: for course titles
+import 'package:gamifier/models/course.dart';
+import 'package:gamifier/models/user_progress.dart';
+import 'package:gamifier/models/user_profile.dart'; // Import UserProfile
 import 'package:gamifier/services/firebase_service.dart';
+import 'package:gamifier/utils/app_router.dart';
 import 'package:gamifier/widgets/common/custom_app_bar.dart';
-import 'package:gamifier/widgets/common/loading_indicator.dart';
 import 'package:gamifier/widgets/common/progress_bar.dart';
-import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
-import 'package:gamifier/utils/app_extensions.dart'; // For isSameDay extension
+import 'package:gamifier/widgets/common/xp_level_display.dart'; // Import XPLevelDisplay
+import 'package:gamifier/widgets/gamification/streak_display.dart'; // Import StreakDisplay
+import 'package:gamifier/widgets/gamification/badge_display.dart'; // Import BadgeDisplay
+import 'package:gamifier/widgets/gamification/leaderboard_list.dart'; // Import LeaderboardList
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -22,53 +23,45 @@ class ProgressScreen extends StatefulWidget {
 }
 
 class _ProgressScreenState extends State<ProgressScreen> {
-  UserProfile? _userProfile;
-  List<UserProgress> _allUserProgress = [];
-  Map<String, Course> _coursesMap = {}; // Map courseId to Course object
+  UserProfile? _userProfile; // Use UserProfile for user details
+  late FirebaseService _firebaseService;
+  String? _currentUserId;
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _fetchProgressData();
+    _firebaseService = Provider.of<FirebaseService>(context, listen: false);
+    _initializeUserAndLoadProgress();
   }
 
-  Future<void> _fetchProgressData() async {
-    setState(() {
-      _isLoading = true;
-    });
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-    final user = firebaseService.currentUser;
+  Future<void> _initializeUserAndLoadProgress() async {
+    final user = _firebaseService.currentUser;
     if (user != null) {
-      firebaseService.streamUserProfile(user.uid).listen((profile) async {
+      setState(() {
+        _currentUserId = user.uid;
+      });
+      // Stream user profile for real-time updates on XP, Level, Streak
+      _firebaseService.streamUserProfile(user.uid).listen((profile) {
         if (mounted) {
           setState(() {
             _userProfile = profile;
+            _isLoading = false;
           });
-
-          // Fetch all courses to map IDs to titles
-          final allCourses = await firebaseService.getCourses();
-          _coursesMap = {for (var course in allCourses) course.id: course};
-
-          // Fetch all user progress entries for the current user
-          _allUserProgress = (await firebaseService.streamUserProgress(user.uid, '').firstWhere(
-            (data) => true, // Wait for first data
-            orElse: () => null, // If no data, return null
-          ) != null) ? await firebaseService.streamUserProgress(user.uid, '').first.then((p) => [p!]) : [];
-
-          // Note: streamUserProgress currently fetches a single course's progress.
-          // To get 'allUserProgress', you'd typically query all user_progress documents
-          // where userId matches, without filtering by courseId. This would require
-          // modifying FirebaseService.streamUserProgress or adding a new method.
-          // For now, _allUserProgress will only contain progress for one course if available.
-
+        }
+      }).onError((error) {
+        debugPrint('Error streaming user profile: $error');
+        if (mounted) {
           setState(() {
+            _errorMessage = 'Failed to load profile details: ${error.toString()}';
             _isLoading = false;
           });
         }
       });
     } else {
       setState(() {
+        _errorMessage = 'User not logged in.';
         _isLoading = false;
       });
     }
@@ -76,177 +69,282 @@ class _ProgressScreenState extends State<ProgressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-      child: Scaffold(
-        backgroundColor: AppColors.transparent,
-        appBar: const CustomAppBar(title: 'My Progress'),
-        body: _isLoading
-            ? const LoadingIndicator()
-            : _userProfile == null
-                ? Center(
-                    child: Text(
-                      'Please log in to view your progress.',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.textColorSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: _fetchProgressData,
-                    color: AppColors.accentColor,
-                    backgroundColor: AppColors.cardColor,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(AppConstants.padding),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Card(
-                            color: AppColors.cardColor,
-                            margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                            child: Padding(
-                              padding: const EdgeInsets.all(AppConstants.padding),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Overall Progress',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-                                  ),
-                                  const SizedBox(height: AppConstants.padding),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Level: ${_userProfile!.level}',
-                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.levelColor),
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: const CustomAppBar(title: 'My Progress'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
+        ),
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))
+              : _errorMessage != null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppConstants.padding),
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: AppColors.errorColor),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        // User Profile Summary (moved from profile_screen for consistency)
+                        Padding(
+                          padding: const EdgeInsets.all(AppConstants.padding),
+                          child: _userProfile == null
+                              ? const SizedBox.shrink() // Or a placeholder if profile isn't loaded yet
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: AppConstants.avatarSize / 1.5, // Slightly smaller for progress screen
+                                          backgroundImage: AssetImage(_userProfile!.avatarAssetPath),
+                                          backgroundColor: AppColors.borderColor,
+                                        ),
+                                        const SizedBox(width: AppConstants.spacing * 2),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                _userProfile!.username,
+                                                style: AppColors.neonTextStyle(fontSize: 24),
+                                              ),
+                                              const SizedBox(height: AppConstants.spacing),
+                                              XpLevelDisplay(
+                                                xp: _userProfile!.xp,
+                                                level: _userProfile!.level,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: AppConstants.spacing * 2),
+                                    StreakDisplay(currentStreak: _userProfile!.currentStreak),
+                                    const SizedBox(height: AppConstants.spacing * 2),
+                                    if (_userProfile!.earnedBadges.isNotEmpty)
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Earned Badges:',
+                                            style: TextStyle(
+                                                color: AppColors.textColor,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(height: AppConstants.spacing),
+                                          BadgeDisplay(badgeIds: _userProfile!.earnedBadges),
+                                        ],
                                       ),
-                                      Text(
-                                        'XP: ${_userProfile!.xp}/${_userProfile!.level * AppConstants.xpPerLevel}',
-                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.xpColor),
-                                      ),
-                                    ],
+                                  ],
+                                ),
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing),
+                                  child: Text(
+                                    'Your Course Progress:',
+                                    style: AppColors.neonTextStyle(fontSize: 22, color: AppColors.secondaryColor),
                                   ),
-                                  const SizedBox(height: AppConstants.spacing),
-                                  ProgressBar(
-                                    current: _userProfile!.xp,
-                                    total: _userProfile!.level * AppConstants.xpPerLevel,
-                                    color: AppColors.xpColor,
-                                    backgroundColor: AppColors.borderColor,
-                                  ),
-                                  const SizedBox(height: AppConstants.padding),
-                                  Text(
-                                    'Daily Streak: ${_userProfile!.currentStreak} days',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.streakColor),
-                                  ),
-                                  const SizedBox(height: AppConstants.spacing),
-                                  Text(
-                                    _userProfile!.lastStreakUpdate != null
-                                        ? 'Last activity: ${_userProfile!.lastStreakUpdate!.toLocal().toIso8601String().substring(0, 10)}'
-                                        : 'No recent activity',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textColorSecondary),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Card(
-                            color: AppColors.cardColor,
-                            margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                            child: Padding(
-                              padding: const EdgeInsets.all(AppConstants.padding),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Course Progress',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-                                  ),
-                                  const SizedBox(height: AppConstants.padding),
-                                  if (_allUserProgress.isEmpty)
-                                    Text(
-                                      'No course progress yet. Start a course to see your progress!',
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-                                    )
-                                  else
-                                    ListView.builder(
+                                ),
+                                StreamBuilder<List<Course>>(
+                                  stream: _firebaseService.streamAllCourses(),
+                                  builder: (context, courseSnapshot) {
+                                    if (courseSnapshot.connectionState == ConnectionState.waiting) {
+                                      return const Center(child: CircularProgressIndicator(color: AppColors.accentColor));
+                                    }
+                                    if (courseSnapshot.hasError) {
+                                      return Center(child: Text('Error loading courses: ${courseSnapshot.error}', style: const TextStyle(color: AppColors.errorColor)));
+                                    }
+                                    if (!courseSnapshot.hasData || courseSnapshot.data!.isEmpty) {
+                                      return const Center(
+                                        child: Text(
+                                          'No courses available to track progress.',
+                                          style: TextStyle(color: AppColors.textColorSecondary),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      );
+                                    }
+
+                                    final courses = courseSnapshot.data!;
+
+                                    return ListView.builder(
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      itemCount: _allUserProgress.length,
+                                      physics: const NeverScrollableScrollPhysics(), // Important for nested scrolling
+                                      padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding),
+                                      itemCount: courses.length,
                                       itemBuilder: (context, index) {
-                                        final progress = _allUserProgress[index];
-                                        final course = _coursesMap[progress.courseId];
-                                        if (course == null) return const SizedBox.shrink();
+                                        final course = courses[index];
+                                        return StreamBuilder<UserProgress?>(
+                                          stream: _firebaseService.streamUserCourseProgress(_currentUserId!, course.id),
+                                          builder: (context, progressSnapshot) {
+                                            if (progressSnapshot.connectionState == ConnectionState.waiting) {
+                                              return CourseProgressCard(course: course, progressPercentage: 0, lessonsCompleted: 0, totalLessons: 0, totalXpEarned: 0, isLoading: true);
+                                            }
+                                            if (progressSnapshot.hasError) {
+                                              return CourseProgressCard(course: course, progressPercentage: 0, lessonsCompleted: 0, totalLessons: 0, totalXpEarned: 0, isError: true);
+                                            }
 
-                                        final completedLessons = progress.lessonsProgress.values.where((lp) => lp.isCompleted).length;
-                                        final totalLessons = course.levelIds.length; // Simplified: assuming 1 lesson per level for now
+                                            final userProgress = progressSnapshot.data;
 
-                                        return Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              course.title,
-                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textColor),
-                                            ),
-                                            const SizedBox(height: AppConstants.spacing / 2),
-                                            ProgressBar(
-                                              current: completedLessons,
-                                              total: totalLessons,
-                                              color: AppColors.accentColor,
-                                              backgroundColor: AppColors.borderColor,
-                                            ),
-                                            const SizedBox(height: AppConstants.spacing / 2),
-                                            Text(
-                                              '$completedLessons / $totalLessons lessons completed',
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textColorSecondary),
-                                            ),
-                                            const Divider(color: AppColors.borderColor, height: AppConstants.padding),
-                                          ],
+                                            int totalLevelsInCourse = course.levelIds?.length ?? 0; // Null check added
+                                            int completedLevelsCount = 0;
+                                            int completedLessonsCount = 0;
+                                            int totalXpEarned = 0;
+
+                                            if (userProgress != null) {
+                                              completedLevelsCount = userProgress.levelsProgress.values.where((p) => p.isCompleted).length;
+                                              totalXpEarned = userProgress.levelsProgress.values.fold(0, (sum, progress) => sum + progress.xpEarned);
+
+                                              // To get total lessons, you'd ideally fetch all lessons for all levels of this course.
+                                              // For now, if not easily available, we can approximate or use completedLessonsCount
+                                              // This is a simplification; a more robust solution would involve fetching total lessons per course.
+                                              completedLessonsCount = userProgress.lessonsProgress.values.where((p) => p.isCompleted).length;
+                                            }
+
+                                            double progressPercentage = totalLevelsInCourse > 0
+                                                ? (completedLevelsCount / totalLevelsInCourse)
+                                                : 0.0;
+
+                                            return CourseProgressCard(
+                                              course: course,
+                                              progressPercentage: progressPercentage,
+                                              lessonsCompleted: completedLessonsCount,
+                                              totalLessons: totalLevelsInCourse, // Approximating total lessons with total levels
+                                              totalXpEarned: totalXpEarned,
+                                            );
+                                          },
                                         );
                                       },
-                                    ),
-                                ],
-                              ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: AppConstants.spacing * 4),
+
+                                // Leaderboard Section
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing),
+                                  child: Text(
+                                    'Global Leaderboard:',
+                                    style: AppColors.neonTextStyle(fontSize: 22, color: AppColors.xpColor),
+                                  ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: AppConstants.padding),
+                                  child: LeaderboardList(),
+                                ),
+                                const SizedBox(height: AppConstants.padding * 2), // Add some bottom padding
+                              ],
                             ),
                           ),
-                          Card(
-                            color: AppColors.cardColor,
-                            margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                            child: Padding(
-                              padding: const EdgeInsets.all(AppConstants.padding),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Achievements & Badges',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-                                  ),
-                                  const SizedBox(height: AppConstants.padding),
-                                  Text(
-                                    'Visit the Profile screen to view your earned badges and achievements.',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textColorSecondary),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: TextButton.icon(
-                                      onPressed: () {
-                                        Navigator.of(context).pushNamed(AppRouter.profileRoute);
-                                      },
-                                      icon: const Icon(Icons.arrow_forward),
-                                      label: const Text('Go to Profile'),
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: AppColors.accentColor,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                        ),
+                      ],
+                    ),
+        ),
+      ),
+      bottomNavigationBar: const BottomNavBar(currentIndex: 1),
+    );
+    
+  }
+}
+
+class CourseProgressCard extends StatelessWidget {
+  final Course course;
+  final double progressPercentage;
+  final int lessonsCompleted;
+  final int totalLessons;
+  final int totalXpEarned;
+  final bool isLoading;
+  final bool isError;
+
+  const CourseProgressCard({
+    super.key,
+    required this.course,
+    required this.progressPercentage,
+    required this.lessonsCompleted,
+    required this.totalLessons,
+    required this.totalXpEarned,
+    this.isLoading = false,
+    this.isError = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
+      color: AppColors.cardColor.withOpacity(0.8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.padding),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))
+            : isError
+                ? const Center(child: Text('Error loading progress', style: TextStyle(color: AppColors.errorColor)))
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        course.title,
+                        style: const TextStyle(
+                          color: AppColors.textColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppConstants.spacing),
+                      Text(
+                        course.description,
+                        style: const TextStyle(
+                          color: AppColors.textColorSecondary,
+                          fontSize: 14,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: AppConstants.spacing * 2),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Progress: ${(progressPercentage * 100).toStringAsFixed(0)}%',
+                            style: const TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'XP: $totalXpEarned',
+                            style: const TextStyle(color: AppColors.xpColor, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: AppConstants.spacing),
+                      ProgressBar(
+                        current: (progressPercentage * 100).round(),
+                        total: 100,
+                        backgroundColor: AppColors.progressTrackColor,
+                        progressColor: AppColors.accentColor,
+                      ),
+                      const SizedBox(height: AppConstants.spacing),
+                      Text(
+                        // Add null check for course.levelIds before accessing length
+                        'Levels Completed: $lessonsCompleted/${course.levelIds?.length ?? 0} (approximated)',
+                        style: const TextStyle(color: AppColors.textColorSecondary, fontSize: 12),
+                      ),
+                    ],
                   ),
-        bottomNavigationBar: const BottomNavBar(currentIndex: 1),
       ),
     );
   }

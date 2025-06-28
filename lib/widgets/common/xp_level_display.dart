@@ -2,80 +2,68 @@
 import 'package:flutter/material.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
+import 'package:gamifier/widgets/common/progress_bar.dart';
 
 class XpLevelDisplay extends StatelessWidget {
   final int xp;
   final int level;
-  final int currentStreak;
 
   const XpLevelDisplay({
     super.key,
     required this.xp,
     required this.level,
-    required this.currentStreak,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding / 2),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacing, vertical: AppConstants.spacing / 2),
-            decoration: BoxDecoration(
-              color: AppColors.levelColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-              border: Border.all(color: AppColors.levelColor),
-            ),
-            child: Text(
-              'LVL $level',
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+    final int xpForCurrentLevel = (level - 1) * AppConstants.xpPerLevel;
+    final int xpProgressInCurrentLevel = xp - xpForCurrentLevel;
+    final int xpNeededForNextLevel = AppConstants.xpPerLevel;
+
+    double progress = xpNeededForNextLevel > 0
+        ? xpProgressInCurrentLevel / xpNeededForNextLevel
+        : 0.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Level $level',
+              style: const TextStyle(
                 color: AppColors.levelColor,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-          const SizedBox(width: AppConstants.spacing),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacing, vertical: AppConstants.spacing / 2),
-            decoration: BoxDecoration(
-              color: AppColors.xpColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-              border: Border.all(color: AppColors.xpColor),
-            ),
-            child: Text(
+            Text(
               '$xp XP',
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              style: const TextStyle(
                 color: AppColors.xpColor,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: AppConstants.spacing),
+        ProgressBar(
+          current: xpProgressInCurrentLevel,
+          total: xpNeededForNextLevel,
+          backgroundColor: AppColors.progressTrackColor,
+          progressColor: AppColors.xpColor,
+        ),
+        const SizedBox(height: AppConstants.spacing / 2),
+        Text(
+          '${xpProgressInCurrentLevel} / $xpNeededForNextLevel XP to next level',
+          style: const TextStyle(
+            color: AppColors.textColorSecondary,
+            fontSize: 12,
           ),
-          const SizedBox(width: AppConstants.spacing),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacing, vertical: AppConstants.spacing / 2),
-            decoration: BoxDecoration(
-              color: AppColors.streakColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-              border: Border.all(color: AppColors.streakColor),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.local_fire_department, color: AppColors.streakColor, size: AppConstants.iconSize * 0.7),
-                Text(
-                  '$currentStreak',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppColors.streakColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

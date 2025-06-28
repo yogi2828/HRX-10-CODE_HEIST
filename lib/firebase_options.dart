@@ -50,20 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCmjHbWtyPoSczWVlZXir4ZKL0pIuwjQyU',
-    appId: '1:648968953970:web:26adf83377352b563fe2eb',
-    messagingSenderId: '648968953970',
-    projectId: 'gamifier-dd3db',
-    authDomain: 'gamifier-dd3db.firebaseapp.com',
-    storageBucket: 'gamifier-dd3db.firebasestorage.app',
-    measurementId: 'G-Q1TCSR7PXQ',
+    apiKey: 'AIzaSyAHexFJE-pgYcYugN9obTeYsJZOjKqAGv0',
+    appId: '1:967632206782:web:d5d2531c5e954ea77d17ef',
+    messagingSenderId: '967632206782',
+    projectId: 'gamifier-ca201',
+    authDomain: 'gamifier-ca201.firebaseapp.com',
+    storageBucket: 'gamifier-ca201.firebasestorage.app',
+    measurementId: 'G-6KLNQM3T8P',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBEEQC6ahJv3sqBpesSegu5UoKcUO7kXzc',
-    appId: '1:648968953970:android:4b0ba5454cdfc3d43fe2eb',
-    messagingSenderId: '648968953970',
-    projectId: 'gamifier-dd3db',
-    storageBucket: 'gamifier-dd3db.firebasestorage.app',
+    apiKey: 'AIzaSyDNAu54WnBbXzkyGU3yqP_LCZ9CadDIM_o',
+    appId: '1:967632206782:android:d5207456b47ef0767d17ef',
+    messagingSenderId: '967632206782',
+    projectId: 'gamifier-ca201',
+    storageBucket: 'gamifier-ca201.firebasestorage.app',
   );
+
 }

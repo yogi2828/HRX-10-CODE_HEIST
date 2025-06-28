@@ -1,5 +1,6 @@
 // lib/screens/profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
@@ -7,12 +8,10 @@ import 'package:gamifier/models/user_profile.dart';
 import 'package:gamifier/services/firebase_service.dart';
 import 'package:gamifier/utils/app_router.dart';
 import 'package:gamifier/widgets/common/custom_app_bar.dart';
-import 'package:gamifier/widgets/common/loading_indicator.dart';
-import 'package:gamifier/widgets/gamification/avatar_customizer.dart';
+import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/gamification/badge_display.dart';
-import 'package:gamifier/widgets/gamification/leaderboard_list.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:gamifier/widgets/common/xp_level_display.dart';
+import 'package:gamifier/widgets/gamification/streak_display.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,17 +23,18 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   UserProfile? _userProfile;
   bool _isLoading = true;
-  final ImagePicker _picker = ImagePicker();
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserProfile();
+    _loadUserProfile();
   }
 
-  void _fetchUserProfile() {
+  Future<void> _loadUserProfile() async {
     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
     final user = firebaseService.currentUser;
+
     if (user != null) {
       firebaseService.streamUserProfile(user.uid).listen((profile) {
         if (mounted) {
@@ -43,233 +43,185 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _isLoading = false;
           });
         }
+      }).onError((error) {
+        debugPrint('Error streaming user profile: $error');
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Failed to load profile: ${error.toString()}';
+            _isLoading = false;
+          });
+        }
       });
     } else {
       setState(() {
+        _errorMessage = 'User not logged in.';
         _isLoading = false;
       });
-      Navigator.of(context).pushReplacementNamed(AppRouter.authRoute);
     }
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null && _userProfile != null) {
-      // For now, we'll just log the path. Real implementation would upload to storage (e.g., Firebase Storage)
-      // and update the userProfile.avatarAssetPath with the URL.
-      // Since the current avatar system uses local assets, this is a placeholder.
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Image picked: ${pickedFile.path}. Upload to storage functionality to be implemented.', style: const TextStyle(color: AppColors.infoColor))),
-      );
+  Future<void> _signOut() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await Provider.of<FirebaseService>(context, listen: false).signOut();
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(AppRouter.authRoute);
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error signing out: ${e.toString()}';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-  }
-
-  void _logout() async {
-    await Provider.of<FirebaseService>(context, listen: false).signOut();
-    Navigator.of(context).pushReplacementNamed(AppRouter.authRoute);
-  }
-
-  void _navigateToAvatarCustomizer() {
-    if (_userProfile != null) {
-      Navigator.of(context).pushNamed(
-        AppRouter.avatarCustomizerRoute,
-        arguments: _userProfile,
-      );
-    }
-  }
-
-  void _showAIPersonaDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        String? tempSelectedPersona = _userProfile?.aiPersona;
-        return AlertDialog(
-          backgroundColor: AppColors.cardColor,
-          title: const Text('Choose AI Persona'),
-          content: DropdownButtonFormField<String>(
-            value: tempSelectedPersona,
-            decoration: const InputDecoration(
-              labelText: 'AI Tutor Persona',
-            ),
-            items: const [
-              DropdownMenuItem<String>(value: 'Default', child: Text('Default', style: TextStyle(color: AppColors.textColor))),
-              DropdownMenuItem<String>(value: 'Strict Professor', child: Text('Strict Professor', style: TextStyle(color: AppColors.textColor))),
-              DropdownMenuItem<String>(value: 'Friendly Guide', child: Text('Friendly Guide', style: TextStyle(color: AppColors.textColor))),
-              DropdownMenuItem<String>(value: 'Sarcastic Mentor', child: Text('Sarcastic Mentor', style: TextStyle(color: AppColors.textColor))),
-            ].toList(),
-            onChanged: (String? newValue) {
-              tempSelectedPersona = newValue;
-            },
-            dropdownColor: AppColors.cardColor,
-            style: const TextStyle(color: AppColors.textColor),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel', style: TextStyle(color: AppColors.accentColor)),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (tempSelectedPersona != null && _userProfile != null) {
-                  final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-                  final updatedProfile = _userProfile!.copyWith(aiPersona: tempSelectedPersona);
-                  await firebaseService.updateUserProfile(updatedProfile);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('AI Persona updated successfully!')),
-                  );
-                }
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient()),
-      child: Scaffold(
-        backgroundColor: AppColors.transparent,
-        appBar: const CustomAppBar(title: 'My Profile'),
-        body: _isLoading
-            ? const LoadingIndicator()
-            : _userProfile == null
-                ? Center(
-                    child: Text(
-                      'No user profile found. Please log in.',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.textColorSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.all(AppConstants.padding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Card(
-                          color: AppColors.cardColor,
-                          margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppConstants.padding),
-                            child: Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: _navigateToAvatarCustomizer,
-                                  child: AvatarCustomizer(
-                                    selectedAvatarPath: _userProfile!.avatarAssetPath,
-                                    onAvatarSelected: (path) {}, // No direct selection here, handled by navigation
-                                    showSelector: false,
-                                  ),
-                                ),
-                                const SizedBox(height: AppConstants.padding),
-                                Text(
-                                  _userProfile!.username,
-                                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                    color: AppColors.textColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'Level ${_userProfile!.level} | XP: ${_userProfile!.xp}',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.xpColor),
-                                ),
-                                const SizedBox(height: AppConstants.spacing),
-                                Text(
-                                  'Current Streak: ${_userProfile!.currentStreak} days',
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.streakColor),
-                                ),
-                                const SizedBox(height: AppConstants.padding),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: const CustomAppBar(title: 'My Profile'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient(),
+        ),
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))
+              : _errorMessage != null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppConstants.padding),
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: AppColors.errorColor),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : _userProfile == null
+                      ? const Center(
+                          child: Text(
+                            'User profile not found. Please log in again.',
+                            style: TextStyle(color: AppColors.textColorSecondary),
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          padding: const EdgeInsets.all(AppConstants.padding),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Center(
+                                child: Stack(
                                   children: [
-                                    ActionChip(
-                                      avatar: const Icon(Icons.school, color: AppColors.textColor),
-                                      label: Text(_userProfile!.educationLevel ?? 'Not Set'),
-                                      labelStyle: const TextStyle(color: AppColors.textColor),
-                                      backgroundColor: AppColors.secondaryColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                                      ),
+                                    CircleAvatar(
+                                      radius: AppConstants.avatarSize,
+                                      backgroundImage: AssetImage(_userProfile!.avatarAssetPath),
+                                      backgroundColor: AppColors.borderColor,
                                     ),
-                                    const SizedBox(width: AppConstants.spacing),
-                                    ActionChip(
-                                      avatar: const Icon(Icons.topic, color: AppColors.textColor),
-                                      label: Text(_userProfile!.specialty ?? 'Not Set'),
-                                      labelStyle: const TextStyle(color: AppColors.textColor),
-                                      backgroundColor: AppColors.secondaryColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: IconButton(
+                                        icon: const Icon(Icons.edit, color: AppColors.accentColor),
+                                        onPressed: () {
+                                          Navigator.of(context).pushNamed(AppRouter.avatarCustomizerRoute);
+                                        },
+                                        tooltip: 'Customize Avatar',
+                                        style: IconButton.styleFrom(
+                                          backgroundColor: AppColors.primaryColor,
+                                          shape: const CircleBorder(),
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: AppConstants.padding),
-                                ElevatedButton.icon(
-                                  onPressed: _showAIPersonaDialog,
-                                  icon: const Icon(Icons.smart_toy),
-                                  label: Text('AI Persona: ${_userProfile!.aiPersona ?? 'Default'}'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primaryColor,
-                                    foregroundColor: AppColors.textColor,
+                              ),
+                              const SizedBox(height: AppConstants.spacing * 2),
+                              Text(
+                                _userProfile!.username,
+                                style: AppColors.neonTextStyle(fontSize: 28),
+                                textAlign: TextAlign.center,
+                              ),
+                              if (_userProfile!.email.isNotEmpty) ...[
+                                const SizedBox(height: AppConstants.spacing),
+                                Text(
+                                  _userProfile!.email,
+                                  style: const TextStyle(color: AppColors.textColorSecondary, fontSize: 16),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                              const SizedBox(height: AppConstants.spacing * 3),
+                              XpLevelDisplay(xp: _userProfile!.xp, level: _userProfile!.level),
+                              const SizedBox(height: AppConstants.spacing * 2),
+                              StreakDisplay(currentStreak: _userProfile!.currentStreak),
+                              const SizedBox(height: AppConstants.spacing * 3),
+                              if (_userProfile!.educationLevel != null && _userProfile!.educationLevel!.isNotEmpty)
+                                Card(
+                                  color: AppColors.cardColor.withOpacity(0.8),
+                                  margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(AppConstants.padding),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.school, color: AppColors.secondaryColor),
+                                        const SizedBox(width: AppConstants.spacing),
+                                        Text(
+                                          'Education Level: ${_userProfile!.educationLevel}',
+                                          style: const TextStyle(color: AppColors.textColor, fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Card(
-                          color: AppColors.cardColor,
-                          margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppConstants.padding),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Earned Badges',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
+                              if (_userProfile!.specialty != null && _userProfile!.specialty!.isNotEmpty)
+                                Card(
+                                  color: AppColors.cardColor.withOpacity(0.8),
+                                  margin: const EdgeInsets.symmetric(vertical: AppConstants.spacing),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(AppConstants.padding),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.star, color: AppColors.xpColor),
+                                        const SizedBox(width: AppConstants.spacing),
+                                        Text(
+                                          'Specialty: ${_userProfile!.specialty}',
+                                          style: const TextStyle(color: AppColors.textColor, fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(height: AppConstants.padding),
-                                BadgeDisplay(earnedBadgeIds: _userProfile!.earnedBadges),
-                              ],
-                            ),
+                              const SizedBox(height: AppConstants.spacing * 2),
+                              Text(
+                                'Badges Earned (${_userProfile!.earnedBadges.length})',
+                                style: AppColors.neonTextStyle(fontSize: 20, color: AppColors.secondaryColor),
+                              ),
+                              const SizedBox(height: AppConstants.spacing),
+                              _userProfile!.earnedBadges.isEmpty
+                                  ? const Text(
+                                      'No badges earned yet. Keep learning!',
+                                      style: TextStyle(color: AppColors.textColorSecondary),
+                                    )
+                                  : BadgeDisplay(badgeIds: _userProfile!.earnedBadges),
+                              const SizedBox(height: AppConstants.spacing * 4),
+                              CustomButton(
+                                onPressed: _signOut,
+                                text: 'Sign Out',
+                                icon: Icons.logout,
+                                isLoading: _isLoading,
+                              ),
+                            ],
                           ),
                         ),
-                        Card(
-                          color: AppColors.cardColor,
-                          margin: const EdgeInsets.only(bottom: AppConstants.padding),
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppConstants.padding),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Leaderboard',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textColor),
-                                ),
-                                const SizedBox(height: AppConstants.padding),
-                                LeaderboardList(),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: _logout,
-                          icon: const Icon(Icons.logout),
-                          label: const Text('Logout'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.errorColor,
-                            padding: const EdgeInsets.symmetric(vertical: AppConstants.padding),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+        ),
       ),
+      bottomNavigationBar: const BottomNavBar(currentIndex: 5),
     );
+    
   }
 }

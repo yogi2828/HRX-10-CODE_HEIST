@@ -6,49 +6,31 @@ import 'package:gamifier/constants/app_constants.dart';
 class ProgressBar extends StatelessWidget {
   final int current;
   final int total;
-  final Color color;
   final Color backgroundColor;
-  final double height;
-  final double borderRadius;
+  final Color progressColor;
 
   const ProgressBar({
     super.key,
     required this.current,
     required this.total,
-    this.color = AppColors.accentColor,
-    this.backgroundColor = AppColors.secondaryColor,
-    this.height = 10.0,
-    this.borderRadius = AppConstants.borderRadius,
+    this.backgroundColor = AppColors.progressTrackColor,
+    this.progressColor = AppColors.accentColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        double percentage = total > 0 ? current / total : 0.0;
-        if (percentage > 1.0) percentage = 1.0; // Cap at 100%
+    double progress = total > 0 ? current / total : 0.0;
+    if (progress > 1.0) progress = 1.0; // Cap progress at 100%
 
-        return Container(
-          width: constraints.maxWidth,
-          height: height,
-          decoration: BoxDecoration(
-            color: backgroundColor.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(borderRadius),
-          ),
-          child: Stack(
-            children: [
-              AnimatedContainer(
-                duration: AppConstants.defaultAnimationDuration,
-                width: constraints.maxWidth * percentage,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(borderRadius),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+      child: LinearProgressIndicator(
+        value: progress,
+        backgroundColor: backgroundColor,
+        valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+        minHeight: 10,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+      ),
     );
   }
 }

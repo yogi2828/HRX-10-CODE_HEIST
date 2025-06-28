@@ -3,83 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class Comment {
-  final String userId;
-  final String username;
-  final String avatarAssetPath;
-  final String content;
-  final DateTime timestamp;
-
-  const Comment({
-    required this.userId,
-    required this.username,
-    required this.avatarAssetPath,
-    required this.content,
-    required this.timestamp,
-  });
-
-  factory Comment.fromMap(Map<String, dynamic> map) {
-    return Comment(
-      userId: map['userId'] as String,
-      username: map['username'] as String,
-      avatarAssetPath: map['avatarAssetPath'] as String,
-      content: map['content'] as String,
-      timestamp: (map['timestamp'] as Timestamp).toDate(),
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'userId': userId,
-      'username': username,
-      'avatarAssetPath': avatarAssetPath,
-      'content': content,
-      'timestamp': Timestamp.fromDate(timestamp),
-    };
-  }
-
-  @override
-  String toString() {
-    return 'Comment(userId: $userId, username: $username, avatarAssetPath: $avatarAssetPath, content: $content, timestamp: $timestamp)';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Comment &&
-          runtimeType == other.runtimeType &&
-          userId == other.userId &&
-          username == other.username &&
-          avatarAssetPath == other.avatarAssetPath &&
-          content == other.content &&
-          timestamp == other.timestamp;
-
-  @override
-  int get hashCode =>
-      userId.hashCode ^
-      username.hashCode ^
-      avatarAssetPath.hashCode ^
-      content.hashCode ^
-      timestamp.hashCode;
-}
-
-@immutable
 class CommunityPost {
   final String id;
-  final String userId;
-  final String username;
-  final String avatarAssetPath;
+  final String authorId;
+  final String authorUsername;
+  final String authorAvatarUrl;
   final String content;
+  final String? imageUrl;
   final DateTime timestamp;
   final List<String> likedBy;
   final List<Comment> comments;
 
   const CommunityPost({
     required this.id,
-    required this.userId,
-    required this.username,
-    required this.avatarAssetPath,
+    required this.authorId,
+    required this.authorUsername,
+    required this.authorAvatarUrl,
     required this.content,
+    this.imageUrl,
     required this.timestamp,
     this.likedBy = const [],
     this.comments = const [],
@@ -88,14 +29,15 @@ class CommunityPost {
   factory CommunityPost.fromMap(Map<String, dynamic> map) {
     return CommunityPost(
       id: map['id'] as String,
-      userId: map['userId'] as String,
-      username: map['username'] as String,
-      avatarAssetPath: map['avatarAssetPath'] as String,
+      authorId: map['authorId'] as String,
+      authorUsername: map['authorUsername'] as String,
+      authorAvatarUrl: map['authorAvatarUrl'] as String,
       content: map['content'] as String,
+      imageUrl: map['imageUrl'] as String?,
       timestamp: (map['timestamp'] as Timestamp).toDate(),
       likedBy: List<String>.from(map['likedBy'] ?? []),
       comments: (map['comments'] as List<dynamic>?)
-              ?.map((e) => Comment.fromMap(e as Map<String, dynamic>))
+              ?.map((c) => Comment.fromMap(c as Map<String, dynamic>))
               .toList() ??
           [],
     );
@@ -104,32 +46,35 @@ class CommunityPost {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'userId': userId,
-      'username': username,
-      'avatarAssetPath': avatarAssetPath,
+      'authorId': authorId,
+      'authorUsername': authorUsername,
+      'authorAvatarUrl': authorAvatarUrl,
       'content': content,
+      'imageUrl': imageUrl,
       'timestamp': Timestamp.fromDate(timestamp),
       'likedBy': likedBy,
-      'comments': comments.map((e) => e.toMap()).toList(),
+      'comments': comments.map((c) => c.toMap()).toList(),
     };
   }
 
   CommunityPost copyWith({
     String? id,
-    String? userId,
-    String? username,
-    String? avatarAssetPath,
+    String? authorId,
+    String? authorUsername,
+    String? authorAvatarUrl,
     String? content,
+    String? imageUrl,
     DateTime? timestamp,
     List<String>? likedBy,
     List<Comment>? comments,
   }) {
     return CommunityPost(
       id: id ?? this.id,
-      userId: userId ?? this.userId,
-      username: username ?? this.username,
-      avatarAssetPath: avatarAssetPath ?? this.avatarAssetPath,
+      authorId: authorId ?? this.authorId,
+      authorUsername: authorUsername ?? this.authorUsername,
+      authorAvatarUrl: authorAvatarUrl ?? this.authorAvatarUrl,
       content: content ?? this.content,
+      imageUrl: imageUrl ?? this.imageUrl,
       timestamp: timestamp ?? this.timestamp,
       likedBy: likedBy ?? this.likedBy,
       comments: comments ?? this.comments,
@@ -138,7 +83,7 @@ class CommunityPost {
 
   @override
   String toString() {
-    return 'CommunityPost(id: $id, userId: $userId, username: $username, avatarAssetPath: $avatarAssetPath, content: $content, timestamp: $timestamp, likedBy: $likedBy, comments: $comments)';
+    return 'CommunityPost(id: $id, authorId: $authorId, authorUsername: $authorUsername, content: $content, imageUrl: $imageUrl, timestamp: $timestamp, likedBy: $likedBy, comments: $comments)';
   }
 
   @override
@@ -147,10 +92,11 @@ class CommunityPost {
       other is CommunityPost &&
           runtimeType == other.runtimeType &&
           id == other.id &&
-          userId == other.userId &&
-          username == other.username &&
-          avatarAssetPath == other.avatarAssetPath &&
+          authorId == other.authorId &&
+          authorUsername == other.authorUsername &&
+          authorAvatarUrl == other.authorAvatarUrl &&
           content == other.content &&
+          imageUrl == other.imageUrl &&
           timestamp == other.timestamp &&
           listEquals(likedBy, other.likedBy) &&
           listEquals(comments, other.comments);
@@ -158,11 +104,74 @@ class CommunityPost {
   @override
   int get hashCode =>
       id.hashCode ^
-      userId.hashCode ^
-      username.hashCode ^
-      avatarAssetPath.hashCode ^
+      authorId.hashCode ^
+      authorUsername.hashCode ^
+      authorAvatarUrl.hashCode ^
       content.hashCode ^
+      imageUrl.hashCode ^
       timestamp.hashCode ^
       listEquals(likedBy, likedBy).hashCode ^
       listEquals(comments, comments).hashCode;
+}
+
+@immutable
+class Comment {
+  final String id;
+  final String userId;
+  final String username;
+  final String avatarUrl;
+  final String text;
+  final DateTime timestamp;
+
+  const Comment({
+    required this.id,
+    required this.userId,
+    required this.username,
+    required this.avatarUrl,
+    required this.text,
+    required this.timestamp,
+  });
+
+  factory Comment.fromMap(Map<String, dynamic> map) {
+    return Comment(
+      id: map['id'] as String,
+      userId: map['userId'] as String,
+      username: map['username'] as String,
+      avatarUrl: map['avatarUrl'] as String,
+      text: map['text'] as String,
+      timestamp: (map['timestamp'] as Timestamp).toDate(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'username': username,
+      'avatarUrl': avatarUrl,
+      'text': text,
+      'timestamp': Timestamp.fromDate(timestamp),
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Comment(id: $id, userId: $userId, username: $username, text: $text, timestamp: $timestamp)';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Comment &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          userId == other.userId &&
+          username == other.username &&
+          avatarUrl == other.avatarUrl &&
+          text == other.text &&
+          timestamp == other.timestamp;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^ userId.hashCode ^ username.hashCode ^ avatarUrl.hashCode ^ text.hashCode ^ timestamp.hashCode;
 }

@@ -1,297 +1,507 @@
-// lib/services/gemini_api_service.dart
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'package:gamifier/constants/app_constants.dart';
+import 'package:gamifier/models/course.dart';
+import 'package:gamifier/models/level.dart';
+import 'package:gamifier/models/lesson.dart';
+import 'package:gamifier/models/question.dart';
+import 'package:gamifier/models/user_progress.dart';
+import 'package:gamifier/models/user_profile.dart'; // Import UserProfile
+import 'package:gamifier/models/chat_message.dart';
 
-class GeminiApiService extends ChangeNotifier {
-  Future<String> generateText(String prompt) async {
-    final String apiKey = AppConstants.geminiApiKey;
-    final String apiUrl =
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey';
+class GeminiApiService {
+  static const String _baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+  final String _apiKey = AppConstants.geminiApiKey;
 
-    final chatHistory = [
-      {"role": "user", "parts": [{"text": prompt}]}
-    ];
+  Future<Map<String, dynamic>> _callGeminiApi(Map<String, dynamic> payload) async {
+    if (_apiKey.isEmpty || _apiKey == 'YOUR_GEMINI_API_HERE') {
+      throw Exception('Gemini API Key is not configured. Please set it in app_constants.dart');
+    }
 
-    final payload = {
-      "contents": chatHistory,
-      "generationConfig": {
-        "temperature": AppConstants.geminiTemperature,
-        "maxOutputTokens": AppConstants.geminiMaxOutputTokens,
-      }
-    };
+    final url = Uri.parse('$_baseUrl?key=$_apiKey');
 
     try {
       final response = await http.post(
-        Uri.parse(apiUrl),
+        url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode(payload),
       );
 
       if (response.statusCode == 200) {
-        final result = json.decode(response.body);
-        if (result['candidates'] != null &&
-            result['candidates'].isNotEmpty &&
-            result['candidates'][0]['content'] != null &&
-            result['candidates'][0]['content']['parts'] != null &&
-            result['candidates'][0]['content']['parts'].isNotEmpty) {
-          return result['candidates'][0]['content']['parts'][0]['text'] as String;
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody.containsKey('error')) {
+          throw Exception('Gemini API Error: ${responseBody['error']['message']}');
+        }
+        if (responseBody['candidates'] != null &&
+            responseBody['candidates'].isNotEmpty &&
+            responseBody['candidates'][0]['content'] != null &&
+            responseBody['candidates'][0]['content']['parts'] != null &&
+            responseBody['candidates'][0]['content']['parts'].isNotEmpty) {
+          return responseBody;
         } else {
-          print('Gemini API: Unexpected response structure: ${response.body}');
-          return 'Error: Could not generate content. Unexpected response from AI.';
+          throw Exception('Gemini API response did not contain expected content structure.');
         }
       } else {
-        print('Gemini API Error: ${response.statusCode} - ${response.body}');
-        return 'Error: Failed to connect to AI. Status Code: ${response.statusCode}';
+        debugPrint('Gemini API Error - Status Code: ${response.statusCode}');
+        debugPrint('Response Body: ${response.body}');
+        throw Exception('Failed to call Gemini API: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('Gemini API Exception: $e');
-      return 'Error: An exception occurred while communicating with AI.';
+      throw Exception('Network or parsing error calling Gemini API: $e');
     }
   }
 
-  Future<String> generateStructuredText(String prompt, Map<String, dynamic> schema) async {
-    final String apiKey = AppConstants.geminiApiKey;
-    final String apiUrl =
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey';
+  String _extractJsonString(String text) {
+    String cleanedText = text.trim();
 
-    final chatHistory = [
-      {"role": "user", "parts": [{"text": prompt}]}
-    ];
-
-    final payload = {
-      "contents": chatHistory,
-      "generationConfig": {
-        "temperature": AppConstants.geminiTemperature,
-        "maxOutputTokens": AppConstants.geminiMaxOutputTokens,
-        "responseMimeType": "application/json",
-        "responseSchema": schema
-      }
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(payload),
-      );
-
-      if (response.statusCode == 200) {
-        final result = json.decode(response.body);
-        if (result['candidates'] != null &&
-            result['candidates'].isNotEmpty &&
-            result['candidates'][0]['content'] != null &&
-            result['candidates'][0]['content']['parts'] != null &&
-            result['candidates'][0]['content']['parts'].isNotEmpty) {
-          return result['candidates'][0]['content']['parts'][0]['text'] as String;
-        } else {
-          print('Gemini API: Unexpected structured response structure: ${response.body}');
-          return 'Error: Could not generate structured content. Unexpected response from AI.';
-        }
-      } else {
-        print('Gemini API Structured Error: ${response.statusCode} - ${response.body}');
-        return 'Error: Failed to connect to AI for structured content. Status Code: ${response.statusCode}';
-      }
-    } catch (e) {
-      print('Gemini API Structured Exception: $e');
-      return 'Error: An exception occurred while communicating with AI for structured content.';
+    // Regex to find JSON within a '```json` block
+    final jsonCodeBlockRegex = RegExp(r'```json\s*(\{[\s\S]*?\})\s*```', dotAll: true);
+    final jsonCodeBlockMatch = jsonCodeBlockRegex.firstMatch(cleanedText);
+    if (jsonCodeBlockMatch != null && jsonCodeBlockMatch.group(1) != null) {
+      return jsonCodeBlockMatch.group(1)!;
     }
+
+    // Fallback: Find the largest valid JSON object or array
+    final List<Match> allMatches = RegExp(r'\{[\s\S]*\}|\[[\s\S]*\]', dotAll: true).allMatches(cleanedText).toList();
+    
+    // Sort matches by length descending to prioritize larger JSON structures
+    allMatches.sort((a, b) => b.group(0)!.length.compareTo(a.group(0)!.length));
+
+    String? bestValidJson;
+    for (final match in allMatches) {
+      String potentialJson = match.group(0)!;
+      try {
+        json.decode(potentialJson); // Attempt to decode
+        bestValidJson = potentialJson;
+        break; // Found the largest valid JSON, stop searching
+      } on FormatException {
+        // Continue to next match if invalid
+      }
+    }
+
+    if (bestValidJson != null) {
+      return bestValidJson;
+    }
+    
+    // If no complete JSON found, attempt to repair basic issues (like truncation at the end)
+    // This is a last resort and might not fix complex parsing issues.
+    int openBraces = 0;
+    int openBrackets = 0;
+    bool inString = false;
+    StringBuffer repairedJsonBuffer = StringBuffer();
+
+    for (int i = 0; i < cleanedText.length; i++) {
+      String char = cleanedText[i];
+      if (char == '\\' && i + 1 < cleanedText.length) {
+        // Handle escaped characters
+        repairedJsonBuffer.write(char);
+        repairedJsonBuffer.write(cleanedText[++i]);
+      } else if (char == '"') {
+        inString = !inString;
+        repairedJsonBuffer.write(char);
+      } else if (char == '{' && !inString) {
+        openBraces++;
+        repairedJsonBuffer.write(char);
+      } else if (char == '}' && !inString) {
+        openBraces--;
+        repairedJsonBuffer.write(char);
+      } else if (char == '[' && !inString) {
+        openBrackets++;
+        repairedJsonBuffer.write(char);
+      } else if (char == ']' && !inString) {
+        openBrackets--;
+        repairedJsonBuffer.write(char);
+      } else {
+        repairedJsonBuffer.write(char);
+      }
+    }
+
+    // Append closing braces/brackets if they are missing at the end due to truncation
+    if (inString) {
+      repairedJsonBuffer.write('"'); // Close unclosed string
+    }
+    while (openBraces > 0) {
+      repairedJsonBuffer.write('}');
+      openBraces--;
+    }
+    while (openBrackets > 0) {
+      repairedJsonBuffer.write(']');
+      openBrackets--;
+    }
+
+    String finalRepairedText = repairedJsonBuffer.toString();
+    debugPrint('Attempting to parse repaired JSON: $finalRepairedText');
+    return finalRepairedText;
   }
 
-  Future<String> generateImageDescription(String prompt, String base64ImageData, String mimeType) async {
-    final String apiKey = AppConstants.geminiApiKey;
-    final String apiUrl =
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey';
+  Future<Map<String, dynamic>> generateCourseContent({
+    required String topicName,
+    required String ageGroup,
+    required String domain,
+    required String difficulty,
+    String? educationLevel,
+    String? specialty,
+    String? sourceContent,
+    String? youtubeUrl,
+    int numberOfLevels = AppConstants.initialLevelsCount,
+    int startingLevelOrder = 1,
+    List<Level>? previousLevelsContext,
+  }) async {
+    String prompt = '''
+    As an AI-powered gamification engine, your task is to transform a static course topic into an interactive, game-based learning module.
+    Generate a complete course structure including:
+    - courseTitle: A catchy title for the course.
+    - language: write the text in specified language like the (hindi,) Choose one from: ${AppConstants.gameThemes.join(', ')}.
+    - difficulty: The difficulty level of the course ("Beginner", "Intermediate", "Advanced", "Expert").
+    - levels: An array of $numberOfLevels distinct levels, ordered from easy to hard, each tailored to the course's difficulty. Each level should have:
+        - id: A unique string ID for the level (e.g., "level_${startingLevelOrder}").
+        - title: The title of the level.
+        - description: A brief, engaging description of the level.
+        - difficulty: The specific difficulty of this level (e.g., "Easy", "Medium").
+        - order: An integer representing the sequential order of the level (e.g., $startingLevelOrder, ${startingLevelOrder + 1}, ...). This field is mandatory.
+        - imageAssetPath: An optional path to a local asset image for this level's icon/visual (e.g., "assets/level_icons/level${startingLevelOrder}.png", "assets/level_icons/level${startingLevelOrder + 1}.png"). Create unique, descriptive paths for each.
+        - lessons: An array of 1-3 detailed lessons. Each lesson should have:
+            - id: A unique string ID for the lesson (e.g., "lesson_${startingLevelOrder}_1").
+            - title: The title of the lesson.
+            - content: Comprehensive learning material for the lesson (min 200 words), suitable for a college student, formatted in Markdown. **Ensure this is a valid JSON string with all special characters correctly escaped.**
+            - order: An integer representing the sequential order of the lesson. This field is mandatory.
+            - questions: An array of 3-5 small, interesting, and engaging questions for the lesson, appropriate for the level's difficulty. Each question should have:
+                - id: A unique string ID for the question (e.g., "q1_lesson_${startingLevelOrder}_1").
+                - questionText: The question itself.
+                - xpReward: An integer for XP reward (e.g., 10, 15, 20). This field is mandatory.
+                - type: One of "MCQ", "FillInBlank", "ShortAnswer", "Scenario". Favor a mix of types for variety.
+                - specific fields based on type (if applicable):
+                    - For MCQ: options (List<String>), correctAnswer (String, one of options). Ensure options are distinct and plausible.
+                    - For FillInBlank: correctAnswer (String).
+                    - For ShortAnswer: expectedAnswerKeywords (String, comma-separated keywords for evaluation).
+                    - For Scenario: scenarioText (String, concise and engaging), expectedOutcome (String). **Ensure scenarioText is a valid JSON string.**
+
+    The course is for "$topicName" for college students in the "$domain" domain, with an overall "$difficulty" difficulty level.
+    The user's education level is "$educationLevel" and their specialty is "$specialty". Tailor content and examples to these if relevant.
+    ''';
+
+    if (previousLevelsContext != null && previousLevelsContext.isNotEmpty) {
+      prompt += '''
+      \n\nFor context, here are the previously generated levels of this course. Ensure the new levels logically follow these, increasing in difficulty and building upon prior concepts:
+      ${json.encode(previousLevelsContext.map((level) => level.toMap()).toList())}
+      ''';
+    }
+
+    if (sourceContent != null && sourceContent.isNotEmpty) {
+      prompt += '''
+      \n\nUse the following provided text as the primary source material for generating the course content, lessons, and questions. Focus on the key concepts and details within this text:\n\n"$sourceContent"
+      ''';
+    } else if (youtubeUrl != null && youtubeUrl.isNotEmpty) {
+      prompt += '''
+      \n\nConsider the topic "$topicName" as if it were a YouTube video found at this URL: $youtubeUrl. Generate the course content, lessons, and questions based on what you would expect to be covered in such a video. If possible, imagine and use key points or a transcript from this video to structure the content.
+      ''';
+    }
+
+    prompt += '''
+    \n\nOutput ONLY the JSON object. Do NOT include any descriptive text, markdown code block fences (\`\`\`json), or any other characters outside the JSON structure.
+    All string values within the JSON, especially multi-line content or text containing special characters (like backslashes, double quotes, or newlines), MUST be correctly escaped for JSON validity. For example, newlines should be "\\\\n", double quotes should be "\\\\\\"", and backslashes should be "\\\\\\\\".
+    The output MUST be a JSON object conforming to the following schema.
+    ''';
 
     final payload = {
       "contents": [
-        {
-          "role": "user",
-          "parts": [
-            {"text": prompt},
-            {
-              "inlineData": {
-                "mimeType": mimeType,
-                "data": base64ImageData,
+        {"role": "user", "parts": [{"text": prompt}]}
+      ],
+      "generationConfig": {
+        "responseMimeType": "application/json",
+        "responseSchema": {
+          "type": "OBJECT",
+          "properties": {
+            "courseTitle": {"type": "STRING"},
+            "gameGenre": {"type": "STRING"},
+            "difficulty": {"type": "STRING"},
+            "levels": {
+              "type": "ARRAY",
+              "items": {
+                "type": "OBJECT",
+                "properties": {
+                  "id": {"type": "STRING"},
+                  "title": {"type": "STRING"},
+                  "description": {"type": "STRING"},
+                  "difficulty": {"type": "STRING"},
+                  "order": {"type": "INTEGER"}, // Marked as INTEGER
+                  "imageAssetPath": {"type": "STRING"},
+                  "lessons": {
+                    "type": "ARRAY",
+                    "items": {
+                      "type": "OBJECT",
+                      "properties": {
+                        "id": {"type": "STRING"},
+                        "title": {"type": "STRING"},
+                        "content": {"type": "STRING"},
+                        "order": {"type": "INTEGER"}, // Marked as INTEGER
+                        "questions": {
+                          "type": "ARRAY",
+                          "items": {
+                            "type": "OBJECT",
+                            "properties": {
+                              "id": {"type": "STRING"},
+                              "questionText": {"type": "STRING"},
+                              "xpReward": {"type": "INTEGER"}, // Marked as INTEGER
+                              "type": {"type": "STRING"},
+                              "options": {
+                                "type": "ARRAY",
+                                "items": {"type": "STRING"}
+                              },
+                              "correctAnswer": {"type": "STRING"},
+                              "expectedAnswerKeywords": {"type": "STRING"},
+                              "scenarioText": {"type": "STRING"},
+                              "expectedOutcome": {"type": "STRING"},
+                            },
+                            "required": ["id", "questionText", "xpReward", "type"]
+                          }
+                        }
+                      },
+                      "required": ["id", "title", "content", "order", "questions"]
+                    }
+                  }
+                },
+                "required": ["id", "title", "description", "difficulty", "order", "lessons"]
               }
             }
-          ]
+          },
+          "required": ["courseTitle", "gameGenre", "difficulty", "levels"]
         }
+      },
+      "safetySettings": [
+        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+      ]
+    };
+
+    try {
+      final responseBody = await _callGeminiApi(payload);
+      final String rawJsonString = responseBody['candidates'][0]['content']['parts'][0]['text'];
+      String extractedJsonString = _extractJsonString(rawJsonString);
+
+      try {
+        final Map<String, dynamic> parsedJson = json.decode(extractedJsonString);
+        return parsedJson;
+      } on FormatException catch (e, stacktrace) {
+        debugPrint('FormatException during JSON decoding. Raw response: \n$rawJsonString');
+        debugPrint('Extracted string attempt: \n$extractedJsonString');
+        debugPrint('Decoding error: $e');
+        debugPrint('Stacktrace: $stacktrace');
+        throw Exception('Failed to parse AI response: JSON is malformed. Details: $e. Raw: "$rawJsonString"');
+      }
+    } catch (e) {
+      debugPrint('Error generating course content: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> generateSubsequentLevels({
+    required String courseId,
+    required String topicName,
+    required String ageGroup,
+    required String domain,
+    required String difficulty,
+    required int startingLevelOrder,
+    required int numberOfLevels,
+    String? educationLevel,
+    String? specialty,
+    String? sourceContent,
+    String? youtubeUrl,
+    List<Level>? previousLevelsContext,
+  }) async {
+    final Map<String, dynamic> generatedContent = await generateCourseContent(
+      topicName: topicName,
+      ageGroup: ageGroup,
+      domain: domain,
+      difficulty: difficulty,
+      educationLevel: educationLevel,
+      specialty: specialty,
+      sourceContent: sourceContent,
+      youtubeUrl: youtubeUrl,
+      numberOfLevels: numberOfLevels,
+      startingLevelOrder: startingLevelOrder,
+      previousLevelsContext: previousLevelsContext,
+    );
+
+    final List<Level> levels = [];
+    final Map<String, List<Lesson>> lessonsPerLevel = {};
+    final Map<String, Map<String, List<Question>>> questionsPerLessonPerLevel = {};
+
+    if (generatedContent['levels'] is List) {
+      for (var levelData in (generatedContent['levels'] as List)) {
+        if (levelData is Map<String, dynamic>) {
+          final Level newLevel = Level.fromMap(levelData)..courseId = courseId;
+          levels.add(newLevel);
+
+          final List<Lesson> lessons = [];
+          final Map<String, List<Question>> questionsForThisLevelLessons = {};
+
+          if (levelData['lessons'] is List) {
+            for (var lessonData in (levelData['lessons'] as List)) {
+              if (lessonData is Map<String, dynamic>) {
+                final Lesson newLesson = Lesson.fromMap(lessonData)..levelId = newLevel.id;
+                lessons.add(newLesson);
+
+                final List<Question> questions = [];
+                if (lessonData['questions'] is List) { // Ensure newLesson.questions is a list before iterating
+                  for (var questionData in (lessonData['questions'] as List)) {
+                    if (questionData is Map<String, dynamic>) { // Ensure questionData is a Map
+                      questions.add(Question.fromMap(questionData));
+                    } else {
+                      debugPrint('Warning: Skipping malformed question data: $questionData');
+                    }
+                  }
+                }
+                questionsForThisLevelLessons[newLesson.id] = questions;
+              } else {
+                debugPrint('Warning: Skipping malformed lesson data: $lessonData');
+              }
+            }
+          }
+          lessonsPerLevel[newLevel.id] = lessons;
+          questionsPerLessonPerLevel[newLevel.id] = questionsForThisLevelLessons;
+        } else {
+          debugPrint('Warning: Skipping malformed level data: $levelData');
+        }
+      }
+    }
+
+    return {
+      'levels': levels,
+      'lessonsPerLevel': lessonsPerLevel,
+      'questionsPerLessonPerLevel': questionsPerLessonPerLevel,
+    };
+  }
+
+  Future<Map<String, dynamic>> generateSocraticFeedback({
+    required String userAnswer,
+    required String questionText,
+    required String correctAnswer,
+    required String lessonContent,
+    required UserProfile userProfile, // Changed from UserProgress to UserProfile
+  }) async {
+    // Determine the user's current proficiency based on their XP from UserProfile
+    String proficiency = 'novice';
+    if (userProfile.xp > AppConstants.xpPerLevel * 3) {
+      proficiency = 'intermediate';
+    }
+    if (userProfile.xp > AppConstants.xpPerLevel * 7) {
+      proficiency = 'advanced';
+    }
+
+    // Construct a comprehensive prompt for the AI tutor
+    String prompt = '''
+    You are an AI-powered gamified tutor providing personalized,write the only 4-5 lines Socratic feedback to college students.
+    Your goal is to guide students to understand concepts deeply, not just give answers.
+
+    Here is the context:
+    - User's Answer: "$userAnswer"
+    - Correct Answer: "$correctAnswer"
+    - Question Text: "$questionText"
+    - Lesson Content (for contextual understanding): "$lessonContent"
+    - User's Proficiency Level: "$proficiency"
+
+    Based on this information, provide feedback in the following JSON format.
+
+    Output ONLY the JSON object. Do NOT include any descriptive text or markdown code block fences (\`\`\`json).
+    All string values within the JSON, especially multi-line content or text containing special characters (like backslashes, double quotes, or newlines), MUST be correctly escaped for JSON validity. For example, newlines should be "\\\\n", double quotes should be "\\\\\\"", and backslashes should be "\\\\\\\\".
+    The output MUST be a JSON object conforming to the following schema.
+    {
+      "feedbackText": "Your feedback here...",
+      "socraticFollowUp": "A question to make them think...",
+      "adaptiveHints": "Subtle hints based on their answer...",
+      "encouragement": "Encouraging words adapted to their performance..."
+    }
+    ''';
+
+    final payload = {
+      "contents": [
+        {"role": "user", "parts": [{"text": prompt}]}
       ],
+      "generationConfig": {
+        "responseMimeType": "application/json",
+        "responseSchema": {
+          "type": "OBJECT",
+          "properties": {
+            "feedbackText": {"type": "STRING"},
+            "socraticFollowUp": {"type": "STRING"},
+            "adaptiveHints": {"type": "STRING"},
+            "encouragement": {"type": "STRING"}
+          },
+          "required": ["feedbackText", "encouragement"]
+        }
+      },
+      "safetySettings": [
+        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+      ]
+    };
+
+    try {
+      final responseBody = await _callGeminiApi(payload);
+      final String rawJsonString = responseBody['candidates'][0]['content']['parts'][0]['text'];
+      String extractedJsonString = _extractJsonString(rawJsonString);
+
+      try {
+        return json.decode(extractedJsonString);
+      } on FormatException catch (e, stacktrace) {
+        debugPrint('FormatException during JSON decoding. Raw response: \n$rawJsonString');
+        debugPrint('Extracted string attempt: \n$extractedJsonString');
+        debugPrint('Decoding error: $e');
+        debugPrint('Stacktrace: $stacktrace');
+        throw Exception('Failed to parse AI response: JSON is malformed. Details: $e. Raw: "$rawJsonString"');
+      }
+    } catch (e) {
+      debugPrint('Error generating Socratic feedback: $e');
+      rethrow;
+    }
+  }
+
+  Future<ChatMessage> chatWithTutor(List<ChatMessage> chatHistory) async {
+    if (_apiKey.isEmpty || _apiKey == 'YOUR_GEMINI_API_HERE') {
+      throw Exception('Gemini API Key is not configured. Please set it in app_constants.dart');
+    }
+
+    final List<Map<String, dynamic>> contents = chatHistory.map((msg) => {
+      "role": msg.isUser ? "user" : "model",
+      "parts": [{"text": msg.text}]
+    }).toList();
+
+    final payload = {
+      "contents": contents,
       "generationConfig": {
         "temperature": AppConstants.geminiTemperature,
         "maxOutputTokens": AppConstants.geminiMaxOutputTokens,
-      }
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(payload),
-      );
-
-      if (response.statusCode == 200) {
-        final result = json.decode(response.body);
-        if (result['candidates'] != null &&
-            result['candidates'].isNotEmpty &&
-            result['candidates'][0]['content'] != null &&
-            result['candidates'][0]['content']['parts'] != null &&
-            result['candidates'][0]['content']['parts'].isNotEmpty) {
-          return result['candidates'][0]['content']['parts'][0]['text'] as String;
-        } else {
-          print('Gemini API Image Description: Unexpected response structure: ${response.body}');
-          return 'Error: Could not generate image description. Unexpected response from AI.';
-        }
-      } else {
-        print('Gemini API Image Description Error: ${response.statusCode} - ${response.body}');
-        return 'Error: Failed to connect to AI for image description. Status Code: ${response.statusCode}';
-      }
-    } catch (e) {
-      print('Gemini API Image Description Exception: $e');
-      return 'Error: An exception occurred while communicating with AI for image description.';
-    }
-  }
-
-  // New: AI Persona customization and adaptive learning prompts
-  Future<String> getAIPersonaResponse(String prompt, String aiPersona) async {
-    String personaPrefix;
-    switch (aiPersona) {
-      case 'Strict Professor':
-        personaPrefix = 'As a strict professor, respond to the following: ';
-        break;
-      case 'Friendly Guide':
-        personaPrefix = 'As a friendly guide, respond to the following: ';
-        break;
-      case 'Sarcastic Mentor':
-        personaPrefix = 'As a sarcastic mentor, respond to the following: ';
-        break;
-      default:
-        personaPrefix = '';
-    }
-    return generateText('$personaPrefix$prompt');
-  }
-
-  // New: Adaptive Learning Path suggestion
-  Future<Map<String, dynamic>> suggestNextLesson(String userId, String courseId, String currentLevelId, double performanceScore) async {
-    final String apiKey = AppConstants.geminiApiKey;
-    final String apiUrl =
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey';
-
-    final prompt = """
-Given the user's performance, suggest the next appropriate lesson or action.
-User ID: $userId
-Course ID: $courseId
-Current Level ID: $currentLevelId
-Performance Score for current lesson (0.0 to 1.0, lower means struggling, higher means mastery): $performanceScore
-
-Suggest a 'nextAction' (e.g., 'nextLesson', 'remedialLesson', 'advancedTopic', 'reviewLevel') and a 'suggestionText' explaining why.
-If 'nextAction' is 'nextLesson' or 'remedialLesson' or 'advancedTopic', also provide a 'suggestedLessonId' (a placeholder for now, as actual lesson IDs need to be fetched from Firebase).
-
-Example JSON: {"nextAction": "nextLesson", "suggestionText": "You did great! Let's move on to the next topic.", "suggestedLessonId": "lesson123"}
-Example JSON for struggling: {"nextAction": "remedialLesson", "suggestionText": "It seems you struggled a bit. Let's review some foundational concepts.", "suggestedLessonId": "lessonXYZ"}
-""";
-
-    final schema = {
-      "type": "OBJECT",
-      "properties": {
-        "nextAction": {"type": "STRING"},
-        "suggestionText": {"type": "STRING"},
-        "suggestedLessonId": {"type": "STRING", "nullable": true} // Can be null
       },
-      "propertyOrdering": ["nextAction", "suggestionText", "suggestedLessonId"]
-    };
-
-    final jsonString = await generateStructuredText(prompt, schema);
-    return json.decode(jsonString) as Map<String, dynamic>;
-  }
-
-  // New: AI-Generated Multimedia Content (SVG Diagram/Flowchart)
-  Future<String> generateSvgContent(String topic) async {
-    final String apiKey = AppConstants.geminiApiKey;
-    final String apiUrl =
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey';
-
-    final prompt = """
-Generate a simple SVG diagram or flowchart for the topic: "$topic".
-The SVG should be self-contained and directly embeddable in HTML.
-Focus on clarity and simplicity. Do not include XML declaration or DOCTYPE.
-""";
-
-    final chatHistory = [
-      {"role": "user", "parts": [{"text": prompt}]}
-    ];
-
-    final payload = {
-      "contents": chatHistory,
-      "generationConfig": {
-        "temperature": 0.5, // Lower temperature for more consistent SVG
-        "maxOutputTokens": 1000,
-      }
+      "safetySettings": [
+        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+      ]
     };
 
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(payload),
+      final responseBody = await _callGeminiApi(payload);
+      final String aiResponseText = responseBody['candidates'][0]['content']['parts'][0]['text'];
+      
+      return ChatMessage(
+        id: DateTime.now().millisecondsSinceEpoch.toString(), // Simple ID
+        senderId: 'ai_tutor',
+        senderUsername: 'AI Tutor',
+        senderAvatarUrl: 'assets/app_icon.png', // Assuming app_icon.png is the AI's avatar
+        text: aiResponseText,
+        timestamp: DateTime.now(),
+        isUser: false,
       );
-
-      if (response.statusCode == 200) {
-        final result = json.decode(response.body);
-        if (result['candidates'] != null &&
-            result['candidates'].isNotEmpty &&
-            result['candidates'][0]['content'] != null &&
-            result['candidates'][0]['content']['parts'] != null &&
-            result['candidates'][0]['content']['parts'].isNotEmpty) {
-          String svgContent = result['candidates'][0]['content']['parts'][0]['text'] as String;
-          // Clean up potential markdown code blocks
-          if (svgContent.startsWith('```svg')) {
-            svgContent = svgContent.substring(6);
-          }
-          if (svgContent.endsWith('```')) {
-            svgContent = svgContent.substring(0, svgContent.length - 3);
-          }
-          return svgContent.trim();
-        } else {
-          print('Gemini API: Unexpected SVG response structure: ${response.body}');
-          return 'Error: Could not generate SVG content. Unexpected response from AI.';
-        }
-      } else {
-        print('Gemini API SVG Error: ${response.statusCode} - ${response.body}');
-        return 'Error: Failed to connect to AI for SVG. Status Code: ${response.statusCode}';
-      }
     } catch (e) {
-      print('Gemini API SVG Exception: $e');
-      return 'Error: An exception occurred while generating SVG.';
-    }
-  }
-
-  // New: AI-Driven Challenges/Quests generation (simplified for now)
-  Future<List<String>> generateAITasks(String userLearningGoals) async {
-    final prompt = """
-Based on the following learning goals, propose 3 unique, engaging, and personalized daily challenges/quests.
-Each challenge should be a short, actionable sentence.
-Format the output as a JSON array of strings.
-
-User Learning Goals: $userLearningGoals
-
-Example JSON: ["Read an article on deep learning.", "Solve 5 calculus problems.", "Summarize the history of AI."]
-""";
-
-    final schema = {
-      "type": "ARRAY",
-      "items": {"type": "STRING"}
-    };
-
-    try {
-      final jsonString = await generateStructuredText(prompt, schema);
-      final List<dynamic> parsedList = json.decode(jsonString);
-      return parsedList.map((e) => e.toString()).toList();
-    } catch (e) {
-      print('Error generating AI tasks: $e');
-      return ['Complete a quick quiz.', 'Explore a new topic.']; // Fallback
+      debugPrint('Error generating chat response: $e');
+      throw Exception('Failed to get response from AI: $e');
     }
   }
 }
