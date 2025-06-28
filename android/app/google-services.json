@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "967632206782",
+    "project_id": "gamifier-ca201",
+    "storage_bucket": "gamifier-ca201.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967632206782:android:d5207456b47ef0767d17ef",
+        "android_client_info": {
+          "package_name": "com.yogendrakarri.gamifier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNAu54WnBbXzkyGU3yqP_LCZ9CadDIM_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
