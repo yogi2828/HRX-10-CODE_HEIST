@@ -40,11 +40,14 @@ class AppConstants {
   static const int subsequentLevelsBatchSize = 5; // Generate 5 more levels at a time
   static const int maxLevelsPerCourse = 15; // Max total levels
 
+  // UI specific constants
+  static const double levelSelectionGenerateButtonHeight = 150.0; // Added for LevelSelectionScreen height calculation
+
   // Default Content for Placeholders/Initial Data
   static String defaultFontFamily = 'Inter';
 
   static const double geminiTemperature = 0.7;
-  static const int geminiMaxOutputTokens = 4096;
+  static const int geminiMaxOutputTokens = 2000;
 
   static const List<AvatarAsset> defaultAvatarAssets = [
     AvatarAsset(id: 'avatar1', name: 'Adventurer', assetPath: 'assets/avatars/avatar1.png'),
@@ -56,13 +59,22 @@ class AppConstants {
   static const String correctSoundPath = 'audios/correct.mp3';
   static const String levelUpSoundPath = 'audios/level_up.mp3';
 
-  static const List<String> gameThemes = [
-    'Fantasy',
-    'Sci-Fi',
-    'Adventure',
-    'Mystery',
-    'Cyberpunk',
+  // Added supportedLanguages for course creation
+  static const List<String> supportedLanguages = [
+    'English',
+    'Hindi',
+    'Marathi',
+    'Bengali',
+    'Telugu',
+    'Nepali',
+    'Punjabi',
+    'Arabic',
+    'Portuguese',
+    'Russian',
   ];
+
+  // Removed gameThemes as it's no longer used for new course generation.
+  // static const List<String> gameThemes = [...]; // This line is removed
 
   static const List<String> difficultyLevels = [
     'Beginner',
@@ -78,6 +90,7 @@ class AppConstants {
   ];
 
   static const List<String> educationLevels = [
+    'Not Specified', // Added for flexibility
     'High School',
     'Associate Degree',
     'Bachelor\'s Degree',
@@ -103,5 +116,34 @@ class AppConstants {
     'Digital Marketing',
     'Business Analytics',
     'Project Management',
+    'Data Structures & Algorithms',
+    'Operating Systems',
+    'Computer Networks',
+    'Software Engineering Principles',
+    'Product Management',
+    'Financial Literacy',
+    'Personal Development',
+    'Communication Skills',
+    'Critical Thinking',
+    'Problem Solving',
+    'Creative Writing',
+    'History',
+    'Philosophy',
+    'Economics',
+    'Biology',
+    'Chemistry',
+    'Physics',
+    'Mathematics',
+    'Art History',
+    'Music Theory',
+  ];
+  // Keeping gameThemes for existing Course model data and potential future use,
+  // but it will no longer be used in the CourseCreationScreen.
+  static const List<String> gameThemes = [
+    'Fantasy',
+    'Sci-Fi',
+    'Adventure',
+    'Mystery',
+    'Cyberpunk',
   ];
 }

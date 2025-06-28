@@ -1,3 +1,5 @@
+
+// lib/utils/validation_utils.dart
 import 'package:flutter/material.dart';
 
 class ValidationUtils {
@@ -37,31 +39,31 @@ class ValidationUtils {
     }
     return null;
   }
-
   static String? validateField(String? value, String fieldName) {
     if (value == null || value.isEmpty) {
       return '$fieldName cannot be empty.';
     }
     return null;
   }
-
   // Adjusted to accept dynamic for correctAnswerData, and convert to String safely
   static bool validateAnswer(String userAnswer, String questionType, dynamic correctAnswerData) {
-    // Ensure correctAnswerData is not null before calling toString()
-    final String correctAnswerString = correctAnswerData?.toString().trim().toLowerCase() ?? '';
-    final String userLower = userAnswer.trim().toLowerCase();
+    final String correctAnswerString = correctAnswerData?.toString() ?? ''; // Safely convert to string, default to empty
 
     switch (questionType) {
       case 'MCQ':
       case 'FillInBlank':
-        // For MCQ and FillInBlank, direct comparison after trimming and lowercasing
-        return userLower == correctAnswerString;
+        return userAnswer.trim().toLowerCase() == correctAnswerString.trim().toLowerCase();
       case 'ShortAnswer':
+        List<String> keywords = correctAnswerString.toLowerCase().split(',').map((e) => e.trim()).toList();
+        String userLower = userAnswer.toLowerCase();
+        return keywords.any((keyword) => userLower.contains(keyword));
       case 'Scenario':
-        // For ShortAnswer and Scenario, check if any of the comma-separated keywords are contained in the user's answer
-        List<String> keywords = correctAnswerString.split(',').map((e) => e.trim().toLowerCase()).toList();
+        // For scenario, we expect a short answer that matches keywords in expectedOutcome
+        List<String> keywords = correctAnswerString.toLowerCase().split(',').map((e) => e.trim()).toList();
+        String userLower = userAnswer.toLowerCase();
         return keywords.any((keyword) => userLower.contains(keyword));
       default:
+        // For unsupported question types, consider it incorrect or log an error
         debugPrint('Unsupported question type for validation: $questionType');
         return false;
     }

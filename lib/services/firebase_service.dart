@@ -35,6 +35,7 @@ class FirebaseService {
         email: email,
         password: password,
       );
+      // Ensure user profile and streak are handled after sign-in
       await _ensureUserProfileAndStreak(userCredential.user!);
       return userCredential;
     } on FirebaseAuthException catch (e) {
@@ -49,14 +50,28 @@ class FirebaseService {
     }
   }
 
-  Future<UserCredential> registerWithEmailAndPassword(String email, String password, String username) async {
+  Future<UserCredential> registerWithEmailAndPassword(
+      String email,
+      String password,
+      String username, {
+      String? educationLevel, // Added
+      String? specialty, // Added
+      String? language, // New: Language
+  }) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       if (userCredential.user != null) {
-        await createUserProfile(userCredential.user!.uid, username);
+        await createUserProfile(
+          userCredential.user!.uid,
+          username,
+          email: email, // Also save email
+          educationLevel: educationLevel, // Pass along
+          specialty: specialty, // Pass along
+          language: language, // Pass along new field
+        );
       }
       return userCredential;
     } on FirebaseAuthException catch (e) {
@@ -84,7 +99,16 @@ class FirebaseService {
     final docSnapshot = await userRef.get();
 
     if (!docSnapshot.exists) {
-      await createUserProfile(user.uid, user.displayName ?? 'New Learner');
+      // If profile doesn't exist (e.g., old user or direct sign-in via custom token), create a basic one.
+      // Onboarding screen will then prompt for more details.
+      await createUserProfile(
+        user.uid,
+        user.displayName ?? 'New Learner',
+        email: user.email,
+        educationLevel: null, // Let onboarding set these if needed
+        specialty: null,      // Let onboarding set these if needed
+        language: null,       // Let onboarding set this if needed
+      );
     } else {
       UserProfile userProfile = UserProfile.fromMap(docSnapshot.data()!);
       DateTime today = DateTime.now();
@@ -96,18 +120,19 @@ class FirebaseService {
       int newStreak = userProfile.currentStreak;
       int xpToAdd = 0;
 
-      if (lastLoginNormalized == null) {
+      // Logic for streak update
+      if (lastLoginNormalized == null || todayNormalized.difference(lastLoginNormalized).inDays > 1) {
+        // Streak broken or first login, reset to 1
         newStreak = 1;
-        xpToAdd = 0;
+        xpToAdd = 0; // No bonus on reset
       } else if (todayNormalized.difference(lastLoginNormalized).inDays == 1) {
+        // Streak continued
         newStreak++;
         if (newStreak >= AppConstants.minStreakDaysForBonus) {
           xpToAdd = AppConstants.streakBonusXp;
         }
-      } else if (todayNormalized.difference(lastLoginNormalized).inDays > 1) {
-        newStreak = 1;
-        xpToAdd = 0;
       } else {
+        // Same day login, no change to streak or XP from streak bonus
         xpToAdd = 0;
       }
 
@@ -116,39 +141,51 @@ class FirebaseService {
         'currentStreak': newStreak,
       };
 
+      // Apply XP if earned from streak
       if (xpToAdd > 0) {
         updates['xp'] = FieldValue.increment(xpToAdd);
       }
       await userRef.update(updates);
 
-      if (xpToAdd > 0) {
-        UserProfile updatedProfile = UserProfile.fromMap((await userRef.get()).data()!);
-        int newXpTotal = updatedProfile.xp;
-        int newLevel = updatedProfile.level;
+      // Re-fetch profile to get updated XP for level calculation
+      UserProfile updatedProfile = UserProfile.fromMap((await userRef.get()).data()!);
+      int newXpTotal = updatedProfile.xp;
+      int newLevel = updatedProfile.level;
 
-        int xpAtCurrentLevelStart = (newLevel - 1) * AppConstants.xpPerLevel;
+      int xpAtCurrentLevelStart = (newLevel - 1) * AppConstants.xpPerLevel;
 
-        while (newXpTotal >= xpAtCurrentLevelStart + AppConstants.xpPerLevel) {
-          newLevel++;
-          xpAtCurrentLevelStart = (newLevel - 1) * AppConstants.xpPerLevel;
-        }
+      while (newXpTotal >= xpAtCurrentLevelStart + AppConstants.xpPerLevel) {
+        newLevel++;
+        xpAtCurrentLevelStart = (newLevel - 1) * AppConstants.xpPerLevel;
+      }
 
-        if (newLevel > userProfile.level) {
-        }
+      if (newLevel > userProfile.level) {
+        // Optionally play level up sound or show notification
+        debugPrint('User ${user.uid} leveled up to $newLevel!');
+      }
+      // Only update level if it has actually changed to avoid unnecessary writes
+      if (newLevel != userProfile.level) {
         await userRef.update({'level': newLevel});
       }
     }
   }
 
-  Future<void> createUserProfile(String uid, String username, {String? educationLevel, String? specialty}) async {
+  Future<void> createUserProfile(String uid, String username, {String? email, String? educationLevel, String? specialty, String? language}) async {
     final userProfile = UserProfile(
       uid: uid,
       username: username,
+      email: email ?? '', // Use provided email or default
       createdAt: DateTime.now(),
-      educationLevel: educationLevel,
-      specialty: specialty,
-      currentStreak: 1,
       lastLoginDate: DateTime.now(),
+      educationLevel: educationLevel, // Set from registration if provided
+      specialty: specialty, // Set from registration if provided
+      language: language, // Set from registration if provided
+      currentStreak: 1, // Start new users with a 1-day streak
+      xp: AppConstants.initialXp,
+      level: 1,
+      avatarAssetPath: AppConstants.defaultAvatarAssets.first.assetPath,
+      earnedBadges: const [],
+      friends: const [],
     );
     try {
       await _firestore.collection(AppConstants.usersCollection).doc(uid).set(userProfile.toMap());
@@ -459,6 +496,8 @@ class FirebaseService {
   }
 
   Stream<List<UserProfile>> streamLeaderboard() {
+    // Ordering by XP descending to get top users.
+    // If you need to paginate or filter, that would be added here.
     return _firestore
         .collection(AppConstants.usersCollection)
         .orderBy('xp', descending: true)

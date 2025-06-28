@@ -78,8 +78,8 @@ class LevelNode extends StatelessWidget {
               child: Text(
                 level.title,
                 textAlign: TextAlign.center,
-                maxLines: 2, // Limiting to 2 lines
-                overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.textColorSecondary,
                   fontSize: 10, // Adjusted font size

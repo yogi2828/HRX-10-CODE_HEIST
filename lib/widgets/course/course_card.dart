@@ -59,8 +59,8 @@ class CourseCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildInfoChip(
-                    icon: Icons.category,
-                    label: course.gameGenre,
+                    icon: Icons.language, // Changed icon
+                    label: course.language, // Display language
                     color: AppColors.primaryColor,
                   ),
                   _buildInfoChip(

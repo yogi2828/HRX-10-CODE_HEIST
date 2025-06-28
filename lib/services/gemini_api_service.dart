@@ -1,3 +1,4 @@
+// lib/services/gemini_api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,6 @@ import 'package:gamifier/models/level.dart';
 import 'package:gamifier/models/lesson.dart';
 import 'package:gamifier/models/question.dart';
 import 'package:gamifier/models/user_progress.dart';
-import 'package:gamifier/models/user_profile.dart'; // Import UserProfile
 import 'package:gamifier/models/chat_message.dart';
 
 class GeminiApiService {
@@ -55,37 +55,31 @@ class GeminiApiService {
   String _extractJsonString(String text) {
     String cleanedText = text.trim();
 
-    // Regex to find JSON within a '```json` block
     final jsonCodeBlockRegex = RegExp(r'```json\s*(\{[\s\S]*?\})\s*```', dotAll: true);
     final jsonCodeBlockMatch = jsonCodeBlockRegex.firstMatch(cleanedText);
     if (jsonCodeBlockMatch != null && jsonCodeBlockMatch.group(1) != null) {
       return jsonCodeBlockMatch.group(1)!;
     }
 
-    // Fallback: Find the largest valid JSON object or array
-    final List<Match> allMatches = RegExp(r'\{[\s\S]*\}|\[[\s\S]*\]', dotAll: true).allMatches(cleanedText).toList();
-    
-    // Sort matches by length descending to prioritize larger JSON structures
-    allMatches.sort((a, b) => b.group(0)!.length.compareTo(a.group(0)!.length));
+    final standaloneJsonRegex = RegExp(r'\{[\s\S]*\}', dotAll: true);
+    final allMatches = standaloneJsonRegex.allMatches(cleanedText);
 
     String? bestValidJson;
     for (final match in allMatches) {
       String potentialJson = match.group(0)!;
       try {
-        json.decode(potentialJson); // Attempt to decode
-        bestValidJson = potentialJson;
-        break; // Found the largest valid JSON, stop searching
+        json.decode(potentialJson);
+        if (bestValidJson == null || potentialJson.length > bestValidJson.length) {
+          bestValidJson = potentialJson;
+        }
       } on FormatException {
-        // Continue to next match if invalid
       }
     }
 
     if (bestValidJson != null) {
       return bestValidJson;
     }
-    
-    // If no complete JSON found, attempt to repair basic issues (like truncation at the end)
-    // This is a last resort and might not fix complex parsing issues.
+
     int openBraces = 0;
     int openBrackets = 0;
     bool inString = false;
@@ -94,7 +88,6 @@ class GeminiApiService {
     for (int i = 0; i < cleanedText.length; i++) {
       String char = cleanedText[i];
       if (char == '\\' && i + 1 < cleanedText.length) {
-        // Handle escaped characters
         repairedJsonBuffer.write(char);
         repairedJsonBuffer.write(cleanedText[++i]);
       } else if (char == '"') {
@@ -117,9 +110,8 @@ class GeminiApiService {
       }
     }
 
-    // Append closing braces/brackets if they are missing at the end due to truncation
     if (inString) {
-      repairedJsonBuffer.write('"'); // Close unclosed string
+      repairedJsonBuffer.write('"');
     }
     while (openBraces > 0) {
       repairedJsonBuffer.write('}');
@@ -142,6 +134,7 @@ class GeminiApiService {
     required String difficulty,
     String? educationLevel,
     String? specialty,
+    required String language, // Added language parameter
     String? sourceContent,
     String? youtubeUrl,
     int numberOfLevels = AppConstants.initialLevelsCount,
@@ -152,7 +145,8 @@ class GeminiApiService {
     As an AI-powered gamification engine, your task is to transform a static course topic into an interactive, game-based learning module.
     Generate a complete course structure including:
     - courseTitle: A catchy title for the course.
-    - language: write the text in specified language like the (hindi,) Choose one from: ${AppConstants.gameThemes.join(', ')}.
+    - language: The language of the course (e.g., "English", "Spanish"). Choose one from: ${AppConstants.supportedLanguages.join(', ')}.
+    - gameGenre: A suitable game genre for the course (e.g., "Fantasy", "Sci-Fi", "Adventure", "Mystery", "Cyberpunk"). Choose one from: ${AppConstants.gameThemes.join(', ')}.
     - difficulty: The difficulty level of the course ("Beginner", "Intermediate", "Advanced", "Expert").
     - levels: An array of $numberOfLevels distinct levels, ordered from easy to hard, each tailored to the course's difficulty. Each level should have:
         - id: A unique string ID for the level (e.g., "level_${startingLevelOrder}").
@@ -164,7 +158,7 @@ class GeminiApiService {
         - lessons: An array of 1-3 detailed lessons. Each lesson should have:
             - id: A unique string ID for the lesson (e.g., "lesson_${startingLevelOrder}_1").
             - title: The title of the lesson.
-            - content: Comprehensive learning material for the lesson (min 200 words), suitable for a college student, formatted in Markdown. **Ensure this is a valid JSON string with all special characters correctly escaped.**
+            - content: Comprehensive learning material for the lesson (min 200 words), suitable for a college student, formatted in Markdown.
             - order: An integer representing the sequential order of the lesson. This field is mandatory.
             - questions: An array of 3-5 small, interesting, and engaging questions for the lesson, appropriate for the level's difficulty. Each question should have:
                 - id: A unique string ID for the question (e.g., "q1_lesson_${startingLevelOrder}_1").
@@ -175,10 +169,11 @@ class GeminiApiService {
                     - For MCQ: options (List<String>), correctAnswer (String, one of options). Ensure options are distinct and plausible.
                     - For FillInBlank: correctAnswer (String).
                     - For ShortAnswer: expectedAnswerKeywords (String, comma-separated keywords for evaluation).
-                    - For Scenario: scenarioText (String, concise and engaging), expectedOutcome (String). **Ensure scenarioText is a valid JSON string.**
+                    - For Scenario: scenarioText (String, concise and engaging), expectedOutcome (String).
 
     The course is for "$topicName" for college students in the "$domain" domain, with an overall "$difficulty" difficulty level.
-    The user's education level is "$educationLevel" and their specialty is "$specialty". Tailor content and examples to these if relevant.
+    The user's education level is "$educationLevel" and their specialty is "$specialty".
+    The course content, lessons, and questions MUST be generated in the "$language" language.
     ''';
 
     if (previousLevelsContext != null && previousLevelsContext.isNotEmpty) {
@@ -214,6 +209,7 @@ class GeminiApiService {
           "type": "OBJECT",
           "properties": {
             "courseTitle": {"type": "STRING"},
+            "language": {"type": "STRING"}, // Added language to schema
             "gameGenre": {"type": "STRING"},
             "difficulty": {"type": "STRING"},
             "levels": {
@@ -266,7 +262,7 @@ class GeminiApiService {
               }
             }
           },
-          "required": ["courseTitle", "gameGenre", "difficulty", "levels"]
+          "required": ["courseTitle", "language", "gameGenre", "difficulty", "levels"] // Made language required
         }
       },
       "safetySettings": [
@@ -304,6 +300,7 @@ class GeminiApiService {
     required String ageGroup,
     required String domain,
     required String difficulty,
+    required String language, // Added language parameter
     required int startingLevelOrder,
     required int numberOfLevels,
     String? educationLevel,
@@ -319,6 +316,7 @@ class GeminiApiService {
       difficulty: difficulty,
       educationLevel: educationLevel,
       specialty: specialty,
+      language: language, // Pass language to generateCourseContent
       sourceContent: sourceContent,
       youtubeUrl: youtubeUrl,
       numberOfLevels: numberOfLevels,
@@ -331,7 +329,7 @@ class GeminiApiService {
     final Map<String, Map<String, List<Question>>> questionsPerLessonPerLevel = {};
 
     if (generatedContent['levels'] is List) {
-      for (var levelData in (generatedContent['levels'] as List)) {
+      for (var levelData in generatedContent['levels']) {
         if (levelData is Map<String, dynamic>) {
           final Level newLevel = Level.fromMap(levelData)..courseId = courseId;
           levels.add(newLevel);
@@ -340,16 +338,16 @@ class GeminiApiService {
           final Map<String, List<Question>> questionsForThisLevelLessons = {};
 
           if (levelData['lessons'] is List) {
-            for (var lessonData in (levelData['lessons'] as List)) {
+            for (var lessonData in levelData['lessons']) {
               if (lessonData is Map<String, dynamic>) {
                 final Lesson newLesson = Lesson.fromMap(lessonData)..levelId = newLevel.id;
                 lessons.add(newLesson);
 
                 final List<Question> questions = [];
-                if (lessonData['questions'] is List) { // Ensure newLesson.questions is a list before iterating
-                  for (var questionData in (lessonData['questions'] as List)) {
+                if (newLesson.questions is List) { // Ensure newLesson.questions is a list before iterating
+                  for (var questionData in newLesson.questions) {
                     if (questionData is Map<String, dynamic>) { // Ensure questionData is a Map
-                      questions.add(Question.fromMap(questionData));
+                      questions.add(Question.fromMap(questionData as Map<String, dynamic>));
                     } else {
                       debugPrint('Warning: Skipping malformed question data: $questionData');
                     }
@@ -381,20 +379,17 @@ class GeminiApiService {
     required String questionText,
     required String correctAnswer,
     required String lessonContent,
-    required UserProfile userProfile, // Changed from UserProgress to UserProfile
+    UserProgress? userProgress,
   }) async {
-    // Determine the user's current proficiency based on their XP from UserProfile
-    String proficiency = 'novice';
-    if (userProfile.xp > AppConstants.xpPerLevel * 3) {
-      proficiency = 'intermediate';
-    }
-    if (userProfile.xp > AppConstants.xpPerLevel * 7) {
-      proficiency = 'advanced';
+    String userProgressContext = "No prior specific lesson progress available.";
+    if (userProgress != null) {
+      userProgressContext = "User's overall progress: "
+          "Last lesson: ${userProgress.currentLessonId ?? 'N/A'}. "
+          "Completed lessons count: ${userProgress.lessonsProgress.values.where((p) => p.isCompleted).length}.";
     }
 
-    // Construct a comprehensive prompt for the AI tutor
-    String prompt = '''
-    You are an AI-powered gamified tutor providing personalized,write the only 4-5 lines Socratic feedback to college students.
+    final String prompt = '''
+    You are an AI tutor designed to provide personalized,write the only 4-5 lines Socratic feedback to college students.
     Your goal is to guide students to understand concepts deeply, not just give answers.
 
     Here is the context:
@@ -402,7 +397,7 @@ class GeminiApiService {
     - Correct Answer: "$correctAnswer"
     - Question Text: "$questionText"
     - Lesson Content (for contextual understanding): "$lessonContent"
-    - User's Proficiency Level: "$proficiency"
+    - User's Prior Progress Summary: "$userProgressContext"
 
     Based on this information, provide feedback in the following JSON format.
 
@@ -462,11 +457,7 @@ class GeminiApiService {
     }
   }
 
-  Future<ChatMessage> chatWithTutor(List<ChatMessage> chatHistory) async {
-    if (_apiKey.isEmpty || _apiKey == 'YOUR_GEMINI_API_HERE') {
-      throw Exception('Gemini API Key is not configured. Please set it in app_constants.dart');
-    }
-
+  Future<String> generateChatResponse(List<ChatMessage> chatHistory) async {
     final List<Map<String, dynamic>> contents = chatHistory.map((msg) => {
       "role": msg.isUser ? "user" : "model",
       "parts": [{"text": msg.text}]
@@ -488,17 +479,7 @@ class GeminiApiService {
 
     try {
       final responseBody = await _callGeminiApi(payload);
-      final String aiResponseText = responseBody['candidates'][0]['content']['parts'][0]['text'];
-      
-      return ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), // Simple ID
-        senderId: 'ai_tutor',
-        senderUsername: 'AI Tutor',
-        senderAvatarUrl: 'assets/app_icon.png', // Assuming app_icon.png is the AI's avatar
-        text: aiResponseText,
-        timestamp: DateTime.now(),
-        isUser: false,
-      );
+      return responseBody['candidates'][0]['content']['parts'][0]['text'];
     } catch (e) {
       debugPrint('Error generating chat response: $e');
       throw Exception('Failed to get response from AI: $e');

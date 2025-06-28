@@ -1,3 +1,4 @@
+// lib/screens/progress_screen.dart
 import 'package:flutter/material.dart';
 import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -5,14 +6,9 @@ import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/course.dart';
 import 'package:gamifier/models/user_progress.dart';
-import 'package:gamifier/models/user_profile.dart'; // Import UserProfile
 import 'package:gamifier/services/firebase_service.dart';
-import 'package:gamifier/utils/app_router.dart';
 import 'package:gamifier/widgets/common/custom_app_bar.dart';
 import 'package:gamifier/widgets/common/progress_bar.dart';
-import 'package:gamifier/widgets/common/xp_level_display.dart'; // Import XPLevelDisplay
-import 'package:gamifier/widgets/gamification/streak_display.dart'; // Import StreakDisplay
-import 'package:gamifier/widgets/gamification/badge_display.dart'; // Import BadgeDisplay
 import 'package:gamifier/widgets/gamification/leaderboard_list.dart'; // Import LeaderboardList
 
 class ProgressScreen extends StatefulWidget {
@@ -22,17 +18,18 @@ class ProgressScreen extends StatefulWidget {
   State<ProgressScreen> createState() => _ProgressScreenState();
 }
 
-class _ProgressScreenState extends State<ProgressScreen> {
-  UserProfile? _userProfile; // Use UserProfile for user details
+class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProviderStateMixin {
   late FirebaseService _firebaseService;
   String? _currentUserId;
   bool _isLoading = true;
   String? _errorMessage;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _firebaseService = Provider.of<FirebaseService>(context, listen: false);
+    _tabController = TabController(length: 2, vsync: this);
     _initializeUserAndLoadProgress();
   }
 
@@ -41,23 +38,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     if (user != null) {
       setState(() {
         _currentUserId = user.uid;
-      });
-      // Stream user profile for real-time updates on XP, Level, Streak
-      _firebaseService.streamUserProfile(user.uid).listen((profile) {
-        if (mounted) {
-          setState(() {
-            _userProfile = profile;
-            _isLoading = false;
-          });
-        }
-      }).onError((error) {
-        debugPrint('Error streaming user profile: $error');
-        if (mounted) {
-          setState(() {
-            _errorMessage = 'Failed to load profile details: ${error.toString()}';
-            _isLoading = false;
-          });
-        }
+        _isLoading = false;
       });
     } else {
       setState(() {
@@ -68,10 +49,28 @@ class _ProgressScreenState extends State<ProgressScreen> {
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const CustomAppBar(title: 'My Progress'),
+      appBar: AppBar(
+        title: Text('My Progress'),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppColors.accentColor,
+          labelColor: AppColors.accentColor,
+          unselectedLabelColor: AppColors.textColorSecondary,
+          tabs: const [
+            Tab(text: 'My Progress', icon: Icon(Icons.show_chart)),
+            Tab(text: 'Leaderboard', icon: Icon(Icons.leaderboard)),
+          ],
+        ),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: AppColors.backgroundGradient(),
@@ -90,164 +89,103 @@ class _ProgressScreenState extends State<ProgressScreen> {
                         ),
                       ),
                     )
-                  : Column(
+                  : TabBarView(
+                      controller: _tabController,
                       children: [
-                        // User Profile Summary (moved from profile_screen for consistency)
-                        Padding(
+                        // My Progress Tab
+                        SingleChildScrollView(
                           padding: const EdgeInsets.all(AppConstants.padding),
-                          child: _userProfile == null
-                              ? const SizedBox.shrink() // Or a placeholder if profile isn't loaded yet
-                              : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: AppConstants.avatarSize / 1.5, // Slightly smaller for progress screen
-                                          backgroundImage: AssetImage(_userProfile!.avatarAssetPath),
-                                          backgroundColor: AppColors.borderColor,
-                                        ),
-                                        const SizedBox(width: AppConstants.spacing * 2),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                _userProfile!.username,
-                                                style: AppColors.neonTextStyle(fontSize: 24),
-                                              ),
-                                              const SizedBox(height: AppConstants.spacing),
-                                              XpLevelDisplay(
-                                                xp: _userProfile!.xp,
-                                                level: _userProfile!.level,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: AppConstants.spacing * 2),
-                                    StreakDisplay(currentStreak: _userProfile!.currentStreak),
-                                    const SizedBox(height: AppConstants.spacing * 2),
-                                    if (_userProfile!.earnedBadges.isNotEmpty)
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            'Earned Badges:',
-                                            style: TextStyle(
-                                                color: AppColors.textColor,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          const SizedBox(height: AppConstants.spacing),
-                                          BadgeDisplay(badgeIds: _userProfile!.earnedBadges),
-                                        ],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Your Course Progress',
+                                style: AppColors.neonTextStyle(fontSize: 24, color: AppColors.accentColor),
+                              ),
+                              const SizedBox(height: AppConstants.spacing * 2),
+                              StreamBuilder<List<Course>>(
+                                stream: _firebaseService.streamAllCourses(),
+                                builder: (context, courseSnapshot) {
+                                  if (courseSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const Center(child: CircularProgressIndicator(color: AppColors.accentColor));
+                                  }
+                                  if (courseSnapshot.hasError) {
+                                    return Center(child: Text('Error loading courses: ${courseSnapshot.error}', style: const TextStyle(color: AppColors.errorColor)));
+                                  }
+                                  if (!courseSnapshot.hasData || courseSnapshot.data!.isEmpty) {
+                                    return const Center(
+                                      child: Text(
+                                        'No courses available to track progress. Create one to get started!',
+                                        style: TextStyle(color: AppColors.textColorSecondary),
+                                        textAlign: TextAlign.center,
                                       ),
-                                  ],
-                                ),
-                        ),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing),
-                                  child: Text(
-                                    'Your Course Progress:',
-                                    style: AppColors.neonTextStyle(fontSize: 22, color: AppColors.secondaryColor),
-                                  ),
-                                ),
-                                StreamBuilder<List<Course>>(
-                                  stream: _firebaseService.streamAllCourses(),
-                                  builder: (context, courseSnapshot) {
-                                    if (courseSnapshot.connectionState == ConnectionState.waiting) {
-                                      return const Center(child: CircularProgressIndicator(color: AppColors.accentColor));
-                                    }
-                                    if (courseSnapshot.hasError) {
-                                      return Center(child: Text('Error loading courses: ${courseSnapshot.error}', style: const TextStyle(color: AppColors.errorColor)));
-                                    }
-                                    if (!courseSnapshot.hasData || courseSnapshot.data!.isEmpty) {
-                                      return const Center(
-                                        child: Text(
-                                          'No courses available to track progress.',
-                                          style: TextStyle(color: AppColors.textColorSecondary),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      );
-                                    }
-
-                                    final courses = courseSnapshot.data!;
-
-                                    return ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(), // Important for nested scrolling
-                                      padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding),
-                                      itemCount: courses.length,
-                                      itemBuilder: (context, index) {
-                                        final course = courses[index];
-                                        return StreamBuilder<UserProgress?>(
-                                          stream: _firebaseService.streamUserCourseProgress(_currentUserId!, course.id),
-                                          builder: (context, progressSnapshot) {
-                                            if (progressSnapshot.connectionState == ConnectionState.waiting) {
-                                              return CourseProgressCard(course: course, progressPercentage: 0, lessonsCompleted: 0, totalLessons: 0, totalXpEarned: 0, isLoading: true);
-                                            }
-                                            if (progressSnapshot.hasError) {
-                                              return CourseProgressCard(course: course, progressPercentage: 0, lessonsCompleted: 0, totalLessons: 0, totalXpEarned: 0, isError: true);
-                                            }
-
-                                            final userProgress = progressSnapshot.data;
-
-                                            int totalLevelsInCourse = course.levelIds?.length ?? 0; // Null check added
-                                            int completedLevelsCount = 0;
-                                            int completedLessonsCount = 0;
-                                            int totalXpEarned = 0;
-
-                                            if (userProgress != null) {
-                                              completedLevelsCount = userProgress.levelsProgress.values.where((p) => p.isCompleted).length;
-                                              totalXpEarned = userProgress.levelsProgress.values.fold(0, (sum, progress) => sum + progress.xpEarned);
-
-                                              // To get total lessons, you'd ideally fetch all lessons for all levels of this course.
-                                              // For now, if not easily available, we can approximate or use completedLessonsCount
-                                              // This is a simplification; a more robust solution would involve fetching total lessons per course.
-                                              completedLessonsCount = userProgress.lessonsProgress.values.where((p) => p.isCompleted).length;
-                                            }
-
-                                            double progressPercentage = totalLevelsInCourse > 0
-                                                ? (completedLevelsCount / totalLevelsInCourse)
-                                                : 0.0;
-
-                                            return CourseProgressCard(
-                                              course: course,
-                                              progressPercentage: progressPercentage,
-                                              lessonsCompleted: completedLessonsCount,
-                                              totalLessons: totalLevelsInCourse, // Approximating total lessons with total levels
-                                              totalXpEarned: totalXpEarned,
-                                            );
-                                          },
-                                        );
-                                      },
                                     );
-                                  },
-                                ),
-                                const SizedBox(height: AppConstants.spacing * 4),
+                                  }
 
-                                // Leaderboard Section
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing),
-                                  child: Text(
-                                    'Global Leaderboard:',
-                                    style: AppColors.neonTextStyle(fontSize: 22, color: AppColors.xpColor),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: AppConstants.padding),
-                                  child: LeaderboardList(),
-                                ),
-                                const SizedBox(height: AppConstants.padding * 2), // Add some bottom padding
-                              ],
-                            ),
+                                  final courses = courseSnapshot.data!;
+
+                                  return ListView.builder(
+                                    shrinkWrap: true, // Important for ListView inside SingleChildScrollView
+                                    physics: const NeverScrollableScrollPhysics(), // Important to prevent nested scrolling
+                                    itemCount: courses.length,
+                                    itemBuilder: (context, index) {
+                                      final course = courses[index];
+                                      return StreamBuilder<UserProgress?>(
+                                        stream: _firebaseService.streamUserCourseProgress(_currentUserId!, course.id),
+                                        builder: (context, progressSnapshot) {
+                                          if (progressSnapshot.connectionState == ConnectionState.waiting) {
+                                            return CourseProgressCard(course: course, progressPercentage: 0, lessonsCompleted: 0, totalLessons: 0, totalXpEarned: 0, isLoading: true);
+                                          }
+                                          if (progressSnapshot.hasError) {
+                                            return CourseProgressCard(course: course, progressPercentage: 0, lessonsCompleted: 0, totalLessons: 0, totalXpEarned: 0, isError: true);
+                                          }
+
+                                          final userProgress = progressSnapshot.data;
+
+                                          int totalLevelsInCourse = course.levelIds.length;
+                                          int completedLevelsCount = 0;
+                                          int totalXpEarned = 0;
+
+                                          if (userProgress != null) {
+                                            completedLevelsCount = userProgress.levelsProgress.values.where((p) => p.isCompleted).length;
+                                            totalXpEarned = userProgress.levelsProgress.values.fold(0, (sum, progress) => sum + progress.xpEarned);
+                                          }
+
+                                          double progressPercentage = totalLevelsInCourse > 0
+                                              ? (completedLevelsCount / totalLevelsInCourse)
+                                              : 0.0;
+
+                                          return CourseProgressCard(
+                                            course: course,
+                                            progressPercentage: progressPercentage,
+                                            lessonsCompleted: completedLevelsCount, // Display completed levels for course
+                                            totalLessons: totalLevelsInCourse, // Display total levels for course
+                                            totalXpEarned: totalXpEarned,
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: AppConstants.spacing * 2),
+                            ],
+                          ),
+                        ),
+                        // Leaderboard Tab
+                        SingleChildScrollView(
+                          padding: const EdgeInsets.all(AppConstants.padding),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Global Leaderboard',
+                                style: AppColors.neonTextStyle(fontSize: 24, color: AppColors.xpColor),
+                              ),
+                              const SizedBox(height: AppConstants.spacing * 2),
+                              const LeaderboardList(), // Integrate the LeaderboardList widget
+                              const SizedBox(height: AppConstants.spacing * 2),
+                            ],
                           ),
                         ),
                       ],
@@ -256,15 +194,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
       ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 1),
     );
-    
   }
 }
 
 class CourseProgressCard extends StatelessWidget {
   final Course course;
   final double progressPercentage;
-  final int lessonsCompleted;
-  final int totalLessons;
+  final int lessonsCompleted; // Now represents completed levels
+  final int totalLessons;     // Now represents total levels
   final int totalXpEarned;
   final bool isLoading;
   final bool isError;
@@ -339,8 +276,7 @@ class CourseProgressCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppConstants.spacing),
                       Text(
-                        // Add null check for course.levelIds before accessing length
-                        'Levels Completed: $lessonsCompleted/${course.levelIds?.length ?? 0} (approximated)',
+                        'Levels Completed: ${lessonsCompleted}/${totalLessons}', // Display levels
                         style: const TextStyle(color: AppColors.textColorSecondary, fontSize: 12),
                       ),
                     ],

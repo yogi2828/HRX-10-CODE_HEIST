@@ -1,3 +1,4 @@
+// lib/widgets/lesson/lesson_content_display.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:gamifier/constants/app_colors.dart';
@@ -28,35 +29,18 @@ class LessonContentDisplay extends StatelessWidget {
         }
       },
       styleSheet: MarkdownStyleSheet(
-        // Ensure paragraph style is clearly defined to prevent bleed-through
-        p: const TextStyle(
-            color: AppColors.textColor,
-            fontSize: 16,
-            // Ensure no inherited decorations or weights if not intended
-            decoration: TextDecoration.none,
-            fontWeight: FontWeight.normal),
-        h1: AppColors.neonTextStyle(
-            fontSize: 28,
-            color: AppColors.accentColor,
-            blurRadius: 10,
-            fontWeight: FontWeight.bold),
-        h2: AppColors.neonTextStyle(
-            fontSize: 24,
-            color: AppColors.secondaryColor,
-            blurRadius: 8,
-            fontWeight: FontWeight.bold),
-        h3: const TextStyle(
-            color: AppColors.textColor, fontSize: 20, fontWeight: FontWeight.bold),
-        h4: const TextStyle(
-            color: AppColors.textColor, fontSize: 18, fontWeight: FontWeight.bold),
+        // Ensure paragraph text has a clear, non-neon style
+        p: const TextStyle(color: AppColors.textColor, fontSize: 16),
+        
+        // Apply neon style specifically to headings
+        h1: AppColors.neonTextStyle(fontSize: 28, color: AppColors.accentColor, blurRadius: 10, fontWeight: FontWeight.bold),
+        h2: AppColors.neonTextStyle(fontSize: 24, color: AppColors.secondaryColor, blurRadius: 8, fontWeight: FontWeight.bold),
+        h3: const TextStyle(color: AppColors.textColor, fontSize: 20, fontWeight: FontWeight.bold),
+        h4: const TextStyle(color: AppColors.textColor, fontSize: 18, fontWeight: FontWeight.bold),
         strong: const TextStyle(color: AppColors.xpColor, fontWeight: FontWeight.bold),
         em: const TextStyle(fontStyle: FontStyle.italic, color: AppColors.textColorSecondary),
-        blockquote: const TextStyle(
-            color: AppColors.textColorSecondary, fontStyle: FontStyle.italic),
-        code: const TextStyle(
-            color: AppColors.accentColor,
-            backgroundColor: AppColors.cardColor,
-            fontFamily: 'monospace'),
+        blockquote: const TextStyle(color: AppColors.textColorSecondary, fontStyle: FontStyle.italic),
+        code: const TextStyle(color: AppColors.accentColor, backgroundColor: AppColors.cardColor, fontFamily: 'monospace'),
         codeblockDecoration: BoxDecoration(
           color: AppColors.cardColor.withOpacity(0.5),
           borderRadius: BorderRadius.circular(AppConstants.borderRadius),

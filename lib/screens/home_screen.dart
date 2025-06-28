@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.all(AppConstants.padding),
                 child: _userProfile == null
-                    ? const Center(child: CircularProgressIndicator(color: Color.fromARGB(255, 65, 85, 88)))
+                    ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

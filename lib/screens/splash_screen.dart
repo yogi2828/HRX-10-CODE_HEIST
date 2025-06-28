@@ -17,10 +17,13 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  late FirebaseService _firebaseService;
 
   @override
   void initState() {
     super.initState();
+    _firebaseService = Provider.of<FirebaseService>(context, listen: false);
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -33,20 +36,28 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _checkAuthStatus() async {
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
-    firebaseService.authStateChanges.listen((User? user) async {
+    // Listen to auth state changes to react when Firebase is ready and user status is known
+    _firebaseService.authStateChanges.listen((User? user) async {
+      // Ensure the widget is still mounted before performing navigation
       if (mounted) {
         if (user == null) {
-          Navigator.of(context).pushReplacementNamed(AppRouter.onboardingRoute);
+          // No user logged in, navigate to AuthScreen
+          Navigator.of(context).pushReplacementNamed(AppRouter.authRoute);
         } else {
-          final userProfile = await firebaseService.getUserProfile(user.uid);
+          // User is logged in, check profile completeness
+          final userProfile = await _firebaseService.getUserProfile(user.uid);
           if (userProfile == null || userProfile.username.isEmpty) {
+            // User profile not complete or not found, navigate to Onboarding
             Navigator.of(context).pushReplacementNamed(AppRouter.onboardingRoute);
           } else {
+            // User profile complete, navigate to HomeScreen
             Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
           }
         }
       }
+      // After the first check and navigation, we don't need to listen anymore if we pushReplacement
+      // If we allowed back navigation to splash, then we'd keep listening.
+      // For a splash screen, usually, you navigate once and dispose listeners.
     });
   }
 
@@ -72,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/app_icon.png',
+                    'assets/app_icon.png', // Ensure this asset exists and is correctly configured in pubspec.yaml
                     width: 150,
                     height: 150,
                   ),

@@ -1,10 +1,9 @@
+// lib/widgets/feedback/personalized_feedback_modal.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/user_progress.dart';
-import 'package:gamifier/models/user_profile.dart'; // Import UserProfile
-import 'package:gamifier/services/firebase_service.dart'; // Import FirebaseService
 import 'package:gamifier/services/gemini_api_service.dart';
 import 'package:gamifier/widgets/common/custom_button.dart';
 
@@ -14,7 +13,7 @@ class PersonalizedFeedbackModal extends StatefulWidget {
   final String questionText;
   final dynamic correctAnswer; // Can be String or List<String>
   final String lessonContent;
-  final UserProgress userProgress; // Keep userProgress if it's still needed elsewhere
+  final UserProgress userProgress;
 
   const PersonalizedFeedbackModal({
     super.key,
@@ -52,25 +51,12 @@ class _PersonalizedFeedbackModalState extends State<PersonalizedFeedbackModal> {
 
     try {
       final geminiService = Provider.of<GeminiApiService>(context, listen: false);
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false); // Get FirebaseService
-
-      final currentUser = firebaseService.currentUser;
-      if (currentUser == null) {
-        throw Exception('User not logged in to generate feedback.');
-      }
-
-      // Fetch the latest UserProfile to pass to GeminiApiService
-      final UserProfile? userProfile = await firebaseService.getUserProfile(currentUser.uid);
-      if (userProfile == null) {
-        throw Exception('User profile not found to generate feedback.');
-      }
-
       final feedback = await geminiService.generateSocraticFeedback(
         userAnswer: widget.userAnswer,
         questionText: widget.questionText,
         correctAnswer: widget.correctAnswer.toString(),
         lessonContent: widget.lessonContent,
-        userProfile: userProfile, // Pass the fetched UserProfile
+        userProgress: widget.userProgress,
       );
 
       setState(() {

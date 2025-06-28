@@ -10,12 +10,12 @@ class CourseForm extends StatelessWidget {
   final ValueChanged<String> onDomainChanged;
   final ValueChanged<String?> onDifficultyChanged;
   final ValueChanged<String?> onEducationLevelChanged;
-  final ValueChanged<String?> onGameGenreChanged;
+  final ValueChanged<String?> onLanguageChanged; // Changed from onGameGenreChanged
   final ValueChanged<String> onYoutubeUrlChanged;
   final ValueChanged<String> onSourceContentChanged; // Not directly used here, but keeps signature consistent
   final String currentDifficulty;
   final String currentEducationLevel;
-  final String currentGameGenre;
+  final String currentLanguage; // Changed from currentGameGenre
 
   const CourseForm({
     super.key,
@@ -23,12 +23,12 @@ class CourseForm extends StatelessWidget {
     required this.onDomainChanged,
     required this.onDifficultyChanged,
     required this.onEducationLevelChanged,
-    required this.onGameGenreChanged,
+    required this.onLanguageChanged, // Changed here
     required this.onYoutubeUrlChanged,
     required this.onSourceContentChanged,
     required this.currentDifficulty,
     required this.currentEducationLevel,
-    required this.currentGameGenre,
+    required this.currentLanguage, // Changed here
   });
 
   @override
@@ -66,11 +66,11 @@ class CourseForm extends StatelessWidget {
         ),
         const SizedBox(height: AppConstants.spacing * 2),
         _buildDropdownField(
-          label: 'Game Genre',
-          value: currentGameGenre,
-          items: AppConstants.gameThemes,
-          onChanged: onGameGenreChanged,
-          icon: Icons.gamepad,
+          label: 'Course Language', // Changed label
+          value: currentLanguage, // Changed value
+          items: AppConstants.supportedLanguages, // Changed items
+          onChanged: onLanguageChanged, // Changed onChanged
+          icon: Icons.language, // Changed icon
         ),
         const SizedBox(height: AppConstants.spacing * 2),
         CustomTextField(

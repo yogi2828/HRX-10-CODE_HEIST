@@ -36,7 +36,7 @@ class AppColors {
     double fontSize = 24,
     FontWeight fontWeight = FontWeight.bold,
     Color color = accentColor,
-    double blurRadius = 0.5,
+    double blurRadius = 15.0,
     double spreadRadius = 0.0,
   }) {
     return TextStyle(

@@ -71,7 +71,11 @@ class AppRouter {
       case progressRoute:
         return MaterialPageRoute(builder: (_) => const ProgressScreen());
       default:
-        return MaterialPageRoute(builder: (_) => const Text('Error: Unknown route'));
+        // Fallback for unknown routes
+        return MaterialPageRoute(builder: (_) => Scaffold(
+          appBar: AppBar(title: const Text('Error')),
+          body: Center(child: Text('Error: Unknown route ${settings.name}')),
+        ));
     }
   }
 }

@@ -1,3 +1,4 @@
+// lib/screens/chat_screen.dart
 import 'package:flutter/material.dart';
 import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -76,10 +77,18 @@ class _ChatScreenState extends State<ChatScreen> {
           .map((doc) => ChatMessage.fromMap(doc.data()))
           .toList();
 
-      // Corrected: Call chatWithTutor instead of generateChatResponse
-      final ChatMessage aiResponse = await _geminiApiService.chatWithTutor(currentChatHistory);
+      final String aiResponseText = await _geminiApiService.generateChatResponse(currentChatHistory);
 
-      await _firebaseService.sendChatMessage(aiResponse);
+      final aiMessage = ChatMessage(
+        id: _firebaseService.generateNewDocId(),
+        senderId: 'ai_tutor',
+        senderUsername: 'AI Tutor',
+        senderAvatarUrl: 'assets/app_icon.png',
+        text: aiResponseText,
+        timestamp: DateTime.now(),
+        isUser: false,
+      );
+      await _firebaseService.sendChatMessage(aiMessage);
     } catch (e) {
       debugPrint('Error generating AI response: $e');
       final errorMessage = ChatMessage(
@@ -116,7 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const CustomAppBar(title: 'AI Chat Tutor 💡'), // Changed emoji for better display
+      appBar: const CustomAppBar(title: 'AI Chat Tutor 🤖'),
       body: Container(
         decoration: BoxDecoration(
           gradient: AppColors.backgroundGradient(),

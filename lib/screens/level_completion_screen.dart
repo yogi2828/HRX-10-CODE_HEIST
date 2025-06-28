@@ -8,6 +8,8 @@ import 'package:gamifier/services/audio_service.dart';
 import 'package:gamifier/utils/app_router.dart';
 import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/common/xp_level_display.dart';
+import 'package:gamifier/screens/level_selection_screen.dart'; // Import LevelSelectionScreen
+import 'package:gamifier/screens/home_screen.dart'; // Import HomeScreen
 
 class LevelCompletionScreen extends StatefulWidget {
   final String courseId;
@@ -40,7 +42,7 @@ class _LevelCompletionScreenState extends State<LevelCompletionScreen> with Sing
     super.initState();
     _audioService = Provider.of<AudioService>(context, listen: false);
     _audioService.playLevelUpSound();
-    _loadUserProfile();
+    _loadUserProfile(); // Load user profile to display updated XP and Level
 
     _controller = AnimationController(
       vsync: this,
@@ -61,6 +63,7 @@ class _LevelCompletionScreenState extends State<LevelCompletionScreen> with Sing
     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
     final user = firebaseService.currentUser;
     if (user != null) {
+      // Use a stream to react to real-time updates of XP/level
       firebaseService.streamUserProfile(user.uid).listen((profile) {
         if (mounted && profile != null) {
           setState(() {
@@ -68,6 +71,8 @@ class _LevelCompletionScreenState extends State<LevelCompletionScreen> with Sing
             _currentLevel = profile.level;
           });
         }
+      }).onError((error) {
+        debugPrint('Error streaming user profile in LevelCompletionScreen: $error');
       });
     }
   }
@@ -131,23 +136,38 @@ class _LevelCompletionScreenState extends State<LevelCompletionScreen> with Sing
                         const SizedBox(height: AppConstants.spacing * 4),
                         CustomButton(
                           onPressed: () {
-                            Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.levelSelectionRoute);
-                            Navigator.of(context).pushReplacementNamed(
-                              AppRouter.levelSelectionRoute,
-                              arguments: {
-                                'courseId': widget.courseId,
-                                'courseTitle': '', // Title is not strictly needed for this navigation, but required by route args.
-                              },
-                            );
+                            if (widget.isCourseCompleted) {
+                              // If course is completed, go back to the Home screen and remove all other routes
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                                (route) => false, // Remove all routes
+                              );
+                            } else {
+                              // If course is NOT completed, go back to the Level Selection for this course
+                              // Remove all routes until the home route, then push LevelSelectionScreen
+                              // This handles cases where LessonScreen might be pushed directly.
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => LevelSelectionScreen(
+                                    courseId: widget.courseId,
+                                    courseTitle: '', // Title not strictly needed for navigation, but required by constructor
+                                  ),
+                                ),
+                                (route) => route.settings.name == AppRouter.homeRoute || route.isFirst,
+                              );
+                            }
                           },
                           text: widget.isCourseCompleted ? 'Back to Courses' : 'Continue Learning',
-                          icon: widget.isCourseCompleted ? Icons.home : Icons.play_arrow,
+                          icon: widget.isCourseCompleted ? Icons.menu_book : Icons.play_arrow,
                         ),
                         const SizedBox(height: AppConstants.spacing),
                         CustomButton(
                           onPressed: () {
-                            Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.homeRoute);
-                            Navigator.of(context).pushReplacementNamed(AppRouter.homeRoute);
+                            // Navigate directly to Home and clear all routes below it
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (context) => const HomeScreen()),
+                              (route) => false, // Remove all routes
+                            );
                           },
                           text: 'Go to Home',
                           icon: Icons.home,

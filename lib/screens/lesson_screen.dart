@@ -83,7 +83,7 @@ class _LessonScreenState extends State<LessonScreen> {
 
       if (lesson == null || level == null) {
         setState(() {
-          _errorMessage = 'Lesson or Level not found.';
+          _errorMessage = 'Lesson or Level not found. Please go back and try again.';
           _isLoading = false;
         });
         return;
@@ -137,11 +137,16 @@ class _LessonScreenState extends State<LessonScreen> {
       return;
     }
 
-    // Ensure correctAnswerData is a String, defaulting to empty if null
-    String validationCorrectAnswer = '';
-    if (correctAnswerData != null) {
-      validationCorrectAnswer = correctAnswerData.toString();
+    // Ensure correctAnswerData is a String for validation, defaulting to empty if null
+    // Specifically handle MCQ where correctAnswer is the correct option string
+    String validationCorrectAnswer;
+    if (questionType == 'MCQ') {
+      // For MCQ, correctAnswerData should directly be the correct answer string from the Question model
+      validationCorrectAnswer = _questions.firstWhere((q) => q.id == questionId).correctAnswer ?? '';
+    } else {
+      validationCorrectAnswer = correctAnswerData?.toString() ?? '';
     }
+
 
     final bool isCorrect = ValidationUtils.validateAnswer(userAnswer, questionType, validationCorrectAnswer);
     final int xpAwarded = isCorrect ? _questions[_currentQuestionIndex].xpReward : 0;
@@ -170,7 +175,7 @@ class _LessonScreenState extends State<LessonScreen> {
     );
 
     currentLessonProgress = currentLessonProgress.copyWith(
-      xpEarned: (currentLessonProgress.xpEarned ?? 0) + xpAwarded, // Ensure xpEarned is not null
+      xpEarned: (currentLessonProgress.xpEarned) + xpAwarded, // Correctly accumulate XP
       questionAttempts: updatedQuestionAttempts,
     );
 
@@ -241,11 +246,18 @@ class _LessonScreenState extends State<LessonScreen> {
 
     // Check if current level is completed
     List<Lesson> allLessonsInLevel = [];
-    final levelRef = _firebaseService.getFirestore().collection(AppConstants.levelsCollection).doc(widget.levelId);
-    final lessonsSnapshot = await levelRef.collection('lessons').orderBy('order').get();
-    allLessonsInLevel = lessonsSnapshot.docs.map((doc) => Lesson.fromMap(doc.data())).toList();
+    try {
+      final levelRef = _firebaseService.getFirestore().collection(AppConstants.levelsCollection).doc(widget.levelId);
+      final lessonsSnapshot = await levelRef.collection('lessons').orderBy('order').get();
+      allLessonsInLevel = lessonsSnapshot.docs.map((doc) => Lesson.fromMap(doc.data())).toList();
+    } catch (e) {
+      debugPrint('Error fetching all lessons in level: $e');
+      // If error, assume lessons are not all fetched and handle gracefully
+      allLessonsInLevel = [];
+    }
 
-    bool allLessonsCompletedInLevel = allLessonsInLevel.every((lesson) {
+
+    bool allLessonsCompletedInLevel = allLessonsInLevel.isNotEmpty && allLessonsInLevel.every((lesson) {
       return _userProgress!.lessonsProgress[lesson.id]?.isCompleted == true;
     });
 
@@ -257,8 +269,8 @@ class _LessonScreenState extends State<LessonScreen> {
 
       currentLevelProgress = currentLevelProgress.copyWith(
         isCompleted: true,
-        xpEarned: (currentLevelProgress.xpEarned ?? 0) + totalXpEarnedInLevel, // Ensure xpEarned is not null
-        score: (totalXpEarnedInLevel / (allLessonsInLevel.length * 15 * _questions.length)).round(), // Rough score calculation
+        xpEarned: (currentLevelProgress.xpEarned) + totalXpEarnedInLevel, // Ensure xpEarned is not null
+        score: (totalXpEarnedInLevel / (allLessonsInLevel.length * 15 * (_questions.isNotEmpty ? _questions.length : 1))).round(), // Rough score calculation
         completedAt: DateTime.now(),
       );
 
@@ -274,14 +286,19 @@ class _LessonScreenState extends State<LessonScreen> {
 
       // Check if course is completed
       List<Level> allLevelsInCourse = [];
-      final courseLevelsSnapshot = await _firebaseService.getFirestore()
-          .collection(AppConstants.levelsCollection)
-          .where('courseId', isEqualTo: widget.courseId)
-          .orderBy('order')
-          .get();
-      allLevelsInCourse = courseLevelsSnapshot.docs.map((doc) => Level.fromMap(doc.data())).toList();
+      try {
+        final courseLevelsSnapshot = await _firebaseService.getFirestore()
+            .collection(AppConstants.levelsCollection)
+            .where('courseId', isEqualTo: widget.courseId)
+            .orderBy('order')
+            .get();
+        allLevelsInCourse = courseLevelsSnapshot.docs.map((doc) => Level.fromMap(doc.data())).toList();
+      } catch (e) {
+        debugPrint('Error fetching all levels in course: $e');
+        allLevelsInCourse = [];
+      }
 
-      bool allLevelsCompletedInCourse = allLevelsInCourse.every((level) {
+      bool allLevelsCompletedInCourse = allLevelsInCourse.isNotEmpty && allLevelsInCourse.every((level) {
         return _userProgress!.levelsProgress[level.id]?.isCompleted == true;
       });
 
@@ -297,6 +314,7 @@ class _LessonScreenState extends State<LessonScreen> {
         );
       }
     } else {
+      // If not all lessons in the current level are completed, go back to level selection
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -317,10 +335,6 @@ class _LessonScreenState extends State<LessonScreen> {
         title: _currentLevel?.title ?? 'Lesson',
         subtitle: _currentLesson?.title,
         automaticallyImplyLeading: true, // Allow back to level selection
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back),
-        //   onPressed: () => Navigator.of(context).pop(), // Pops to LevelSelectionScreen
-        // ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -336,10 +350,11 @@ class _LessonScreenState extends State<LessonScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ProgressBar(
-                            current: _currentQuestionIndex,
-                            total: _questions.length,
-                          ),
+                          if (_questions.isNotEmpty)
+                            ProgressBar(
+                              current: _currentQuestionIndex,
+                              total: _questions.length,
+                            ),
                           const SizedBox(height: AppConstants.spacing * 2),
                           Expanded(
                             child: SingleChildScrollView(
@@ -362,20 +377,25 @@ class _LessonScreenState extends State<LessonScreen> {
                                       onSubmit: (userAnswer) {
                                         // Ensure the correctAnswerData passed is never null
                                         dynamic dataToSend;
-                                        switch (_questions[_currentQuestionIndex].type) {
-                                          case 'MCQ':
-                                          case 'FillInBlank':
-                                            dataToSend = _questions[_currentQuestionIndex].correctAnswer;
-                                            break;
-                                          case 'ShortAnswer':
-                                            dataToSend = _questions[_currentQuestionIndex].expectedAnswerKeywords;
-                                            break;
-                                          case 'Scenario':
-                                            dataToSend = _questions[_currentQuestionIndex].expectedOutcome;
-                                            break;
-                                          default:
-                                            dataToSend = ''; // Default for unknown types
+                                        // Directly use the correctAnswer from the current question for MCQ
+                                        if (_questions[_currentQuestionIndex].type == 'MCQ') {
+                                          dataToSend = _questions[_currentQuestionIndex].correctAnswer;
+                                        } else {
+                                          switch (_questions[_currentQuestionIndex].type) {
+                                            case 'FillInBlank':
+                                              dataToSend = _questions[_currentQuestionIndex].correctAnswer;
+                                              break;
+                                            case 'ShortAnswer':
+                                              dataToSend = _questions[_currentQuestionIndex].expectedAnswerKeywords;
+                                              break;
+                                            case 'Scenario':
+                                              dataToSend = _questions[_currentQuestionIndex].expectedOutcome;
+                                              break;
+                                            default:
+                                              dataToSend = ''; // Default for unknown types
+                                          }
                                         }
+
 
                                         _submitAnswer(
                                           _questions[_currentQuestionIndex].id,
@@ -400,7 +420,7 @@ class _LessonScreenState extends State<LessonScreen> {
                               ),
                             ),
                           ),
-                          if (_currentQuestionIndex == _questions.length)
+                          if (_questions.isNotEmpty && _currentQuestionIndex == _questions.length)
                             Padding(
                               padding: const EdgeInsets.only(top: AppConstants.padding),
                               child: CustomButton(
@@ -412,7 +432,7 @@ class _LessonScreenState extends State<LessonScreen> {
                         ],
                       ),
                     ),
-                  ),
+        ),
       ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 0), // Default to home in bottom nav
     );

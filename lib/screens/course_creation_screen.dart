@@ -29,7 +29,7 @@ class _CourseCreationScreenState extends State<CourseCreationScreen> {
   String _domain = '';
   String _difficulty = AppConstants.difficultyLevels[0];
   String _educationLevel = AppConstants.educationLevels[0];
-  String _gameGenre = AppConstants.gameThemes[0];
+  String _language = AppConstants.supportedLanguages[0]; // Changed from _gameGenre
   String _sourceContent = '';
   String _youtubeUrl = '';
   bool _isLoading = false;
@@ -84,6 +84,7 @@ class _CourseCreationScreenState extends State<CourseCreationScreen> {
         difficulty: _difficulty,
         educationLevel: _educationLevel,
         specialty: _domain,
+        language: _language, // Pass the selected language
         sourceContent: _sourceContent.isNotEmpty ? _sourceContent : null,
         youtubeUrl: _youtubeUrl.isNotEmpty ? _youtubeUrl : null,
         numberOfLevels: AppConstants.initialLevelsCount,
@@ -93,7 +94,8 @@ class _CourseCreationScreenState extends State<CourseCreationScreen> {
         id: newCourseId,
         title: generatedData['courseTitle'] as String,
         description: 'A dynamically generated course on ${generatedData['courseTitle']}.',
-        gameGenre: generatedData['gameGenre'] as String,
+        gameGenre: generatedData['gameGenre'] as String?, // Still read gameGenre from model if present
+        language: generatedData['language'] as String, // Read language from generated data
         difficulty: generatedData['difficulty'] as String,
         creatorId: currentUser.uid,
         createdAt: DateTime.now(),
@@ -192,12 +194,12 @@ class _CourseCreationScreenState extends State<CourseCreationScreen> {
                     onDomainChanged: (value) => _domain = value,
                     onDifficultyChanged: (value) => setState(() => _difficulty = value!),
                     onEducationLevelChanged: (value) => setState(() => _educationLevel = value!),
-                    onGameGenreChanged: (value) => setState(() => _gameGenre = value!),
+                    onLanguageChanged: (value) => setState(() => _language = value!), // Changed here
                     onYoutubeUrlChanged: (value) => _youtubeUrl = value,
                     onSourceContentChanged: (value) => _sourceContent = value,
                     currentDifficulty: _difficulty,
                     currentEducationLevel: _educationLevel,
-                    currentGameGenre: _gameGenre,
+                    currentLanguage: _language, // Changed here
                   ),
                   const SizedBox(height: AppConstants.spacing * 2),
                   CustomButton(

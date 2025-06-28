@@ -1,3 +1,4 @@
+// lib/widgets/lesson/question_widget.dart
 import 'package:flutter/material.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
@@ -44,20 +45,6 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   }
 
   @override
-  void didUpdateWidget(covariant QuestionWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // If the question changes (e.g., moving to the next question in a lesson)
-    // or submission status changes, re-initialize the state.
-    if (widget.question.id != oldWidget.question.id || widget.isSubmitted != oldWidget.isSubmitted) {
-      if (widget.question.type == 'MCQ') {
-        _selectedMcqOption = widget.isSubmitted ? widget.lastUserAnswer : null;
-      } else {
-        _textAnswerController.text = widget.isSubmitted ? (widget.lastUserAnswer ?? '') : '';
-      }
-    }
-  }
-
-  @override
   void dispose() {
     _textAnswerController.dispose();
     super.dispose();
@@ -68,35 +55,19 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       case 'MCQ':
         return Column(
           children: widget.question.options!.map((option) {
-            bool isCorrectOption = widget.isSubmitted && widget.question.correctAnswer == option;
-            bool isUserSelectedOption = _selectedMcqOption == option;
-
-            Color optionTextColor = AppColors.textColor;
-            Color optionBorderColor = Colors.transparent;
-
-            if (widget.isSubmitted) {
-              if (isUserSelectedOption) {
-                optionTextColor = widget.isLastAttemptCorrect! ? AppColors.successColor : AppColors.errorColor;
-                optionBorderColor = widget.isLastAttemptCorrect! ? AppColors.successColor : AppColors.errorColor;
-              } else if (isCorrectOption) {
-                // Highlight the correct answer even if user didn't select it
-                optionTextColor = AppColors.successColor;
-                optionBorderColor = AppColors.successColor;
-              }
-            }
-
             return RadioListTile<String>(
               title: Text(
                 option,
                 style: TextStyle(
-                  color: optionTextColor,
-                  fontWeight: isCorrectOption && widget.isSubmitted ? FontWeight.bold : FontWeight.normal,
+                  color: widget.isSubmitted && _selectedMcqOption == option
+                      ? (widget.isLastAttemptCorrect! ? AppColors.successColor : AppColors.errorColor)
+                      : AppColors.textColor,
                 ),
               ),
               value: option,
               groupValue: _selectedMcqOption,
               onChanged: widget.isSubmitted
-                  ? null // Disable interaction if already submitted
+                  ? null
                   : (value) {
                       setState(() {
                         _selectedMcqOption = value;
@@ -107,7 +78,9 @@ class _QuestionWidgetState extends State<QuestionWidget> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.borderRadius),
                 side: BorderSide(
-                  color: optionBorderColor,
+                  color: widget.isSubmitted && _selectedMcqOption == option
+                      ? (widget.isLastAttemptCorrect! ? AppColors.successColor : AppColors.errorColor)
+                      : Colors.transparent,
                   width: 2,
                 ),
               ),

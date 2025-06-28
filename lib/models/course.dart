@@ -7,7 +7,8 @@ class Course {
   final String id;
   final String title;
   final String description;
-  final String gameGenre;
+  final String? gameGenre; // Made nullable as it's being replaced by language
+  final String language; // New field for course language
   final String difficulty;
   final String creatorId;
   final DateTime createdAt;
@@ -19,7 +20,8 @@ class Course {
     required this.id,
     required this.title,
     required this.description,
-    required this.gameGenre,
+    this.gameGenre, // Now optional
+    required this.language, // Now required
     required this.difficulty,
     required this.creatorId,
     required this.createdAt,
@@ -33,7 +35,8 @@ class Course {
       id: map['id'] as String,
       title: map['title'] as String,
       description: map['description'] as String,
-      gameGenre: map['gameGenre'] as String,
+      gameGenre: map['gameGenre'] as String?, // Read as nullable
+      language: map['language'] as String? ?? 'English', // New field, default to English
       difficulty: map['difficulty'] as String,
       creatorId: map['creatorId'] as String,
       createdAt: (map['createdAt'] as Timestamp).toDate(),
@@ -49,6 +52,7 @@ class Course {
       'title': title,
       'description': description,
       'gameGenre': gameGenre,
+      'language': language, // Include in map
       'difficulty': difficulty,
       'creatorId': creatorId,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -63,6 +67,7 @@ class Course {
     String? title,
     String? description,
     String? gameGenre,
+    String? language, // Update copyWith
     String? difficulty,
     String? creatorId,
     DateTime? createdAt,
@@ -75,6 +80,7 @@ class Course {
       title: title ?? this.title,
       description: description ?? this.description,
       gameGenre: gameGenre ?? this.gameGenre,
+      language: language ?? this.language, // Copy language
       difficulty: difficulty ?? this.difficulty,
       creatorId: creatorId ?? this.creatorId,
       createdAt: createdAt ?? this.createdAt,
@@ -86,7 +92,7 @@ class Course {
 
   @override
   String toString() {
-    return 'Course(id: $id, title: $title, description: $description, gameGenre: $gameGenre, difficulty: $difficulty, creatorId: $creatorId, createdAt: $createdAt, levelIds: $levelIds, educationLevel: $educationLevel, specialty: $specialty)';
+    return 'Course(id: $id, title: $title, description: $description, gameGenre: $gameGenre, language: $language, difficulty: $difficulty, creatorId: $creatorId, createdAt: $createdAt, levelIds: $levelIds, educationLevel: $educationLevel, specialty: $specialty)';
   }
 
   @override
@@ -98,6 +104,7 @@ class Course {
           title == other.title &&
           description == other.description &&
           gameGenre == other.gameGenre &&
+          language == other.language && // Compare language
           difficulty == other.difficulty &&
           creatorId == other.creatorId &&
           createdAt == other.createdAt &&
@@ -110,11 +117,12 @@ class Course {
       id.hashCode ^
       title.hashCode ^
       description.hashCode ^
-      gameGenre.hashCode ^
+      (gameGenre?.hashCode ?? 0) ^ // Update hash code
+      language.hashCode ^ // Add language to hash code
       difficulty.hashCode ^
       creatorId.hashCode ^
       createdAt.hashCode ^
       listEquals(levelIds, levelIds).hashCode ^
-      educationLevel.hashCode ^
-      specialty.hashCode;
+      (educationLevel?.hashCode ?? 0) ^
+      (specialty?.hashCode ?? 0);
 }

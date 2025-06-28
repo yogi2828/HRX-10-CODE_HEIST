@@ -42,6 +42,9 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
   String? _errorMessage;
   final Map<String, Offset> _levelNodePositions = {}; // To store calculated top-left positions
 
+  // A key to access the render box of a specific level node
+  final Map<String, GlobalKey> _levelKeys = {};
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +57,14 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
         if (mounted) {
           setState(() {
             _levels = levels;
-            // Only calculate positions after the first frame renders to get context width
+            // Initialize GlobalKeys for new levels
+            for (var level in levels) {
+              if (!_levelKeys.containsKey(level.id)) {
+                _levelKeys[level.id] = GlobalKey();
+              }
+            }
+            // Recalculate positions after the levels data is updated
+            // Do this in a post-frame callback to ensure widgets are rendered and have sizes
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _calculateLevelNodePositions();
             });
@@ -73,6 +83,10 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
       _userProgressStream.listen((progress) {
         if (mounted && progress != null) {
           debugPrint('User Progress Updated: ${progress.currentLevelId}');
+          // Trigger recalculation if progress affects level unlock status
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _calculateLevelNodePositions(); // Re-render paths based on completion status
+          });
         }
       }).onError((e) {
         debugPrint('Error streaming user progress: $e');
@@ -94,7 +108,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
   void _calculateLevelNodePositions() {
     _levelNodePositions.clear();
     const double nodeSize = 120.0; // Width/Height of LevelNode
-    const double verticalStep = 140.0; // Vertical distance between centers of nodes
+    const double verticalStep = 160.0; // Vertical distance between centers of nodes (increased for more space)
 
     final double screenWidth = MediaQuery.of(context).size.width;
     // Adjusted these to better center the columns for any screen size
@@ -140,10 +154,12 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
     final firebaseService = Provider.of<FirebaseService>(context, listen: false);
     final geminiService = Provider.of<GeminiApiService>(context, listen: false);
     final currentUser = firebaseService.currentUser;
+    final userProfile = await firebaseService.getUserProfile(currentUser!.uid);
 
-    if (currentUser == null) {
+
+    if (currentUser == null || userProfile == null) {
       setState(() {
-        _errorMessage = 'User not logged in.';
+        _errorMessage = 'User not logged in or profile not found.';
         _isLoadingMoreLevels = false;
       });
       return;
@@ -169,9 +185,11 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
         ageGroup: 'college student',
         domain: 'General Education',
         difficulty: 'Intermediate',
+        language: userProfile.language ?? AppConstants.supportedLanguages.first, // Use user's preferred language or default
         startingLevelOrder: nextStartingOrder,
         numberOfLevels: levelsToGenerate,
-        previousLevelsContext: previousLevelsContext,
+        educationLevel: userProfile.educationLevel,
+        specialty: userProfile.specialty,
       );
 
       List<Level> newLevels = (generatedData['levels'] as List).map((e) => Level.fromMap(e as Map<String, dynamic>)).toList();
@@ -203,6 +221,10 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
       if (mounted) {
         setState(() {
           _levels.addAll(newLevels);
+          // Initialize GlobalKeys for newly added levels
+          for (var level in newLevels) {
+            _levelKeys[level.id] = GlobalKey();
+          }
           _calculateLevelNodePositions(); // Recalculate positions after adding new levels
         });
       }
@@ -231,11 +253,15 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
       return;
     }
 
-    // Check if the level is unlocked (previous level completed, or it's the first level)
+    // Determine if the level is currently locked.
+    // A level is locked if it's not the first level AND the previous level is not completed.
     final bool isPreviousLevelCompleted = level.order == 1 ||
         _levels.any((l) => l.order == level.order - 1 && (userProgress?.levelsProgress[l.id]?.isCompleted == true));
 
-    if (!isPreviousLevelCompleted && level.order != 1 && (userProgress?.levelsProgress[level.id]?.isCompleted != true)) {
+    final bool isLocked = !isPreviousLevelCompleted && level.order != 1;
+
+
+    if (isLocked) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('This level is locked! Complete previous levels first.')),
       );
@@ -248,40 +274,43 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
       Lesson? lessonToStart;
 
       // Determine which lesson to start within the level
+      List<Lesson> allLessonsInLevel = await firebaseService.getFirestore()
+          .collection(AppConstants.levelsCollection)
+          .doc(level.id)
+          .collection('lessons')
+          .orderBy('order')
+          .get()
+          .then((snapshot) => snapshot.docs.map((doc) => Lesson.fromMap(doc.data())).toList());
+
+      if (allLessonsInLevel.isEmpty) {
+        debugPrint('No lessons found for level ${level.id}.');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No lessons available for this level. Please try another course.')),
+          );
+        }
+        return;
+      }
+
       if (latestUserProgress != null &&
           latestUserProgress.currentLevelId == level.id &&
           latestUserProgress.currentLessonId != null) {
         // User is continuing this level, try to load current lesson
-        lessonToStart = await firebaseService.getLesson(level.id, latestUserProgress.currentLessonId!);
-        if (lessonToStart == null || (latestUserProgress.lessonsProgress[lessonToStart.id]?.isCompleted == true)) {
-          // If current lesson is completed or not found, try to find the next uncompleted lesson
-          final allLessonsInLevel = await firebaseService.getFirestore()
-              .collection('levels')
-              .doc(level.id)
-              .collection('lessons')
-              .orderBy('order')
-              .get()
-              .then((snapshot) => snapshot.docs.map((doc) => Lesson.fromMap(doc.data())).toList());
+        lessonToStart = allLessonsInLevel.firstWhereOrNull(
+              (lesson) => lesson.id == latestUserProgress.currentLessonId,
+        );
 
+        // If current lesson is completed or not found, try to find the next uncompleted lesson
+        if (lessonToStart == null || (latestUserProgress.lessonsProgress[lessonToStart.id]?.isCompleted == true)) {
           lessonToStart = allLessonsInLevel.firstWhereOrNull(
-            (lesson) => !(latestUserProgress?.lessonsProgress[lesson.id]?.isCompleted == true),
+                (lesson) => !(latestUserProgress?.lessonsProgress[lesson.id]?.isCompleted == true),
           );
         }
       }
 
       if (lessonToStart == null) {
         // If no progress, or no next uncompleted lesson found, start from the first lesson of the level
-        final lessonsSnapshot = await firebaseService.getFirestore().collection('levels').doc(level.id).collection('lessons').orderBy('order').get();
-        final lessons = lessonsSnapshot.docs.map((doc) => Lesson.fromMap(doc.data())).toList();
-        if (lessons.isNotEmpty) {
-          lessonToStart = lessons.first;
-        } else {
-          debugPrint('No lessons found for level ${level.id}.');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No lessons available for this level. Please try another course.')),
-          );
-          return;
-        }
+        lessonToStart = allLessonsInLevel.first;
       }
 
       if (lessonToStart != null) {
@@ -345,11 +374,17 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
             builder: (context, progressSnapshot) {
               final userProgress = progressSnapshot.data;
 
-              final double contentHeight = (_levels.length * 140.0) + (AppConstants.padding * 4) + (_levels.length < AppConstants.maxLevelsPerCourse ? 150 : 0);
+              // Calculate the total height needed for the scrollable content
+              // This accounts for all level nodes and the "Generate More Levels" button
+              final double contentHeight = (_levels.length * 160.0) + // Vertical step per level
+                  (AppConstants.padding * 4) + // Initial/final padding
+                  (AppConstants.levelSelectionGenerateButtonHeight); // Height for the button area
 
               return SingleChildScrollView(
                 child: SizedBox(
+                  // Ensure the SizedBox has enough height to allow scrolling if content exceeds screen height
                   height: max(contentHeight, MediaQuery.of(context).size.height - AppBar().preferredSize.height - MediaQuery.of(context).padding.top),
+                  width: MediaQuery.of(context).size.width, // Ensure it takes full width for painting
                   child: Stack(
                     children: [
                       // Draw zigzag lines
@@ -382,6 +417,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
                           left: position.dx,
                           top: position.dy,
                           child: LevelNode(
+                            key: _levelKeys[level.id], // Assign GlobalKey
                             level: level,
                             isCompleted: userProgress?.levelsProgress[level.id]?.isCompleted == true, // Explicitly check completion status from userProgress
                             isLocked: isLocked,

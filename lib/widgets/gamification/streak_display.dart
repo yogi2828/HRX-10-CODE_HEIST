@@ -14,15 +14,15 @@ class StreakDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding, vertical: AppConstants.spacing),
       decoration: BoxDecoration(
-        color: AppColors.streakColor.withOpacity(0),
+        color: AppColors.streakColor.withOpacity(0.2),
         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
         border: Border.all(color: AppColors.streakColor, width: 1),
         boxShadow: [
           BoxShadow(
-            color: AppColors.streakColor.withOpacity(0),
-            blurRadius:3 ,
+            color: AppColors.streakColor.withOpacity(0.3),
+            blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],
@@ -37,7 +37,7 @@ class StreakDisplay extends StatelessWidget {
           ),
           const SizedBox(width: AppConstants.spacing),
           Text(
-            '$currentStreak-Days',
+            '$currentStreak-Day Streak!',
             style: const TextStyle(
               color: AppColors.streakColor,
               fontSize: 20,
