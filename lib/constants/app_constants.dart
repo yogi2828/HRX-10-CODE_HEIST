@@ -1,49 +1,52 @@
-// lib/constants/app_constants.dart
+// gamifier/lib/constants/app_constants.dart
 import 'package:flutter/material.dart';
 import 'package:gamifier/models/avatar_asset.dart';
 
 class AppConstants {
   static const String appName = 'Gamifier';
-
-  // API Keys
-  static const String geminiApiKey = 'AIzaSyDZ6yDuQgQWxzc5Qq24Dpf_BkvcOjx_SP8'; // Replace with your actual Gemini API Key
   static const String appTagline = 'Learn. Play. Conquer.';
-  // Firestore Collection Names
+
+  // API Keys (Keep as is, user requested no change to AI calls)
+  static const String geminiApiKey = 'AIzaSyDZ6yDuQgQWxzc5Qq24Dpf_BkvcOjx_SP8'; 
+
+  // Firestore Collection Names (Keep as is, user requested no change to Firebase calls)
   static const String usersCollection = 'users';
   static const String coursesCollection = 'courses';
   static const String levelsCollection = 'levels';
-  static const String lessonsCollection = 'lessons'; // Subcollection under levels
-  static const String questionsCollection = 'questions'; // Subcollection under lessons
+  static const String lessonsCollection = 'lessons'; 
+  static const String questionsCollection = 'questions'; 
   static const String userProgressCollection = 'userProgress';
   static const String badgesCollection = 'badges';
   static const String communityPostsCollection = 'communityPosts';
   static const String chatMessagesCollection = 'chatMessages';
 
-  // App theming and UI
-  static const double padding = 16.0;
-  static const double spacing = 8.0;
-  static const double borderRadius = 12.0;
-  static const double iconSize = 24.0;
-  static const double avatarSize = 60.0;
-  static const double badgeSize = 80.0;
-  static const Duration defaultAnimationDuration = Duration(milliseconds: 300);
+  // App theming and UI for Web
+  static const double padding = 20.0; // Increased padding for web
+  static const double spacing = 10.0; // Adjusted spacing
+  static const double borderRadius = 16.0; // Larger border radius for web elements
+  static const double iconSize = 28.0; // Larger icons
+  static const double avatarSize = 80.0; // Larger avatars
+  static const double badgeSize = 90.0; // Larger badges
+  static const Duration defaultAnimationDuration = Duration(milliseconds: 400); // Slightly longer for smoother web transitions
+  static const Duration splashScreenDuration = Duration(seconds: 3); // Splash screen duration
 
-  // Gamification Constants
+  // Gamification Constants (Keep as is)
   static const int initialXp = 0;
   static const int xpPerLevel = 100;
   static const int leaderboardLimit = 10;
   static const int minStreakDaysForBonus = 3;
   static const int streakBonusXp = 20;
 
-  // Course Generation Constants
-  static const int initialLevelsCount = 5; // Generate first 5 levels
-  static const int subsequentLevelsBatchSize = 5; // Generate 5 more levels at a time
-  static const int maxLevelsPerCourse = 15; // Max total levels
+  // Course Generation Constants (Keep as is)
+  static const int initialLevelsCount = 5; 
+  static const int subsequentLevelsBatchSize = 5; 
+  static const int maxLevelsPerCourse = 15; 
 
   // UI specific constants
-  static const double levelSelectionGenerateButtonHeight = 150.0; // Added for LevelSelectionScreen height calculation
+  static const double levelSelectionGenerateButtonHeight = 150.0; 
+  static const double topNavBarHeight = 70.0; // Height for the new top navigation bar
 
-  // Default Content for Placeholders/Initial Data
+  // Default Content for Placeholders/Initial Data (Keep as is)
   static String defaultFontFamily = 'Inter';
 
   static const double geminiTemperature = 0.7;
@@ -59,91 +62,35 @@ class AppConstants {
   static const String correctSoundPath = 'audios/correct.mp3';
   static const String levelUpSoundPath = 'audios/level_up.mp3';
 
-  // Added supportedLanguages for course creation
   static const List<String> supportedLanguages = [
-    'English',
-    'Hindi',
-    'Marathi',
-    'Bengali',
-    'Telugu',
-    'Nepali',
-    'Punjabi',
-    'Arabic',
-    'Portuguese',
-    'Russian',
+    'English', 'Hindi', 'Marathi', 'Bengali', 'Telugu', 'Nepali', 'Punjabi',
+    'Arabic', 'Portuguese', 'Russian', 'Spanish', 'French', 'German', 'Japanese', 'Korean', 'Chinese' // Added more for completeness
   ];
 
-  // Removed gameThemes as it's no longer used for new course generation.
-  // static const List<String> gameThemes = [...]; // This line is removed
-
   static const List<String> difficultyLevels = [
-    'Beginner',
-    'Novice',
-    'Intermediate',
-    'Proficient',
-    'Advanced',
-    'Expert',
-    'Master',
-    'Grandmaster',
-    'Legendary',
-    'Mythic',
+    'Beginner', 'Novice', 'Intermediate', 'Proficient', 'Advanced',
+    'Expert', 'Master', 'Grandmaster', 'Legendary', 'Mythic',
   ];
 
   static const List<String> educationLevels = [
-    'Not Specified', // Added for flexibility
-    'High School',
-    'Associate Degree',
-    'Bachelor\'s Degree',
-    'Master\'s Degree',
-    'Doctorate',
-    'Self-Taught',
+    'Not Specified', 'High School', 'Associate Degree', 'Bachelor\'s Degree',
+    'Master\'s Degree', 'Doctorate', 'Self-Taught',
   ];
 
   static const List<String> defaultCourseTopics = [
-    'Artificial Intelligence',
-    'Machine Learning',
-    'Web Development (Frontend)',
-    'Web Development (Backend)',
-    'Mobile App Development (Flutter)',
-    'Data Science',
-    'Cybersecurity',
-    'Cloud Computing',
-    'Game Development',
-    'Database Management',
-    'Network Engineering',
-    'DevOps',
-    'UI/UX Design',
-    'Digital Marketing',
-    'Business Analytics',
-    'Project Management',
-    'Data Structures & Algorithms',
-    'Operating Systems',
-    'Computer Networks',
-    'Software Engineering Principles',
-    'Product Management',
-    'Financial Literacy',
-    'Personal Development',
-    'Communication Skills',
-    'Critical Thinking',
-    'Problem Solving',
-    'Creative Writing',
-    'History',
-    'Philosophy',
-    'Economics',
-    'Biology',
-    'Chemistry',
-    'Physics',
-    'Mathematics',
-    'Art History',
-    'Music Theory',
+    'Artificial Intelligence', 'Machine Learning', 'Web Development (Frontend)',
+    'Web Development (Backend)', 'Mobile App Development (Flutter)', 'Data Science',
+    'Cybersecurity', 'Cloud Computing', 'Game Development', 'Database Management',
+    'Network Engineering', 'DevOps', 'UI/UX Design', 'Digital Marketing',
+    'Business Analytics', 'Project Management', 'Data Structures & Algorithms',
+    'Operating Systems', 'Computer Networks', 'Software Engineering Principles',
+    'Product Management', 'Financial Literacy', 'Personal Development',
+    'Communication Skills', 'Critical Thinking', 'Problem Solving',
+    'Creative Writing', 'History', 'Philosophy', 'Economics', 'Biology',
+    'Chemistry', 'Physics', 'Mathematics', 'Art History', 'Music Theory',
   ];
-  // Keeping gameThemes for existing Course model data and potential future use,
-  // but it will no longer be used in the CourseCreationScreen.
+
   static const List<String> gameThemes = [
-    'Fantasy',
-    'Sci-Fi',
-    'Adventure',
-    'Mystery',
-    'Cyberpunk',
+    'Fantasy', 'Sci-Fi', 'Adventure', 'Mystery', 'Cyberpunk', 'Space Exploration' // Added for flavor
   ];
 }

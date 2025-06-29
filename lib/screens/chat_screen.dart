@@ -1,6 +1,7 @@
+
 // lib/screens/chat_screen.dart
 import 'package:flutter/material.dart';
-import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
+import 'package:gamifier/widgets/navigation/top_nav_bar.dart'; // Changed to TopNavBar
 import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
@@ -8,8 +9,8 @@ import 'package:gamifier/models/chat_message.dart';
 import 'package:gamifier/services/firebase_service.dart';
 import 'package:gamifier/services/gemini_api_service.dart';
 import 'package:gamifier/models/user_profile.dart';
-import 'package:gamifier/widgets/common/custom_app_bar.dart';
 import 'package:gamifier/widgets/common/custom_text_field.dart';
+import 'package:gamifier/widgets/common/night_sky_background.dart'; // Import NightSkyBackground
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -125,11 +126,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const CustomAppBar(title: 'AI Chat Tutor 🤖'),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient(),
-        ),
+      appBar: const TopNavBar( // Replaced CustomAppBar
+        currentIndex: 3,
+        title: 'AI Chat Tutor 🤖',
+      ),
+      body: NightSkyBackground( // Wrap content with NightSkyBackground
         child: SafeArea(
           child: Column(
             children: [
@@ -176,7 +177,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Image.asset(
-                                      'assets/app_icon.png',
+                                      AppConstants.appIconPath, // Use app icon for AI tutor
                                       width: 24,
                                       height: 24,
                                     ),
@@ -310,7 +311,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 3),
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/common/xp_level_display.dart';
 import 'package:gamifier/screens/level_selection_screen.dart'; // Import LevelSelectionScreen
 import 'package:gamifier/screens/home_screen.dart'; // Import HomeScreen
+import 'package:gamifier/widgets/common/night_sky_background.dart'; // Import NightSkyBackground
 
 class LevelCompletionScreen extends StatefulWidget {
   final String courseId;
@@ -87,10 +88,8 @@ class _LevelCompletionScreenState extends State<LevelCompletionScreen> with Sing
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient(),
-        ),
+      // No AppBar needed for completion screen, it's a modal-like experience
+      body: NightSkyBackground( // Wrap content with NightSkyBackground
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(AppConstants.padding * 2),

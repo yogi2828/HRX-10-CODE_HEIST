@@ -1,16 +1,16 @@
 // lib/screens/community_screen.dart
 import 'package:flutter/material.dart';
-import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
+import 'package:gamifier/widgets/navigation/top_nav_bar.dart'; // Changed to TopNavBar
 import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/community_post.dart';
 import 'package:gamifier/models/user_profile.dart';
 import 'package:gamifier/services/firebase_service.dart';
-import 'package:gamifier/widgets/common/custom_app_bar.dart';
 import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/common/custom_text_field.dart';
 import 'package:gamifier/widgets/community/post_card.dart';
+import 'package:gamifier/widgets/common/night_sky_background.dart'; // Import NightSkyBackground
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -91,11 +91,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const CustomAppBar(title: 'Community Feed'),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient(),
-        ),
+      appBar: const TopNavBar( // Replaced CustomAppBar
+        currentIndex: 2,
+        title: 'Community Feed',
+      ),
+      body: NightSkyBackground( // Wrap content with NightSkyBackground
         child: SafeArea(
           child: Column(
             children: [
@@ -152,7 +152,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 2),
     );
   }
 }
+
+

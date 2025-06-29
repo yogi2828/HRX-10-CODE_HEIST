@@ -1,66 +1,46 @@
-// lib/widgets/common/custom_app_bar.dart
-import 'package:flutter/material.dart';
-import 'package:gamifier/constants/app_colors.dart';
-import 'package:gamifier/constants/app_constants.dart';
+// // lib/widgets/common/custom_app_bar.dart
+// import 'package:flutter/material.dart';
+// import 'package:gamifier/constants/app_colors.dart';
+// import 'package:gamifier/constants/app_constants.dart';
+// import 'package:gamifier/widgets/navigation/top_nav_bar.dart'; // Import the new TopNavBar
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final String? subtitle;
-  final List<Widget>? actions;
-  final bool automaticallyImplyLeading;
+// class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+//   final String title;
+//   final bool automaticallyImplyLeading;
+//   final bool showTopNavBar; // New parameter to control TopNavBar visibility
+//   final int? currentNavBarIndex; // New parameter for TopNavBar
 
-  const CustomAppBar({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.actions,
-    this.automaticallyImplyLeading = true,
-  });
+//   const CustomAppBar({
+//     super.key,
+//     required this.title,
+//     this.automaticallyImplyLeading = false,
+//     this.showTopNavBar = false, // Default to false
+//     this.currentNavBarIndex,
+//   });
 
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+//   @override
+//   Size get preferredSize => const Size.fromHeight(kToolbarHeight + (AppConstants.buttonNavBarHeight)); // Adjusted height
 
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-            ),
-          ),
-          if (subtitle != null)
-            Text(
-              subtitle!,
-              style: const TextStyle(
-                color: AppColors.textColorSecondary,
-                fontSize: 14,
-              ),
-            ),
-        ],
-      ),
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.primaryColorDark.withOpacity(0.8),
-              AppColors.primaryColor.withOpacity(0.8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-      ),
-      actions: actions,
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      automaticallyImplyLeading: automaticallyImplyLeading,
-      iconTheme: const IconThemeData(color: AppColors.accentColor),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return AppBar(
+//       title: Text(
+//         title,
+//         style: AppColors.neonTextStyle(fontSize: 22, color: AppColors.accentColor),
+//       ),
+//       centerTitle: true,
+//       automaticallyImplyLeading: automaticallyImplyLeading,
+//       backgroundColor: AppColors.primaryColorDark.withOpacity(0.7), // Slightly transparent
+//       elevation: 0,
+//       flexibleSpace: showTopNavBar && currentNavBarIndex != null
+//           ? Column(
+//               mainAxisAlignment: MainAxisAlignment.end,
+//               children: [
+//                 TopNavBar(currentIndex: currentNavBarIndex!),
+//                 const SizedBox(height: AppConstants.padding / 2), // Small gap
+//               ],
+//             )
+//           : null,
+//     );
+//   }
+// }

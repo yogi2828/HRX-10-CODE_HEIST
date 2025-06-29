@@ -1,6 +1,6 @@
 // lib/screens/course_creation_screen.dart
 import 'package:flutter/material.dart';
-import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
+import 'package:gamifier/widgets/navigation/top_nav_bar.dart'; // Changed to TopNavBar
 import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
@@ -11,10 +11,10 @@ import 'package:gamifier/models/question.dart';
 import 'package:gamifier/services/firebase_service.dart';
 import 'package:gamifier/services/gemini_api_service.dart';
 import 'package:gamifier/utils/app_router.dart';
-import 'package:gamifier/widgets/common/custom_app_bar.dart';
 import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/course/course_form.dart';
 import 'package:gamifier/utils/file_picker_util.dart';
+import 'package:gamifier/widgets/common/night_sky_background.dart'; // Import NightSkyBackground
 
 class CourseCreationScreen extends StatefulWidget {
   const CourseCreationScreen({super.key});
@@ -177,11 +177,11 @@ class _CourseCreationScreenState extends State<CourseCreationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const CustomAppBar(title: 'Create New Course'),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient(),
-        ),
+      appBar: const TopNavBar( // Replaced CustomAppBar
+        currentIndex: 4,
+        title: 'Create New Course',
+      ),
+      body: NightSkyBackground( // Wrap content with NightSkyBackground
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppConstants.padding),
@@ -238,7 +238,6 @@ class _CourseCreationScreenState extends State<CourseCreationScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 4),
     );
   }
 }

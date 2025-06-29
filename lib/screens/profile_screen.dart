@@ -1,17 +1,17 @@
 // lib/screens/profile_screen.dart
 import 'package:flutter/material.dart';
-import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/user_profile.dart';
 import 'package:gamifier/services/firebase_service.dart';
 import 'package:gamifier/utils/app_router.dart';
-import 'package:gamifier/widgets/common/custom_app_bar.dart';
+import 'package:gamifier/widgets/navigation/top_nav_bar.dart'; // Changed to TopNavBar
 import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/gamification/badge_display.dart';
 import 'package:gamifier/widgets/common/xp_level_display.dart';
 import 'package:gamifier/widgets/gamification/streak_display.dart';
+import 'package:gamifier/widgets/common/night_sky_background.dart'; // Import NightSkyBackground
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -84,11 +84,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const CustomAppBar(title: 'My Profile'),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient(),
-        ),
+      appBar: const TopNavBar( // Replaced CustomAppBar
+        currentIndex: 5,
+        title: 'My Profile',
+      ),
+      body: NightSkyBackground( // Wrap content with NightSkyBackground
         child: SafeArea(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))
@@ -220,8 +220,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 5),
     );
-    
   }
 }

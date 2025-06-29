@@ -11,13 +11,13 @@ import 'package:gamifier/services/firebase_service.dart';
 import 'package:gamifier/services/audio_service.dart';
 import 'package:gamifier/utils/app_router.dart';
 import 'package:gamifier/utils/validation_utils.dart';
-import 'package:gamifier/widgets/common/custom_app_bar.dart';
+import 'package:gamifier/widgets/navigation/top_nav_bar.dart'; // Changed to TopNavBar
 import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/common/progress_bar.dart';
 import 'package:gamifier/widgets/feedback/personalized_feedback_modal.dart';
 import 'package:gamifier/widgets/lesson/lesson_content_display.dart';
 import 'package:gamifier/widgets/questions/question_renderer.dart';
-import 'package:gamifier/widgets/navigation/bottom_nav_bar.dart'; // Import BottomNavBar
+import 'package:gamifier/widgets/common/night_sky_background.dart'; // Import NightSkyBackground
 
 class LessonScreen extends StatefulWidget {
   final String courseId;
@@ -331,15 +331,13 @@ class _LessonScreenState extends State<LessonScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(
+      appBar: TopNavBar( // Replaced CustomAppBar
+        currentIndex: 0, // No specific index for lesson screen, default to home
         title: _currentLevel?.title ?? 'Lesson',
         subtitle: _currentLesson?.title,
         automaticallyImplyLeading: true, // Allow back to level selection
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient(),
-        ),
+      body: NightSkyBackground( // Wrap content with NightSkyBackground
         child: SafeArea(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))
@@ -434,7 +432,8 @@ class _LessonScreenState extends State<LessonScreen> {
                     ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 0), // Default to home in bottom nav
     );
   }
 }
+
+

@@ -1,3 +1,4 @@
+
 // lib/screens/avatar_customizer_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,9 +7,11 @@ import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/models/avatar_asset.dart';
 import 'package:gamifier/services/firebase_service.dart';
 import 'package:gamifier/models/user_profile.dart';
-import 'package:gamifier/widgets/common/custom_app_bar.dart';
+import 'package:gamifier/widgets/navigation/top_nav_bar.dart'; // Changed to TopNavBar
 import 'package:gamifier/widgets/common/custom_button.dart';
 import 'package:gamifier/widgets/gamification/avatar_customizer.dart';
+import 'package:gamifier/widgets/common/night_sky_background.dart'; // Import NightSkyBackground
+
 
 class AvatarCustomizerScreen extends StatefulWidget {
   const AvatarCustomizerScreen({super.key});
@@ -105,11 +108,11 @@ class _AvatarCustomizerScreenState extends State<AvatarCustomizerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const CustomAppBar(title: 'Customize Avatar'),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient(),
-        ),
+      appBar: const TopNavBar( // Replaced CustomAppBar
+        currentIndex: 5, // Avatar customizer is a sub-screen of profile
+        title: 'Customize Avatar',
+      ),
+      body: NightSkyBackground( // Wrap content with NightSkyBackground
         child: SafeArea(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(color: AppColors.accentColor))

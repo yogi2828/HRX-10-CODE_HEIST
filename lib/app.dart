@@ -1,10 +1,11 @@
-// lib/app.dart
+// gamifier/lib/app.dart
 import 'package:flutter/material.dart';
 import 'package:gamifier/constants/app_colors.dart';
 import 'package:gamifier/constants/app_constants.dart';
 import 'package:gamifier/utils/app_router.dart';
 import 'package:provider/provider.dart';
 import 'package:gamifier/services/audio_service.dart';
+import 'package:gamifier/widgets/common/animated_background.dart'; // Import the animated background
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -26,14 +27,21 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: AppConstants.appName,
+      // For web, ensure the title appears in the browser tab
+      builder: (context, child) {
+        return AnimatedBackground(
+          child: child!, // Wrap the entire app content with the animated background
+        );
+      },
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: AppColors.primaryColor,
         hintColor: AppColors.accentColor,
-        scaffoldBackgroundColor: Colors.transparent,
+        scaffoldBackgroundColor: Colors.transparent, // Make scaffold transparent to show background
         cardColor: AppColors.cardColor,
         fontFamily: AppConstants.defaultFontFamily,
         textTheme: const TextTheme(
+          // Ensure all text styles use the base textColor
           displayLarge: TextStyle(color: AppColors.textColor),
           displayMedium: TextStyle(color: AppColors.textColor),
           displaySmall: TextStyle(color: AppColors.textColor),
@@ -83,19 +91,19 @@ class _AppState extends State<App> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16), // Adjusted padding
+            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Larger text
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: AppColors.accentColor,
-            textStyle: const TextStyle(fontSize: 14),
+            textStyle: const TextStyle(fontSize: 16), // Larger text
           ),
         ),
         cardTheme: CardTheme(
           color: AppColors.cardColor,
-          elevation: 4,
+          elevation: 8, // Increased elevation for depth
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
           ),
@@ -104,7 +112,7 @@ class _AppState extends State<App> {
           labelColor: AppColors.accentColor,
           unselectedLabelColor: AppColors.textColorSecondary,
           indicator: UnderlineTabIndicator(
-            borderSide: const BorderSide(color: AppColors.accentColor, width: 3.0),
+            borderSide: const BorderSide(color: AppColors.accentColor, width: 4.0), // Thicker indicator
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
           ),
         ),
@@ -113,9 +121,10 @@ class _AppState extends State<App> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.borderRadius),
           ),
-          titleTextStyle: const TextStyle(color: AppColors.textColor, fontSize: 20, fontWeight: FontWeight.bold),
-          contentTextStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: 16),
+          titleTextStyle: const TextStyle(color: AppColors.textColor, fontSize: 22, fontWeight: FontWeight.bold), // Larger text
+          contentTextStyle: const TextStyle(color: AppColors.textColorSecondary, fontSize: 18), // Larger text
         ),
+        // No BottomNavigationBarTheme as it will be replaced by a Top Navigation Bar
       ),
       onGenerateRoute: AppRouter.generateRoute,
       initialRoute: AppRouter.splashRoute,
